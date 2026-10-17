@@ -1,0 +1,966 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>YF-1 仿星器交互模拟平台</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
+    <style>
+      :root{
+        --bg:#edf1f4; --panel:#ffffff; --panel2:#f5f8fa; --ink:#10222f; --muted:#5b7182;
+        --line:#d3dee5; --accent:#e85d1f; --accent-ink:#c24a12; --teal:#0e7c86; --teal-soft:#e2f2f3;
+        --good:#178a5a; --warn:#c07f0a; --bad:#cf3f3a; --chip:#eef3f6;
+        --canvas-bg:#08111d;
+        --shadow:0 10px 30px rgba(16,34,47,.08);
+      }
+      @media (prefers-color-scheme: dark){
+        :root{
+          --bg:#060c14; --panel:#0d1724; --panel2:#111e2f; --ink:#e9f2f8; --muted:#93a9ba;
+          --line:#1e3042; --accent:#ff7a29; --accent-ink:#ffab73; --teal:#2fc4cf; --teal-soft:#0f2c33;
+          --good:#3ecf8e; --warn:#f2b53a; --bad:#ff6b64; --chip:#142434;
+          --canvas-bg:#050b14;
+          --shadow:0 10px 30px rgba(0,0,0,.45);
+        }
+      }
+      *{box-sizing:border-box}
+      html{scroll-behavior:smooth}
+      body{margin:0;background:var(--bg);color:var(--ink);
+        font-family:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+        -webkit-font-smoothing:antialiased;line-height:1.6}
+      .mono{font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+      .wrap{max-width:1220px;margin:0 auto;padding:20px 16px 56px}
+
+      /* ---------- intro ---------- */
+      .intro{padding:14px 2px 18px}
+      .intro h1{font-size:clamp(26px,4.6vw,40px);line-height:1.2;margin:0 0 8px;font-weight:900;letter-spacing:.01em}
+      .intro h1 .hl{color:var(--accent)}
+      .intro p.lede{margin:0;max-width:760px;color:var(--muted);font-size:15.5px}
+      .intro-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+      .tag{font-size:12.5px;padding:4px 10px;border:1px solid var(--line);border-radius:999px;background:var(--panel);color:var(--muted)}
+      .tag b{color:var(--ink);font-weight:700}
+      .tag.hot{border-color:var(--accent);color:var(--accent-ink)}
+
+      /* ---------- layout ---------- */
+      .sim-grid{display:grid;grid-template-columns:minmax(0,1fr) 348px;gap:16px;align-items:start}
+      @media (max-width:940px){.sim-grid{grid-template-columns:1fr}}
+      .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
+      .panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line)}
+      .panel-head h2{font-size:15px;margin:0;font-weight:700}
+      .panel-head .sub{font-size:12px;color:var(--muted)}
+
+      /* ---------- stage ---------- */
+      .stage{position:relative;background:var(--canvas-bg);border-radius:0 0 13px 13px;overflow:hidden}
+      canvas#sim{display:block;width:100%;aspect-ratio:4/3.1;touch-action:none;cursor:grab}
+      canvas#sim:active{cursor:grabbing}
+      .stage-hud{position:absolute;top:10px;left:12px;display:flex;gap:6px;flex-wrap:wrap;pointer-events:none}
+      .hud-chip{font-size:11.5px;padding:3px 9px;border-radius:6px;background:rgba(5,12,20,.66);color:#cfe6f5;border:1px solid rgba(120,180,220,.25);backdrop-filter:blur(3px)}
+      .hud-chip b{color:#fff}
+      .stage-tools{position:absolute;right:10px;bottom:10px;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+      .tbtn{appearance:none;border:1px solid rgba(140,190,225,.35);background:rgba(8,18,30,.72);color:#d7ecfa;
+        font:500 12.5px "Noto Sans SC",sans-serif;padding:6px 11px;border-radius:8px;cursor:pointer;backdrop-filter:blur(3px)}
+      .tbtn[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+      .tbtn:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+      .stage-hint{position:absolute;left:12px;bottom:12px;font-size:11.5px;color:rgba(190,220,240,.65);pointer-events:none}
+
+      /* status banner */
+      .statusbar{display:flex;align-items:center;gap:10px;padding:10px 16px;border-top:1px solid var(--line);flex-wrap:wrap}
+      .status-dot{width:10px;height:10px;border-radius:50%;background:var(--muted);flex:none}
+      .status-dot.run{background:var(--good);box-shadow:0 0 0 4px color-mix(in srgb,var(--good) 22%, transparent)}
+      .status-dot.warn{background:var(--warn);box-shadow:0 0 0 4px color-mix(in srgb,var(--warn) 22%, transparent)}
+      .status-dot.bad{background:var(--bad);box-shadow:0 0 0 4px color-mix(in srgb,var(--bad) 22%, transparent)}
+      .status-dot.ign{background:var(--accent);box-shadow:0 0 0 5px color-mix(in srgb,var(--accent) 25%, transparent)}
+      #statusText{font-weight:700;font-size:14.5px}
+      #statusHint{font-size:12.5px;color:var(--muted)}
+
+      /* ---------- readouts ---------- */
+      .gauges{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border-bottom:1px solid var(--line)}
+      .gauge{background:var(--panel);padding:12px 14px 10px}
+      .gauge .k{font-size:12px;color:var(--muted);display:flex;justify-content:space-between;align-items:baseline}
+      .gauge .v{font-size:24px;font-weight:700;line-height:1.25}
+      .gauge .v small{font-size:12.5px;color:var(--muted);font-weight:500;margin-left:3px}
+      .gauge.hero{grid-column:1/-1;background:var(--panel2)}
+      .gauge.hero .v{font-size:34px;color:var(--accent-ink)}
+      .meter{height:6px;border-radius:3px;background:var(--chip);margin-top:7px;overflow:hidden}
+      .meter>i{display:block;height:100%;border-radius:3px;background:var(--teal);transition:width .25s ease}
+      .meter>i.warn{background:var(--warn)} .meter>i.bad{background:var(--bad)} .meter>i.hot{background:var(--accent)}
+
+      /* ---------- controls ---------- */
+      .controls{padding:14px 16px 6px}
+      .ctl{margin-bottom:15px}
+      .ctl-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px}
+      .ctl-head label{font-size:13.5px;font-weight:600}
+      .ctl-head .val{font-size:13px;color:var(--accent-ink);font-weight:700}
+      .ctl p{margin:2px 0 6px;font-size:12px;color:var(--muted);line-height:1.5}
+      input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:26px;background:transparent;cursor:pointer;margin:0}
+      input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:linear-gradient(to right,var(--teal) var(--fill,50%),var(--chip) var(--fill,50%))}
+      input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--panel);border:2.5px solid var(--teal);margin-top:-7px;box-shadow:0 1px 5px rgba(0,0,0,.25)}
+      input[type=range]::-moz-range-track{height:6px;border-radius:3px;background:var(--chip)}
+      input[type=range]::-moz-range-progress{height:6px;border-radius:3px;background:var(--teal)}
+      input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;background:var(--panel);border:2.5px solid var(--teal)}
+      .btnrow{display:flex;gap:8px;padding:2px 16px 16px;flex-wrap:wrap}
+      .btn{appearance:none;border:1px solid var(--line);background:var(--panel2);color:var(--ink);
+        font:600 13.5px "Noto Sans SC",sans-serif;padding:9px 14px;border-radius:9px;cursor:pointer}
+      .btn:hover{border-color:var(--teal)}
+      .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+      .btn.primary:hover{filter:brightness(1.07)}
+      .btn:disabled{opacity:.45;cursor:not-allowed}
+      .btn:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+
+      /* ---------- lower grid ---------- */
+      .lower-grid{display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:16px;margin-top:16px;align-items:stretch}
+      @media (max-width:940px){.lower-grid{grid-template-columns:1fr}}
+      .pad{padding:14px 16px}
+      canvas#lawson{width:100%;height:auto;display:block}
+      .chart-note{font-size:12px;color:var(--muted);margin:8px 0 0}
+      .ai-tip{font-size:14px;line-height:1.65}
+      .ai-tip b{color:var(--accent-ink)}
+      .ai-src{margin-top:10px;font-size:12px;color:var(--muted)}
+      .log{list-style:none;margin:0;padding:6px 0;max-height:252px;overflow:auto;font-size:12.5px}
+      .log li{padding:6px 16px;border-bottom:1px dashed var(--line);display:flex;gap:8px}
+      .log li:last-child{border-bottom:none}
+      .log .t{color:var(--muted);flex:none}
+      .log li.evt-bad .m{color:var(--bad);font-weight:600}
+      .log li.evt-good .m{color:var(--good);font-weight:600}
+      .log li.evt-warn .m{color:var(--warn);font-weight:600}
+
+      /* ---------- challenges ---------- */
+      .section{margin-top:26px}
+      .section>h2{font-size:20px;margin:0 0 4px;font-weight:900}
+      .section>p.desc{margin:0 0 14px;color:var(--muted);font-size:14px;max-width:720px}
+      .chal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+      @media (max-width:940px){.chal-grid{grid-template-columns:1fr}}
+      .chal{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:var(--shadow);position:relative}
+      .chal.done{border-color:var(--good)}
+      .chal .lv{font-size:12px;color:var(--teal);font-weight:700;letter-spacing:.06em}
+      .chal h3{margin:4px 0 6px;font-size:16.5px}
+      .chal p{margin:0 0 12px;font-size:13px;color:var(--muted);line-height:1.6}
+      .chal .bar{height:8px;border-radius:4px;background:var(--chip);overflow:hidden}
+      .chal .bar>i{display:block;height:100%;width:0;background:var(--teal);border-radius:4px;transition:width .3s ease}
+      .chal.done .bar>i{background:var(--good)}
+      .chal .prog{font-size:12px;color:var(--muted);margin-top:6px;display:flex;justify-content:space-between}
+      .medal{position:absolute;top:14px;right:14px;width:40px;height:40px;opacity:.18;filter:grayscale(1);transition:.4s}
+      .chal.done .medal{opacity:1;filter:none;transform:scale(1.06)}
+      .cert-row{display:flex;gap:10px;align-items:center;margin-top:16px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow)}
+      .cert-row .grow{flex:1;min-width:200px}
+      .cert-row h3{margin:0 0 2px;font-size:15.5px}
+      .cert-row p{margin:0;font-size:12.5px;color:var(--muted)}
+      .cert-row input[type=text]{font:500 14px "Noto Sans SC",sans-serif;padding:9px 12px;border:1px solid var(--line);border-radius:9px;background:var(--panel2);color:var(--ink);min-width:170px}
+      .cert-row input[type=text]:focus{outline:2px solid var(--teal);outline-offset:1px}
+
+      /* ---------- audience tabs ---------- */
+      .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:0}
+      .tab{appearance:none;border:1px solid var(--line);border-bottom:none;background:var(--panel2);color:var(--muted);
+        font:600 14px "Noto Sans SC",sans-serif;padding:10px 18px;border-radius:11px 11px 0 0;cursor:pointer}
+      .tab[aria-selected="true"]{background:var(--panel);color:var(--ink);box-shadow:inset 0 3px 0 var(--accent)}
+      .tab:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+      .tab-body{background:var(--panel);border:1px solid var(--line);border-radius:0 14px 14px 14px;padding:20px;box-shadow:var(--shadow)}
+      .tab-body h3{margin:0 0 8px;font-size:17px}
+      .tab-body p{margin:0 0 10px;font-size:14.5px;color:var(--ink)}
+      .tab-body p.dim,.tab-body li{color:var(--muted);font-size:14px}
+      .tab-body ul{margin:6px 0 0;padding-left:20px}
+      .tab-body li{margin-bottom:5px}
+      .formula{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:13.5px;margin:10px 0;overflow-x:auto;white-space:nowrap}
+      .mile{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+      @media (max-width:700px){
+        .stage-hint{display:none}
+        .mile{grid-template-columns:1fr}
+      }
+      .mile div{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px}
+      .mile b{display:block;font-size:14px;margin-bottom:3px}
+      .mile span{font-size:12.5px;color:var(--muted);line-height:1.55;display:block}
+
+      /* ---------- roadmap ---------- */
+      .road-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+      @media (max-width:940px){.road-grid{grid-template-columns:1fr}}
+      .road{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:var(--shadow)}
+      .road.now{border-color:var(--accent)}
+      .road .lv{font-size:12px;color:var(--teal);font-weight:700;letter-spacing:.06em}
+      .road.now .lv{color:var(--accent-ink)}
+      .road h3{margin:4px 0 6px;font-size:19px}
+      .road h3 span{font-size:12.5px;color:var(--muted);font-weight:500;margin-left:6px}
+      .road p{margin:0;font-size:13.5px;color:var(--muted);line-height:1.65}
+      .road p b{color:var(--ink)}
+      .fact-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}
+      @media (max-width:940px){.fact-strip{grid-template-columns:1fr 1fr}}
+      @media (max-width:520px){.fact-strip{grid-template-columns:1fr}}
+      .fact-strip div{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow)}
+      .fact-strip b{display:block;font-size:14.5px;margin-bottom:3px;color:var(--accent-ink)}
+      .fact-strip span{font-size:12.5px;color:var(--muted);line-height:1.55;display:block}
+
+      /* ---------- compare ---------- */
+      .vs-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+      @media (max-width:700px){.vs-grid{grid-template-columns:1fr}}
+      .vs{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:var(--shadow)}
+      .vs.win{border-color:var(--teal)}
+      .vs h3{margin:0 0 2px;font-size:17px}
+      .vs .en{font-size:12px;color:var(--muted);letter-spacing:.05em}
+      .vs table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13.5px}
+      .vs td{padding:7px 4px;border-bottom:1px dashed var(--line);vertical-align:top}
+      .vs td:first-child{color:var(--muted);width:92px;flex:none}
+      .vs tr:last-child td{border-bottom:none}
+
+      footer{margin-top:34px;border-top:1px solid var(--line);padding-top:16px;font-size:12.5px;color:var(--muted);line-height:1.7}
+      footer a{color:var(--teal)}
+      .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+      @media (prefers-reduced-motion: reduce){
+        html{scroll-behavior:auto}
+        *{transition:none!important}
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+
+      <header class="intro">
+        <h1>YF-1 仿星器交互模拟平台 <span class="hl">Stellarator Lab</span></h1>
+        <p class="lede">这是岩超聚能（YAN Fusion）一代装置 <b>YF-1</b> 的交互教学版——相当于它的一台"数字孪生"演示机。拖动滑块给它升温、加磁场、注入燃料，亲手把等离子体推向聚变点火。这里的每一组数字都来自真实的功率平衡物理——你会直观看到：为什么约束时间、磁场强度与位形优化，决定了人类能不能握住一颗人造太阳。</p>
+        <div class="intro-meta">
+          <span class="tag hot">对标装置 · <b>岩超聚能 YF-1（设计已完成 · 计划 2027 年底建成）</b></span>
+          <span class="tag">位形 · <b>QI 准等动力学对称</b></span>
+          <span class="tag">公司磁体路线 · <b>HTS+LTS 高低温混合超导</b></span>
+          <span class="tag">YF-1 磁体 · <b>全 HTS 高温超导（公开报道）</b></span>
+          <span class="tag">制造 · <b>金属 3D 打印三维线圈</b></span>
+          <span class="tag">设计方法 · <b>SQuID 位形优化 + AI 数字孪生</b></span>
+          <span class="tag">教学简化模型 · 物理量级为教学设定，非 YF-1 工程参数</span>
+        </div>
+      </header>
+
+      <div class="sim-grid">
+        <!-- ======== stage ======== -->
+        <section class="panel" aria-label="仿星器三维模拟">
+          <div class="panel-head">
+            <h2>装置视图 · YF-1 一代装置（QI 位形）</h2>
+            <span class="sub">拖动旋转 · 滚轮缩放</span>
+          </div>
+          <div class="stage">
+            <canvas id="sim" aria-label="可旋转的三维仿星器模型：扭曲的环形等离子体被模块化超导线圈环绕"></canvas>
+            <div class="stage-hud">
+              <span class="hud-chip">装置 <b>YF-1 一代装置</b></span>
+              <span class="hud-chip">磁体 <b>全 HTS 高温超导线圈</b></span>
+              <span class="hud-chip">结构 <b>金属 3D 打印三维线圈</b></span>
+            </div>
+            <div class="stage-hint">等离子体颜色随温度变化：蓝 → 青 → 橙 → 白炽</div>
+            <div class="stage-tools" role="group" aria-label="视图开关">
+              <button class="tbtn" id="btnRotate" aria-pressed="true">自动旋转</button>
+              <button class="tbtn" id="btnCoils" aria-pressed="true">模块线圈</button>
+              <button class="tbtn" id="btnLines" aria-pressed="true">磁力线</button>
+              <button class="tbtn" id="btnPlasma" aria-pressed="true">等离子体</button>
+            </div>
+          </div>
+          <div class="statusbar" role="status">
+            <span class="status-dot" id="statusDot"></span>
+            <span id="statusText">等离子体待机中</span>
+            <span id="statusHint">提高加热功率，让等离子体升温。</span>
+          </div>
+        </section>
+
+        <!-- ======== console ======== -->
+        <section class="panel" aria-label="运行控制台">
+          <div class="gauges" aria-live="off">
+            <div class="gauge hero">
+              <div class="k"><span>等离子体温度</span><span class="mono" id="tempC">≈ 0 °C</span></div>
+              <div class="v mono"><span id="tempV">0.00</span><small>keV</small></div>
+              <div class="meter"><i id="tempBar" style="width:0%"></i></div>
+            </div>
+            <div class="gauge">
+              <div class="k"><span>聚变增益 Q</span><span>P<sub>聚变</sub>/P<sub>加热</sub></span></div>
+              <div class="v mono"><span id="qV">0.00</span></div>
+              <div class="meter"><i id="qBar" class="hot" style="width:0%"></i></div>
+            </div>
+            <div class="gauge">
+              <div class="k"><span>聚变功率</span><span>D–T 反应</span></div>
+              <div class="v mono"><span id="pfusV">0.0</span><small>MW</small></div>
+              <div class="meter"><i id="pfusBar" class="hot" style="width:0%"></i></div>
+            </div>
+            <div class="gauge">
+              <div class="k"><span>能量约束时间 τ<sub>E</sub></span><span>ISS04 简化标度</span></div>
+              <div class="v mono"><span id="tauV">0.00</span><small>s</small></div>
+              <div class="meter"><i id="tauBar" style="width:0%"></i></div>
+            </div>
+            <div class="gauge">
+              <div class="k"><span>稳定性</span><span>β 极限 5%</span></div>
+              <div class="v mono"><span id="stabV">100</span><small>%</small></div>
+              <div class="meter"><i id="stabBar" style="width:100%"></i></div>
+            </div>
+          </div>
+
+          <div class="controls">
+            <div class="ctl">
+              <div class="ctl-head"><label for="inB">环向磁场强度 B</label><span class="val mono" id="valB">3.0 T</span></div>
+              <p>超导线圈产生的约束磁场。磁场越强，等离子体被"捏"得越紧，约束越好——这正是 HTS 高温超导的用武之地。</p>
+              <input type="range" id="inB" min="1" max="6" step="0.1" value="3" />
+            </div>
+            <div class="ctl">
+              <div class="ctl-head"><label for="inP">辅助加热功率</label><span class="val mono" id="valP">20 MW</span></div>
+              <p>中性束与射频加热注入的功率。升温的主力，但 Q 值考核的正是"烧进去多少、聚变产出多少"。</p>
+              <input type="range" id="inP" min="0" max="60" step="1" value="20" />
+            </div>
+            <div class="ctl">
+              <div class="ctl-head"><label for="inN">燃料密度 n</label><span class="val mono" id="valN">1.0 ×10²⁰ m⁻³</span></div>
+              <p>氘–氚燃料的粒子密度。密度越高碰撞越频繁、聚变功率越大，但过高会撞上密度极限并推高 β。</p>
+              <input type="range" id="inN" min="0.2" max="3" step="0.1" value="1" />
+            </div>
+            <div class="ctl">
+              <div class="ctl-head"><label for="inQI">QI 位形优化度</label><span class="val mono" id="valQI">60%</span></div>
+              <p>磁场位形对准等动力学对称的逼近程度。优化度越高，新经典输运越低、快粒子约束越好——岩超聚能的核心技术之一。</p>
+              <input type="range" id="inQI" min="0" max="100" step="1" value="60" />
+            </div>
+          </div>
+          <div class="btnrow">
+            <button class="btn primary" id="btnAI">AI 一键优化参数</button>
+            <button class="btn" id="btnReset">复位装置</button>
+          </div>
+        </section>
+      </div>
+
+      <!-- ======== lower row ======== -->
+      <div class="lower-grid">
+        <section class="panel" aria-label="劳森判据图">
+          <div class="panel-head"><h2>劳森判据 · 你离点火还有多远</h2></div>
+          <div class="pad">
+            <canvas id="lawson" width="520" height="300" aria-label="劳森判据图：横轴温度，纵轴密度与约束时间乘积，曲线为点火门槛，亮点为当前运行点"></canvas>
+            <p class="chart-note">曲线上方是"点火区"：α 粒子自加热足以覆盖能量损失，等离子体可以自持燃烧。当前运行点越靠近右上方，离点火越近。三乘积 n·T·τ<sub>E</sub> 达到约 3×10²¹ keV·s·m⁻³ 量级即进入点火窗口。</p>
+          </div>
+        </section>
+
+        <section class="panel" aria-label="AI 运行助手">
+          <div class="panel-head"><h2>AI 运行助手</h2><span class="sub">实时诊断</span></div>
+          <div class="pad">
+            <p class="ai-tip" id="aiTip">正在读取装置状态…</p>
+            <p class="ai-src">助手逻辑：基于当前温度、Q 值、β 与密度极限裕度给出下一步操作建议，对应岗位职责中"AI 赋能运行控制与实验分析"的产品场景。</p>
+          </div>
+        </section>
+
+        <section class="panel" aria-label="运行日志">
+          <div class="panel-head"><h2>运行日志</h2><span class="sub mono" id="clock">T+0.0s</span></div>
+          <ul class="log" id="log"></ul>
+        </section>
+      </div>
+
+      <!-- ======== challenges ======== -->
+      <section class="section" aria-label="挑战关卡">
+        <h2>运行员成长之路 · 三个关卡</h2>
+        <p class="desc">按顺序完成三项运行任务，点亮全部勋章后即可生成你的结业证书。提示：第三关需要把磁场、位形优化和密度一起推到高位——或者试试"AI 一键优化"，再在它的基础上微调。</p>
+        <div class="chal-grid">
+          <article class="chal" id="chal1">
+            <svg class="medal" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="20" r="13" fill="#e8a13a"/><circle cx="24" cy="20" r="9.5" fill="#f6c667"/><path d="M17 31 L13 44 L24 38 L35 44 L31 31 Z" fill="#0e7c86"/></svg>
+            <div class="lv">LEVEL 1 · 磁笼学徒</div>
+            <h3>点亮第一团等离子体</h3>
+            <p>把等离子体温度加热到 <b>3 keV</b>（约 3500 万 °C）以上。调高加热功率即可——但别忘了观察约束时间的变化。</p>
+            <div class="bar"><i id="bar1"></i></div>
+            <div class="prog"><span id="prog1">当前温度 0.00 keV</span><span>目标 3 keV</span></div>
+          </article>
+          <article class="chal" id="chal2">
+            <svg class="medal" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="20" r="13" fill="#9fb6c3"/><circle cx="24" cy="20" r="9.5" fill="#cfdde6"/><path d="M17 31 L13 44 L24 38 L35 44 L31 31 Z" fill="#e85d1f"/></svg>
+            <div class="lv">LEVEL 2 · 稳态运行师</div>
+            <h3>稳态运行 10 秒</h3>
+            <p>在温度 ≥ 5 keV 的同时，把稳定性保持在 <b>75% 以上连续 10 秒</b>。小心：密度和 β 过高会让等离子体"闹脾气"。</p>
+            <div class="bar"><i id="bar2"></i></div>
+            <div class="prog"><span id="prog2">已稳定 0.0 / 10 s</span><span>稳定性 ≥ 75%</span></div>
+          </article>
+          <article class="chal" id="chal3">
+            <svg class="medal" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="20" r="13" fill="#e85d1f"/><circle cx="24" cy="20" r="9.5" fill="#ff9a4d"/><path d="M17 31 L13 44 L24 38 L35 44 L31 31 Z" fill="#10222f"/></svg>
+            <div class="lv">LEVEL 3 · 点火工程师</div>
+            <h3>实现科学增益 Q ≥ 1</h3>
+            <p>让聚变输出功率超过外部加热功率（Q ≥ 1）并<b>维持 3 秒</b>。这是聚变研究半个多世纪的核心里程碑——欧洲 JET 曾逼近这一门槛（Q≈0.67），美国 NIF 已实现靶增益大于 1。</p>
+            <div class="bar"><i id="bar3"></i></div>
+            <div class="prog"><span id="prog3">当前 Q 0.00</span><span>目标 Q ≥ 1 · 3 s</span></div>
+          </article>
+        </div>
+        <div class="cert-row">
+          <div class="grow">
+            <h3>结业证书 · 仿星器运行员认证</h3>
+            <p id="certHint">完成全部三个关卡后解锁。证书将记录你的姓名、完成日期与最佳 Q 值。</p>
+          </div>
+          <label class="sr-only" for="certName">证书姓名</label>
+          <input type="text" id="certName" placeholder="输入你的名字" maxlength="16" />
+          <button class="btn primary" id="btnCert" disabled>生成并下载证书</button>
+        </div>
+      </section>
+
+      <!-- ======== audience layers ======== -->
+      <section class="section" aria-label="分层讲解">
+        <h2>同一个装置，三种讲法</h2>
+        <p class="desc">面向大众、科研圈与投资机构分层设计体验，是这个岗位的核心要求之一。切换视角，看看同一台仿星器如何被不同人群理解。</p>
+        <div class="tabs" role="tablist" aria-label="受众视角">
+          <button class="tab" role="tab" id="tab-pub" aria-selected="true" aria-controls="panel-aud" data-aud="pub">大众视角</button>
+          <button class="tab" role="tab" id="tab-sci" aria-selected="false" aria-controls="panel-aud" data-aud="sci">科研视角</button>
+          <button class="tab" role="tab" id="tab-inv" aria-selected="false" aria-controls="panel-aud" data-aud="inv">投资人视角</button>
+        </div>
+        <div class="tab-body" id="panel-aud" role="tabpanel" aria-live="polite"></div>
+      </section>
+
+      <!-- ======== roadmap ======== -->
+      <section class="section" aria-label="岩超聚能产品路线">
+        <h2>对标真实产品线 · 三代装置路线</h2>
+        <p class="desc">上面这台模拟器对标的不是一台泛泛的仿星器，而是岩超聚能的一代装置 YF-1。公司的产品路线分三代推进，长期锚点是聚变发电商业化（"1"），短中期以超导技术的多场景应用创收（"N"）支撑主线研发。</p>
+        <div class="road-grid">
+          <article class="road now">
+            <div class="lv">第一代 · 设计已完成 · 本平台对标装置</div>
+            <h3>YF-1<span>计划 2027 年底建成</span></h3>
+            <p>小型验证装置，据公开报道集成<b>全高温超导（全 HTS）</b>磁体、<b>金属 3D 打印</b>三维扭曲线圈与 <b>AI 数字孪生</b>：验证 HTS 三维线圈的工程可行性，并演示长脉冲稳态运行。本平台就是它的交互教学版——先让人在屏幕里把装置"开起来"，再理解真机要验证什么。</p>
+          </article>
+          <article class="road">
+            <div class="lv">第二代</div>
+            <h3>YF-2<span>计划 2029 年底建成</span></h3>
+            <p>承接 YF-1 验证过的位形与制造工艺，采用 <b>HTS+LTS 高低温混合超导</b>磁体方案——NbTi、Nb<sub>3</sub>Sn 低温超导与 YBCO 高温超导组合，均采用 <b>CICC</b>（管内电缆导体）结构，向更高参数、更长稳态运行推进，积累面向发电级装置的工程与运行数据。</p>
+          </article>
+          <article class="road">
+            <div class="lv">第三代</div>
+            <h3>YF-3<span>计划 2035 年前建成</span></h3>
+            <p>"1+N"战略中"1"的落点：磁体回归<b>全 HTS 高温超导 CICC</b> 方案，把前两代验证的稳态高参数运行能力推向<b>点火演示发电</b>，验证聚变发电的商业化路径。</p>
+          </article>
+        </div>
+        <div class="fact-strip">
+          <div><b>CICC 三维超导磁体</b><span>公司称国内唯一拥有仿星器 CICC 三维超导磁体完整自研能力，合肥产线已投产（公司口径）</span></div>
+          <div><b>700 MPa</b><span>不锈钢铠甲低温屈服强度突破 700 MPa，为三维线圈提供结构强度（公司口径）</span></div>
+          <div><b>纳欧级超导接头</b><span>接头电阻达纳欧量级，降低稳态运行时的发热与低温负荷（公司口径）</span></div>
+          <div><b>近 60 人团队</b><span>另有近 10 名顾问；上海总部 + 合肥研发与产线基地 + 与北大在深圳共建的联合实验室</span></div>
+        </div>
+      </section>
+
+      <!-- ======== vs tokamak ======== -->
+      <section class="section" aria-label="仿星器与托卡马克对比">
+        <h2>为什么是仿星器，而不是托卡马克？</h2>
+        <p class="desc">两条路线都在追逐同一个目标。差别在于：托卡马克靠等离子体自身电流产生一部分磁场，仿星器则把全部约束磁场交给外部线圈的精密形状——结构更复杂，但天生适合稳态运行。</p>
+        <div class="vs-grid">
+          <article class="vs win">
+            <h3>仿星器 <span class="en">STELLARATOR</span></h3>
+            <table>
+              <tr><td>磁场来源</td><td>全部由外部三维扭曲线圈产生，无需等离子体电流驱动</td></tr>
+              <tr><td>稳态能力</td><td>天生稳态：W7-X 已实现 8 分钟量级长脉冲运行，目标 30 分钟</td></tr>
+              <tr><td>破裂风险</td><td>无大电流，不存在托卡马克式的电流骤灭破裂</td></tr>
+              <tr><td>工程难点</td><td>线圈形状极复杂、加工精度要求极高——靠优化设计与金属 3D 打印破解</td></tr>
+              <tr><td>代表装置</td><td>德国 W7-X、美国 HSX、日本 LHD，以及岩超聚能 YF-1（设计已完成，计划 2027 年底建成）</td></tr>
+            </table>
+          </article>
+          <article class="vs">
+            <h3>托卡马克 <span class="en">TOKAMAK</span></h3>
+            <table>
+              <tr><td>磁场来源</td><td>环向场线圈 + 等离子体电流产生的极向场共同约束</td></tr>
+              <tr><td>稳态能力</td><td>变压器原理决定其天然为脉冲运行，稳态化需额外的电流驱动</td></tr>
+              <tr><td>破裂风险</td><td>大电流可能骤灭（破裂），会对装置壁造成强冲击</td></tr>
+              <tr><td>工程难点</td><td>结构相对简单、对称，但高参数下控制与破裂防护极难</td></tr>
+              <tr><td>代表装置</td><td>国际 ITER、中国 EAST 与"人造太阳"系列、英国 JET</td></tr>
+            </table>
+          </article>
+        </div>
+      </section>
+
+      <footer>
+        <p>本平台为面向求职作品演示的交互教学模型：物理公式采用功率平衡与 ISS04 约束标度的简化形式，模拟参数为教学量级设定，不代表 YF-1 的真实工程参数，不构成任何工程设计依据。公司与产品信息（三代装置路线 YF-1 / YF-2 / YF-3 与建成时间、YF-1 的全高温超导 + 金属 3D 打印 + AI 数字孪生集成方案、"1+N"战略、融资与团队情况）来自岩超聚能（YAN Fusion）官网（<a href="https://www.yanfusion.com/" target="_blank" rel="noopener">yanfusion.com</a>）及 2026 年 10 月 13 日上海证券报、界面新闻的公开报道，其中标注"公司口径"的数据未经独立验证。挑战进度仅保存在当前页面会话中。</p>
+      </footer>
+    </div>
+
+    <script>
+    "use strict";
+    /* ================================================================
+       仿星器交互模拟平台
+       渲染：Canvas 2D 软件投影的 QI 仿星器（旋转椭圆截面 × 5 周期）
+       物理：功率平衡 dW/dt = P加热 + Pα − W/τE（ISS04 简化标度）
+       ================================================================ */
+    const $ = id => document.getElementById(id);
+    const clamp = (v,a,b)=>Math.min(b,Math.max(a,v));
+    const lerp = (a,b,t)=>a+(b-a)*t;
+
+    /* ---------------- 输入 ---------------- */
+    const inputs = { B:$("inB"), P:$("inP"), N:$("inN"), QI:$("inQI") };
+    const labels = { B:$("valB"), P:$("valP"), N:$("valN"), QI:$("valQI") };
+    function params(){
+      return { B:+inputs.B.value, P:+inputs.P.value, N:+inputs.N.value, QI:+inputs.QI.value };
+    }
+    function paintSlider(el){
+      const f = (el.value-el.min)/(el.max-el.min)*100;
+      el.style.setProperty("--fill", f+"%");
+    }
+    function syncLabels(){
+      const p = params();
+      labels.B.textContent = p.B.toFixed(1)+" T";
+      labels.P.textContent = p.P.toFixed(0)+" MW";
+      labels.N.textContent = p.N.toFixed(1)+" ×10²⁰ m⁻³";
+      labels.QI.textContent = p.QI.toFixed(0)+"%";
+      Object.values(inputs).forEach(paintSlider);
+    }
+    Object.values(inputs).forEach(el=>el.addEventListener("input", syncLabels));
+    syncLabels();
+
+    /* ---------------- 物理状态 ---------------- */
+    const V = 30;                 // 等离子体体积 m³（W7-X 量级）
+    const E_CHARGE = 1.602e-19;
+    const sim = {
+      W: 3e5,                     // 储能 J（初始约 0.2 keV）
+      t: 0,                       // 模拟时钟 s
+      T: 0.2, Pfus: 0, Palpha: 0, Ploss: 0, tauE: 0.3, Q: 0,
+      beta: 0, stab: 100, ignited: false, disruptTimer: 0,
+      bestQ: 0, disruptedFlash: 0
+    };
+    function stepPhysics(dt){
+      const p = params();
+      const n = p.N * 1e20;
+      const H = 0.7 + 0.9 * (p.QI/100);                       // QI 位形约束改善因子
+      let tauE = 0.38 * H * Math.pow(p.B/3, 0.84) * Math.pow(p.N, 0.54) * Math.pow(Math.max(p.P,2)/20, -0.61);
+      const Tj = () => sim.W / (3 * n * V * E_CHARGE * 1000); // 当前温度 keV
+      let T = Tj();
+      if (T > 25) tauE /= 1 + Math.pow((T-25)/6, 2);          // 高参数区输运退化，抑制热跑道
+      tauE = clamp(tauE, 0.04, 3.5);
+      const sv = 1.1e-24 * T*T / (1 + Math.pow(T/48, 4));     // D–T 反应率 <σv> 近似 m³/s
+      const Pfus = Math.pow(n/2, 2) * sv * 2.818e-12 * V;    // 17.6 MeV/次
+      const Palpha = Pfus / 5;
+      const Ploss = sim.W / tauE;
+      sim.W += (p.P*1e6 + Palpha - Ploss) * dt;
+      sim.W = clamp(sim.W, 2e4, 9e7);
+      T = Tj();
+      const pressure = 2 * n * T * 1000 * E_CHARGE;            // Pa（离子+电子）
+      const betaRaw = 2 * 4*Math.PI*1e-7 * pressure / (p.B*p.B) * 100;
+      const beta = betaRaw * 0.45;                            // 体平均修正
+      let stab = 100;
+      if (beta > 4) stab -= (beta-4) * 24;
+      if (p.N > 2.2) stab -= (p.N-2.2)/0.8 * 35;              // 密度极限
+      if (p.B < 1.6 && T > 4) stab -= (1.6-p.B) * 30;         // 低场高温度磁面晃动
+      stab += Math.sin(sim.t*2.3) * 2.2;                      // 湍流涨落
+      stab = clamp(stab, 0, 100);
+      sim.T = T; sim.Pfus = Pfus; sim.Palpha = Palpha; sim.Ploss = Ploss;
+      sim.tauE = tauE; sim.beta = beta; sim.stab = stab;
+      sim.Q = Pfus / Math.max(p.P*1e6, 1e6);
+      sim.bestQ = Math.max(sim.bestQ, sim.Q);
+      sim.ignited = Palpha >= Ploss && T > 8;
+      if (stab < 25) sim.disruptTimer += dt; else sim.disruptTimer = Math.max(0, sim.disruptTimer - dt*2);
+      if (sim.disruptTimer > 1.5){
+        sim.W *= 0.06; sim.disruptTimer = 0; sim.disruptedFlash = 1;
+        onDisruption(beta, p.N);
+      }
+      sim.t += dt;
+    }
+
+    /* ---------------- 三维渲染 ---------------- */
+    const cv = $("sim"), ctx = cv.getContext("2d");
+    let W2 = 0, H2 = 0, DPR = 1;
+    function fitCanvas(){
+      DPR = Math.min(window.devicePixelRatio || 1, 2);
+      W2 = cv.clientWidth; H2 = cv.clientHeight;
+      cv.width = Math.round(W2*DPR); cv.height = Math.round(H2*DPR);
+    }
+    fitCanvas(); window.addEventListener("resize", fitCanvas);
+
+    const NP = 5;                       // 场周期数
+    function surfPoint(phi, theta, s){
+      const rot = (NP/2) * phi;         // 每周期截面翻转 180°
+      const u = 0.335*Math.cos(theta) * s, v = 0.225*Math.sin(theta) * s;
+      const xr = u*Math.cos(rot) - v*Math.sin(rot);
+      const yr = u*Math.sin(rot) + v*Math.cos(rot);
+      const rr = 1 + xr;
+      return [rr*Math.cos(phi), yr, rr*Math.sin(phi)];
+    }
+    const view = { az: 0.6, el: 0.52, zoom: 1 };
+    const show = { coils: true, lines: true, plasma: true };
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let autoRotate = !reduced;
+    $("btnRotate").setAttribute("aria-pressed", String(autoRotate));
+
+    function project(pt){
+      const ca = Math.cos(view.az), sa = Math.sin(view.az);
+      const ce = Math.cos(view.el), se = Math.sin(view.el);
+      const x = pt[0]*ca - pt[2]*sa, z = pt[0]*sa + pt[2]*ca, y = pt[1];
+      const y2 = y*ce - z*se, z2 = y*se + z*ce;
+      const f = 3.6 * view.zoom, sc = f/(f+z2);
+      const base = Math.min(W2, H2) * 0.415;
+      return [W2/2 + x*sc*base, H2/2 - y2*sc*base, z2, sc];
+    }
+    // 温度 → 等离子体颜色
+    const TSTOPS = [[0,36,64,104],[2,38,106,196],[5,26,168,216],[9,64,196,214],[13,246,166,66],[19,255,116,38],[26,255,196,130],[40,255,240,220]];
+    function plasmaColor(T){
+      for (let i=1;i<TSTOPS.length;i++){
+        if (T <= TSTOPS[i][0]){
+          const a = TSTOPS[i-1], b = TSTOPS[i], f = (T-a[0])/Math.max(b[0]-a[0],0.001);
+          return [lerp(a[1],b[1],f)|0, lerp(a[2],b[2],f)|0, lerp(a[3],b[3],f)|0];
+        }
+      }
+      return [255,244,226];
+    }
+    const PHI_N = 84, TH_N = 20, COIL_N = 20, COIL_SEG = 30;
+    const particles = [];
+    for (let i=0;i<110;i++) particles.push({ phi: Math.random()*Math.PI*2, th: Math.random()*Math.PI*2, s: 0.45+Math.random()*0.45, sp: 0.7+Math.random()*0.7 });
+    let frame = 0;
+
+    function render(){
+      frame++;
+      ctx.setTransform(DPR,0,0,DPR,0,0);
+      ctx.clearRect(0,0,W2,H2);
+      // 背景星点（磁笼网格氛围）
+      ctx.fillStyle = "rgba(120,180,220,0.5)";
+      for (let i=0;i<40;i++){
+        const sx = (i*167.3)%W2, sy = (i*251.7)%H2;
+        ctx.fillRect(sx, sy, 1.3, 1.3);
+      }
+      if (autoRotate) view.az += 0.0035;
+      const items = [];
+      const pulse = 1 + Math.sin(frame*0.11)*0.012*(1+sim.T/12);
+
+      if (show.plasma){
+        const grid = [];
+        for (let i=0;i<=PHI_N;i++){
+          grid.push([]);
+          const phi = i/PHI_N*Math.PI*2;
+          for (let j=0;j<=TH_N;j++) grid[i].push(project(surfPoint(phi, j/TH_N*Math.PI*2, pulse)));
+        }
+        const [pr,pg,pb] = plasmaColor(sim.T);
+        const glow = clamp(sim.T/16, 0, 1);
+        for (let i=0;i<PHI_N;i++) for (let j=0;j<TH_N;j++){
+          const a = grid[i][j], b = grid[i+1][j], c = grid[i+1][j+1], d = grid[i][j+1];
+          const z = (a[2]+b[2]+c[2]+d[2])/4;
+          const shade = clamp(0.82 - z*0.16, 0.5, 1.05);
+          items.push({ z, kind:0, pts:[a,b,c,d],
+            col:`rgba(${(pr*shade)|0},${(pg*shade)|0},${(pb*shade)|0},${0.62+glow*0.3})` });
+        }
+      }
+      if (show.coils){
+        for (let k=0;k<COIL_N;k++){
+          const phi0 = k/COIL_N*Math.PI*2;
+          let prev = null;
+          for (let j2=0;j2<=COIL_SEG;j2++){
+            const pt = project(surfPoint(phi0, j2/COIL_SEG*Math.PI*2, 1.38));
+            if (prev){
+              const shade = clamp(0.95 - pt[2]*0.28, 0.35, 1.1);
+              items.push({ z:(prev[2]+pt[2])/2, kind:1, pts:[prev,pt],
+                col:`rgb(${(148*shade)|0},${(178*shade)|0},${(190*shade)|0})`, w: 4.6*pt[3] });
+            }
+            prev = pt;
+          }
+        }
+      }
+      items.sort((a,b)=>b.z-a.z);
+      for (const it of items){
+        if (it.kind===0){
+          ctx.beginPath();
+          ctx.moveTo(it.pts[0][0], it.pts[0][1]);
+          for (let q=1;q<4;q++) ctx.lineTo(it.pts[q][0], it.pts[q][1]);
+          ctx.closePath(); ctx.fillStyle = it.col; ctx.fill();
+        } else {
+          ctx.beginPath(); ctx.moveTo(it.pts[0][0], it.pts[0][1]); ctx.lineTo(it.pts[1][0], it.pts[1][1]);
+          ctx.strokeStyle = it.col; ctx.lineWidth = it.w; ctx.lineCap = "round"; ctx.stroke();
+        }
+      }
+      // 磁力线（螺旋缠绕，旋转变换 ι≈0.95）
+      if (show.lines){
+        ctx.globalCompositeOperation = "lighter";
+        ctx.lineWidth = 1.25;
+        for (let L=0;L<9;L++){
+          const th0 = L/9*Math.PI*2 + frame*0.002;
+          let prev = null;
+          for (let i=0;i<=90;i++){
+            const phi = i/90*Math.PI*2;
+            const pt = project(surfPoint(phi, th0 + 0.95*phi, 0.97));
+            if (prev){
+              const a = clamp((pt[3]-0.72)*1.15, 0.04, 0.8);
+              ctx.strokeStyle = `rgba(165,235,255,${a})`;
+              ctx.beginPath(); ctx.moveTo(prev[0], prev[1]); ctx.lineTo(pt[0], pt[1]); ctx.stroke();
+            }
+            prev = pt;
+          }
+        }
+        // 内部粒子流
+        const speed = 0.25 + Math.sqrt(Math.max(sim.T,0.05))*0.55;
+        for (const pa of particles){
+          pa.phi += 0.016 * pa.sp * speed;
+          const pt = project(surfPoint(pa.phi, pa.th + 0.95*pa.phi, pa.s));
+          const a = clamp((pt[3]-0.72)*1.2, 0.05, 0.9);
+          const [pr,pg,pb] = plasmaColor(sim.T);
+          ctx.fillStyle = `rgba(${Math.min(pr+70,255)},${Math.min(pg+70,255)},${Math.min(pb+60,255)},${a})`;
+          ctx.beginPath(); ctx.arc(pt[0], pt[1], 1.7*pt[3], 0, 6.2832); ctx.fill();
+        }
+        ctx.globalCompositeOperation = "source-over";
+      }
+      if (sim.disruptedFlash > 0){
+        ctx.fillStyle = `rgba(255,70,50,${sim.disruptedFlash*0.28})`;
+        ctx.fillRect(0,0,W2,H2);
+        sim.disruptedFlash = Math.max(0, sim.disruptedFlash - 0.03);
+      }
+    }
+    // 拖动旋转 + 滚轮缩放
+    let dragging = false, lx = 0, ly = 0;
+    cv.addEventListener("pointerdown", e=>{ dragging = true; lx = e.clientX; ly = e.clientY; cv.setPointerCapture(e.pointerId); });
+    cv.addEventListener("pointermove", e=>{
+      if (!dragging) return;
+      view.az += (e.clientX-lx)*0.008; view.el = clamp(view.el + (e.clientY-ly)*0.006, -1.2, 1.35);
+      lx = e.clientX; ly = e.clientY;
+    });
+    cv.addEventListener("pointerup", ()=>{ dragging = false; });
+    cv.addEventListener("wheel", e=>{ e.preventDefault(); view.zoom = clamp(view.zoom * (e.deltaY<0 ? 1.08 : 0.93), 0.55, 2.4); }, { passive:false });
+    function bindToggle(id, key){
+      $(id).addEventListener("click", ()=>{
+        if (key === "rotate"){ autoRotate = !autoRotate; $("btnRotate").setAttribute("aria-pressed", String(autoRotate)); }
+        else { show[key] = !show[key]; $(id).setAttribute("aria-pressed", String(show[key])); }
+      });
+    }
+    bindToggle("btnRotate", "rotate"); bindToggle("btnCoils", "coils");
+    bindToggle("btnLines", "lines"); bindToggle("btnPlasma", "plasma");
+
+    /* ---------------- 日志 ---------------- */
+    const logEl = $("log");
+    function logEvent(msg, cls){
+      const li = document.createElement("li");
+      if (cls) li.className = "evt-"+cls;
+      const t = document.createElement("span"); t.className = "t mono"; t.textContent = "T+"+sim.t.toFixed(1)+"s";
+      const m = document.createElement("span"); m.className = "m"; m.textContent = msg;
+      li.appendChild(t); li.appendChild(m);
+      logEl.prepend(li);
+      while (logEl.children.length > 30) logEl.removeChild(logEl.lastChild);
+    }
+    function onDisruption(beta, N){
+      const why = beta > 5 ? `β 达到 ${beta.toFixed(1)}%，超过稳定极限` : (N > 2.2 ? "密度超过极限，辐射塌缩" : "磁流体不稳定性失控");
+      logEvent("等离子体破裂熄灭！" + why + "——储能瞬间释放，请降低温度或密度、提高磁场后重启。", "bad");
+    }
+
+    /* ---------------- 读数与状态 ---------------- */
+    const els = { tempV:$("tempV"), tempC:$("tempC"), tempBar:$("tempBar"), qV:$("qV"), qBar:$("qBar"),
+      pfusV:$("pfusV"), pfusBar:$("pfusBar"), tauV:$("tauV"), tauBar:$("tauBar"),
+      stabV:$("stabV"), stabBar:$("stabBar"), dot:$("statusDot"), sText:$("statusText"), sHint:$("statusHint"), clock:$("clock") };
+    function fmtC(T){ // keV → 摄氏度（1 keV ≈ 1160 万 °C）
+      const c = T * 1.16e7;
+      if (c >= 1e8) return "≈ " + (c/1e8).toFixed(2) + " 亿 °C";
+      if (c >= 1e4) return "≈ " + (c/1e4).toFixed(1) + " 万 °C";
+      return "≈ " + Math.round(c) + " °C";
+    }
+    const milestones = {};
+    function milestone(key, cond, msg, cls){ if (cond && !milestones[key]){ milestones[key] = true; logEvent(msg, cls); } if (!cond) milestones[key] = false; }
+    function updateReadouts(){
+      els.tempV.textContent = sim.T.toFixed(2);
+      els.tempC.textContent = fmtC(sim.T);
+      els.tempBar.style.width = clamp(sim.T/25*100, 0, 100)+"%";
+      els.tempBar.className = sim.T > 12 ? "hot" : "";
+      els.qV.textContent = sim.Q >= 99 ? "自持" : sim.Q.toFixed(2);
+      els.qBar.style.width = clamp(sim.Q/3*100, 0, 100)+"%";
+      els.pfusV.textContent = (sim.Pfus/1e6).toFixed(1);
+      els.pfusBar.style.width = clamp(sim.Pfus/1.5e8*100, 0, 100)+"%";
+      els.tauV.textContent = sim.tauE.toFixed(2);
+      els.tauBar.style.width = clamp(sim.tauE/2.2*100, 0, 100)+"%";
+      els.stabV.textContent = Math.round(sim.stab);
+      els.stabBar.style.width = sim.stab+"%";
+      els.stabBar.className = sim.stab < 35 ? "bad" : (sim.stab < 65 ? "warn" : "");
+      els.clock.textContent = "T+"+sim.t.toFixed(1)+"s";
+      // 状态机
+      let cls = "", txt = "", hint = "";
+      if (sim.disruptedFlash > 0.4){ cls = "bad"; txt = "等离子体破裂！"; hint = "储能已释放到第一壁——调整参数后重新升温。"; }
+      else if (sim.ignited){ cls = "ign"; txt = "点火 · 自持燃烧中"; hint = "α 粒子自加热已覆盖能量损失——这是聚变研究的圣杯状态。"; }
+      else if (sim.Q >= 1){ cls = "run"; txt = "科学增益达成（Q ≥ 1）"; hint = "聚变输出已超过外部加热输入，维持住！"; }
+      else if (sim.stab < 40){ cls = "bad"; txt = "稳定性告警"; hint = "β 或密度逼近极限，再推高参数将触发破裂。"; }
+      else if (sim.T >= 3){ cls = "run"; txt = "等离子体稳定约束中"; hint = sim.Q > 0.6 ? "Q 值接近 1：试着提高磁场或 QI 优化度。" : "继续升温，或提高约束质量冲击更高 Q 值。"; }
+      else if (sim.T >= 0.8){ cls = "warn"; txt = "等离子体已形成"; hint = "温度还低：加大加热功率，或降低密度减少升温负担。"; }
+      else { cls = ""; txt = "等离子体待机中"; hint = "提高加热功率，让等离子体升温。"; }
+      els.dot.className = "status-dot " + cls;
+      els.sText.textContent = txt; els.sHint.textContent = hint;
+      milestone("t1", sim.T >= 1, "等离子体温度突破 1 keV（约 1160 万 °C）。");
+      milestone("t5", sim.T >= 5, "温度突破 5 keV，进入 D–T 反应显著区。", "good");
+      milestone("t10", sim.T >= 10, "温度突破 10 keV —— 已达 ITER 级运行参数量级。", "good");
+      milestone("q05", sim.Q >= 0.5, "Q 值突破 0.5，聚变输出达到加热输入的一半。", "good");
+      milestone("q1", sim.Q >= 1, "Q ≥ 1！实现科学增益，聚变输出超过外部加热。", "good");
+      milestone("ign", sim.ignited, "点火确认：α 自加热 ≥ 能量损失，等离子体自持燃烧。", "good");
+      milestone("bw", sim.beta > 4.2, `警告：β = ${sim.beta.toFixed(1)}%，逼近 5% 稳定极限。`, "warn");
+    }
+
+    /* ---------------- 挑战 ---------------- */
+    const chal = { c1:false, c2:false, c3:false, t2:0, t3:0 };
+    function setChal(n, frac, text){
+      $("bar"+n).style.width = clamp(frac*100,0,100)+"%";
+      $("prog"+n).textContent = text;
+    }
+    function updateChallenges(dt){
+      if (!chal.c1){
+        setChal(1, sim.T/3, `当前温度 ${sim.T.toFixed(2)} keV`);
+        if (sim.T >= 3){ chal.c1 = true; $("chal1").classList.add("done"); setChal(1, 1, "已完成 · 勋章点亮"); logEvent("关卡 1 完成：获得「磁笼学徒」勋章。", "good"); }
+      }
+      if (!chal.c2){
+        const ok = sim.T >= 5 && sim.stab >= 75;
+        chal.t2 = ok ? chal.t2 + dt : Math.max(0, chal.t2 - dt);
+        setChal(2, chal.t2/10, `已稳定 ${chal.t2.toFixed(1)} / 10 s`);
+        if (chal.t2 >= 10){ chal.c2 = true; $("chal2").classList.add("done"); setChal(2, 1, "已完成 · 勋章点亮"); logEvent("关卡 2 完成：获得「稳态运行师」勋章。", "good"); }
+      }
+      if (!chal.c3){
+        chal.t3 = sim.Q >= 1 ? chal.t3 + dt : Math.max(0, chal.t3 - dt*1.5);
+        setChal(3, Math.max(sim.Q/1, chal.t3/3 * (sim.Q>=1?1:0)), sim.Q >= 1 ? `Q ≥ 1 维持中 ${chal.t3.toFixed(1)} / 3 s` : `当前 Q ${sim.Q.toFixed(2)}`);
+        if (chal.t3 >= 3){ chal.c3 = true; $("chal3").classList.add("done"); setChal(3, 1, "已完成 · 勋章点亮"); logEvent("关卡 3 完成：获得「点火工程师」勋章。全部关卡完成，证书已解锁！", "good"); }
+      }
+      const all = chal.c1 && chal.c2 && chal.c3;
+      $("btnCert").disabled = !all;
+      if (all) $("certHint").textContent = "全部关卡已完成！输入姓名，生成你的专属结业证书（PNG 下载）。";
+    }
+
+    /* ---------------- AI 助手建议 ---------------- */
+    const aiEl = $("aiTip");
+    function updateAI(){
+      const p = params();
+      let tip;
+      if (sim.disruptedFlash > 0.3) tip = "刚刚发生<b>破裂</b>：储能瞬间释放。重启时请先把密度或加热降一档，等磁面恢复稳定后再逐步推高。";
+      else if (sim.ignited) tip = "已进入<b>自持燃烧</b>：α 粒子加热（" + (sim.Palpha/1e6).toFixed(1) + " MW）覆盖了全部损失（" + (sim.Ploss/1e6).toFixed(1) + " MW）。此时可以试着调低外部加热，观察 Q 值冲向无穷大的过程。";
+      else if (sim.stab < 45) tip = "稳定性告警：当前 β = <b>" + sim.beta.toFixed(1) + "%</b>、密度 " + p.N.toFixed(1) + "×10²⁰ m⁻³。建议<b>提高磁场 B</b>（β ∝ nT/B²）或降低密度，先把稳定性拉回 60% 以上。";
+      else if (sim.Q >= 0.75 && sim.Q < 1) tip = "只差临门一脚：Q = <b>" + sim.Q.toFixed(2) + "</b>。约束时间是当前瓶颈——把 <b>QI 位形优化度</b>拉满，或将磁场提高 0.5 T，τ<sub>E</sub> 的提升会直接放大温度与反应率。";
+      else if (sim.T < 1.5) tip = "等离子体还很\"冷\"。升温速度取决于加热功率与粒子总数：<b>加大加热</b>最直接；若想更\"节能\"，可适当降低密度——同样的功率分给更少粒子，升温更快。";
+      else if (sim.T >= 5 && sim.stab >= 75 && !chal.c2) tip = "当前状态正适合刷<b>关卡 2</b>：温度与稳定性都达标，保持参数别动，稳住 10 秒即可。注意加热功率变化会通过 τ<sub>E</sub> 标度扰动平衡。";
+      else if (p.QI < 70) tip = "诊断：QI 位形优化度只有 " + p.QI + "%，新经典输运偏高，τ<sub>E</sub> 被压在 " + sim.tauE.toFixed(2) + " s。位形优化是\"免费\"的约束提升——不耗电，只靠线圈形状与算法，这正是 SQuID 设计方法的价值。";
+      else if (p.B < 4) tip = "诊断：磁场 " + p.B.toFixed(1) + " T 限制了 β 裕度与约束标度（τ<sub>E</sub> ∝ B^0.84）。HTS 高温超导带材让更高场强成为可能——试着把 B 推到 5 T 以上。";
+      else tip = "当前三乘积 n·T·τ<sub>E</sub> = <b>" + (p.N*1e20*sim.T*sim.tauE/1e21).toFixed(2) + "×10²¹</b> keV·s·m⁻³。继续同步推高密度与温度，同时盯住 β 曲线，寻找点火窗口。";
+      aiEl.innerHTML = tip;
+    }
+
+    /* ---------------- 劳森判据图 ---------------- */
+    const lc = $("lawson"), lctx = lc.getContext("2d");
+    function cssVar(name){ return getComputedStyle(document.body).getPropertyValue(name).trim(); }
+    function drawLawson(){
+      const w = lc.width, h = lc.height, padL = 46, padR = 14, padT = 16, padB = 30;
+      const iw = w-padL-padR, ih = h-padT-padB;
+      const xOf = T => padL + T/30*iw;
+      const yOf = v => { const lv = Math.log10(clamp(v,1e18,1e22)); return padT + ih - (lv-18)/4*ih; };
+      lctx.clearRect(0,0,w,h);
+      const line = cssVar("--line"), muted = cssVar("--muted"), teal = cssVar("--teal"), accent = cssVar("--accent"), ink = cssVar("--ink");
+      // 点火区
+      lctx.beginPath();
+      let started = false;
+      for (let T=1.2; T<=30; T+=0.4){ const x = xOf(T), y = yOf(3e21/T); if (!started){ lctx.moveTo(x,y); started = true; } else lctx.lineTo(x,y); }
+      lctx.lineTo(xOf(30), padT); lctx.lineTo(xOf(1.2), padT); lctx.closePath();
+      lctx.fillStyle = "rgba(232,93,31,0.10)"; lctx.fill();
+      // 网格
+      lctx.strokeStyle = line; lctx.fillStyle = muted; lctx.font = "11px 'JetBrains Mono', monospace"; lctx.lineWidth = 1;
+      for (let e=18;e<=22;e++){
+        const y = yOf(Math.pow(10,e));
+        lctx.beginPath(); lctx.moveTo(padL,y); lctx.lineTo(w-padR,y); lctx.stroke();
+        lctx.fillText("10^"+e, 4, y+4);
+      }
+      for (let T=0;T<=30;T+=5){ const x = xOf(T); lctx.fillText(String(T), x-4, h-10); }
+      lctx.fillStyle = ink; lctx.font = "12px 'Noto Sans SC', sans-serif";
+      lctx.fillText("温度 T (keV)", w-96, h-10);
+      lctx.save(); lctx.rotate(-Math.PI/2); lctx.fillText("n·τE (m⁻³·s)", -h+70, 14); lctx.restore();
+      // 点火门槛曲线
+      lctx.beginPath();
+      for (let T=1.2; T<=30; T+=0.4){ const x = xOf(T), y = yOf(3e21/T); T===1.2 ? lctx.moveTo(x,y) : lctx.lineTo(x,y); }
+      lctx.strokeStyle = accent; lctx.lineWidth = 2; lctx.stroke();
+      lctx.fillStyle = accent; lctx.font = "12px 'Noto Sans SC', sans-serif";
+      lctx.fillText("点火区", xOf(21.5), yOf(3e21/21.5)-10);
+      // 当前运行点
+      const p = params();
+      const cxp = xOf(clamp(sim.T,0,30)), cyp = yOf(p.N*1e20*sim.tauE);
+      lctx.beginPath(); lctx.arc(cxp, cyp, 10, 0, 6.2832); lctx.fillStyle = "rgba(47,196,207,0.25)"; lctx.fill();
+      lctx.beginPath(); lctx.arc(cxp, cyp, 4.5, 0, 6.2832); lctx.fillStyle = teal; lctx.fill();
+      lctx.fillStyle = ink; lctx.fillText("当前运行点", clamp(cxp+12, padL, w-90), cyp-8);
+    }
+
+    /* ---------------- AI 一键优化 / 复位 ---------------- */
+    let animId = null;
+    $("btnAI").addEventListener("click", ()=>{
+      const from = params(), to = { B:5.2, P:34, N:1.6, QI:92 };
+      const start = performance.now();
+      if (animId) cancelAnimationFrame(animId);
+      logEvent("AI 优化器介入：基于约束标度模型搜索参数组合，目标最大化 Q 值并保留 β 裕度…");
+      (function anim(now){
+        const f = clamp((now-start)/900, 0, 1), e = 1-Math.pow(1-f,3);
+        inputs.B.value = lerp(from.B, to.B, e); inputs.P.value = lerp(from.P, to.P, e);
+        inputs.N.value = lerp(from.N, to.N, e); inputs.QI.value = lerp(from.QI, to.QI, e);
+        syncLabels();
+        if (f < 1) animId = requestAnimationFrame(anim);
+        else logEvent("AI 优化完成：B=5.2 T · 加热 34 MW · 密度 1.6×10²⁰ m⁻³ · QI 92%。接下来是你的微调时间。", "good");
+      })(start);
+    });
+    $("btnReset").addEventListener("click", ()=>{
+      inputs.B.value = 3; inputs.P.value = 20; inputs.N.value = 1; inputs.QI.value = 60;
+      sim.W = 3e5; sim.disruptTimer = 0; syncLabels();
+      logEvent("装置已复位至标准工况（B=3.0 T · 20 MW · 1.0×10²⁰ m⁻³ · QI 60%）。");
+    });
+
+    /* ---------------- 分层讲解 ---------------- */
+    const AUD = {
+      pub: `<h3>把太阳装进一个"磁甜甜圈"</h3>
+        <p>太阳靠引力把氢压到 1500 万 °C 并点燃聚变；在地球上没有这种引力，我们改用磁场——把上亿度的等离子体悬空关进一个扭曲的磁笼里，不碰任何容器壁。仿星器的磁笼形状像一条拧了五圈的麻花，这种"拧"不是装饰，而是让粒子不逃逸的关键。</p>
+        <p>你在上面操控的四个滑块，就是真实科学家每天在调的东西：磁场多强、加热多大、燃料多密、笼子的形状有多"准"。当 Q 值超过 1，意味着这台机器产出的聚变能量第一次超过你喂给它的能量——人类离"人造太阳"就近了一大步。</p>
+        <ul><li>1 keV 的温度 ≈ 1160 万 °C，已接近太阳核心温度（约 1500 万 °C）；推到 10 keV，就是它的近 8 倍</li><li>燃料是氢的同位素氘和氚，海水中储量巨大</li><li>聚变不产生长寿命高放废料，也不会发生链式失控</li></ul>`,
+      sci: `<h3>物理图像：功率平衡与新经典输运</h3>
+        <p>本平台求解简化的零维功率平衡方程，其中 τ<sub>E</sub> 采用 ISS04 标度的教学简化形式，H 因子表征位形优化对约束的改善：</p>
+        <div class="formula mono">dW/dt = P<sub>aux</sub> + P<sub>α</sub> − W/τ<sub>E</sub> ； τ<sub>E</sub> ∝ H<sub>QI</sub> · B<sup>0.84</sup> · n<sup>0.54</sup> · P<sup>−0.61</sup></div>
+        <p>QI（准等动力学对称）位形的核心是磁场强度 B 沿磁力线的分布对 bozer 角变量的特定对称性，使漂移轨道闭合、快粒子约束与低新经典输运同时成立——这正是 W7-X 验证、岩超聚能以 SQuID 方法进一步优化的设计路线。仿真中的破裂判据对应体平均 β 接近 5% 与密度极限（Sudo 标度）两条运行边界。</p>
+        <ul><li>旋转变换 ι ≈ 0.95，磁力线在磁面上遍历</li><li>点火条件：P<sub>α</sub> ≥ W/τ<sub>E</sub>，等价于三乘积 n·T·τ<sub>E</sub> ≳ 3×10²¹ keV·s·m⁻³</li><li>真实装置还需处理湍流输运、杂质辐射与偏滤器热负荷，本模型均作简化</li></ul>`,
+      inv: `<h3>资本视角：三代装置路线与"1+N"战略</h3>
+        <p>岩超聚能（YAN Fusion）2025 年 3 月成立，总部上海、研发与产线基地在合肥。公司战略是"1+N"："1"是长期目标——聚变发电商业化；"N"是短中期把超导技术降维应用到能源、工业、医疗、航天等场景创收，反哺聚变主线。2026 年三季度公司完成数亿元 Pre-A 轮融资（岩山科技、鸿元投资集团、万联广生、洪山资本），A 轮已启动且 50% 领投已锁定。</p>
+        <div class="mile">
+          <div><b>三代装置路线</b><span>YF-1（全 HTS + 金属 3D 打印 + AI 数字孪生，设计已完成，计划 2027 年底建成）→ YF-2（计划 2029 年底）→ YF-3（计划 2035 年前）。平台中的三个关卡（点火温度、稳态、Q≥1）正是行业通用的价值验证节点。</span></div>
+          <div><b>技术差异化</b><span>QI 位形 + SQuID 设计方法脱胎于 W7-X 十余年实验数据；公司的高低温混合超导磁体路线与金属 3D 打印，直击仿星器最大的工程痛点——复杂三维线圈。</span></div>
+          <div><b>工程底座</b><span>公司称国内唯一拥有仿星器 CICC 三维超导磁体完整自研能力，合肥产线已投产；不锈钢铠甲低温屈服强度突破 700 MPa、超导接头达纳欧级（均为公司口径）。团队近 60 人，另有近 10 名顾问。</span></div>
+        </div>
+        <p class="dim" style="margin-top:12px">说明：以上信息来自岩超聚能官网与 2026 年 10 月 13 日上海证券报、界面新闻公开报道，为科普性梳理，不构成投资建议。</p>`
+    };
+    const audPanel = $("panel-aud");
+    function setAud(key){
+      audPanel.innerHTML = AUD[key];
+      document.querySelectorAll(".tab").forEach(t=>t.setAttribute("aria-selected", String(t.dataset.aud===key)));
+    }
+    document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click", ()=>setAud(t.dataset.aud)));
+    setAud("pub");
+
+    /* ---------------- 证书生成 ---------------- */
+    $("btnCert").addEventListener("click", ()=>{
+      const name = ($("certName").value || "聚变探索者").trim();
+      const c = document.createElement("canvas"); c.width = 1240; c.height = 880;
+      const g = c.getContext("2d");
+      g.fillStyle = "#0a1420"; g.fillRect(0,0,1240,880);
+      g.strokeStyle = "#e85d1f"; g.lineWidth = 3; g.strokeRect(36,36,1168,808);
+      g.strokeStyle = "rgba(47,196,207,0.6)"; g.lineWidth = 1; g.strokeRect(52,52,1136,776);
+      // 装饰：扭曲环
+      g.save(); g.translate(620, 300); g.strokeStyle = "rgba(47,196,207,0.35)"; g.lineWidth = 10;
+      g.beginPath(); g.arc(0,0,86,0,6.2832); g.stroke();
+      g.strokeStyle = "rgba(232,93,31,0.75)";
+      g.beginPath(); g.arc(0,0,66,0,6.2832); g.stroke(); g.restore();
+      g.textAlign = "center"; g.fillStyle = "#e9f2f8";
+      g.font = "900 54px 'Noto Sans SC', sans-serif"; g.fillText("结 业 证 书", 620, 150);
+      g.font = "500 21px 'JetBrains Mono', monospace"; g.fillStyle = "#2fc4cf";
+      g.fillText("CERTIFICATE · STELLARATOR OPERATOR", 620, 190);
+      g.font = "400 24px 'Noto Sans SC', sans-serif"; g.fillStyle = "#b9cfdd";
+      g.fillText("兹证明", 620, 452);
+      g.font = "900 58px 'Noto Sans SC', sans-serif"; g.fillStyle = "#ffffff";
+      g.fillText(name, 620, 528);
+      g.font = "400 24px 'Noto Sans SC', sans-serif"; g.fillStyle = "#b9cfdd";
+      g.fillText("已完成仿星器交互模拟平台全部三项运行挑战——点亮等离子体、稳态运行 10 秒、", 620, 592);
+      g.fillText("实现科学增益 Q ≥ 1，具备磁约束聚变装置运行的基础认知。", 620, 632);
+      g.font = "700 26px 'JetBrains Mono', monospace"; g.fillStyle = "#ffab73";
+      g.fillText("最佳 Q 值  " + (sim.bestQ >= 99 ? "自持点火" : sim.bestQ.toFixed(2)), 620, 700);
+      g.font = "400 20px 'Noto Sans SC', sans-serif"; g.fillStyle = "#7d97ab";
+      const today = new Date();
+      g.fillText("签发日期：" + today.getFullYear() + " 年 " + (today.getMonth()+1) + " 月 " + today.getDate() + " 日", 330, 786);
+      g.fillText("YF-1 仿星器交互模拟平台 · 岩超聚能主题作品", 880, 786);
+      // 印章
+      g.save(); g.translate(1052, 668); g.rotate(-0.22);
+      g.strokeStyle = "rgba(232,93,31,0.9)"; g.lineWidth = 3;
+      g.beginPath(); g.arc(0,0,58,0,6.2832); g.stroke();
+      g.fillStyle = "rgba(232,93,31,0.9)"; g.font = "700 19px 'Noto Sans SC', sans-serif";
+      g.fillText("点火", 0, -4); g.fillText("认证", 0, 22); g.restore();
+      c.toBlob(blob=>{
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "仿星器运行员结业证书.png";
+        a.click();
+        setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+        logEvent("结业证书已生成并下载。", "good");
+      }, "image/png");
+    });
+
+    /* ---------------- 主循环 ---------------- */
+    logEvent("装置自检完成：真空室气压 1×10⁻⁷ Pa，低温系统待机。");
+    logEvent("模块化超导线圈励磁中… YF-1 全高温超导磁体系统就绪。");
+    logEvent("欢迎来到 YF-1 仿星器交互模拟平台。拖动右侧滑块，或让 AI 优化器先给你打个样。");
+    let last = performance.now(), aiClock = 0, chartClock = 0;
+    function loop(now){
+      const dtReal = clamp((now-last)/1000, 0, 0.05); last = now;
+      const dt = dtReal * 3;                       // 模拟加速 ×3
+      stepPhysics(dt);
+      render();
+      updateReadouts();
+      updateChallenges(dt);
+      aiClock += dtReal; chartClock += dtReal;
+      if (aiClock > 1.2){ aiClock = 0; updateAI(); }
+      if (chartClock > 0.25){ chartClock = 0; drawLawson(); }
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+    </script>
+  </body>
+</html>
