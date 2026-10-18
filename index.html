@@ -3334,6 +3334,7 @@ let activeMode = document.documentElement.getAttribute("data-yf-mode") === "sim"
 let storyVisualBuilt = false;
 let storyCoilTimer = 0;
 let storyCoilAt = 0;
+let storyHandoffTimer = 0;
 const storyCoilGroups = new Map();
 
 function readStoredStoryMode() {
@@ -3535,8 +3536,13 @@ function applyMode(mode, options = {}) {
 }
 
 function storyHandoff() {
-  if (!storyRoot) return;
-  applyMode("sim");
+  if (!storyRoot || storyHandoffTimer) return;
+  applyMode("sim", { persist: true, updateHash: true });
+  storyHandoffTimer = setTimeout(() => {
+    storyHandoffTimer = 0;
+    const trigger = document.querySelector("[data-tour-start]");
+    if (trigger) trigger.click();
+  }, 60);
 }
 
 if (storyRoot) {
