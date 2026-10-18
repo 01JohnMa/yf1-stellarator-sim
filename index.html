@@ -791,6 +791,7 @@ html[data-yf-mode="sim"] .yf-main-scroll{padding-top:max(54px,calc(env(safe-area
 .yf-story-play{max-width:none;padding:12px}
 .yf-story-sliders{grid-template-columns:1fr;gap:7px}
 .yf-story-slider input[type=range]{height:26px;margin-top:0}
+.yf-story-try input[type=range]{height:26px}
 .yf-story-readouts{grid-template-columns:1fr 1fr;gap:6px}
 .yf-story-read:nth-child(3){grid-column:1/-1}
 .yf-story-cta{width:100%;margin-top:23px}
@@ -864,10 +865,57 @@ body.yf-tour-floating .yf-tour-dock>.yf-tour{position:fixed}
 @media (max-width:1099px){
 .yf-tour.is-floating{position:fixed;left:8px;right:8px;bottom:8px;top:auto!important;width:auto;max-height:48vh}
 }
+/* ---- live plasma feedback: drag pulse, stage dim, number tick ---- */
+.yf-stage{position:relative;transition:background-color .34s ease,border-color .34s ease,box-shadow .34s ease}
+.yf-stage.is-aiming{background:#332b22;border-color:#6a5134;box-shadow:0 0 0 1px #e08a2e2e,0 12px 34px #1a120a33}
+.yf-figfoot{position:relative;isolation:isolate}
+.yf-figfoot::before{content:"";position:absolute;inset:-4px -6px;z-index:-1;border-radius:3px;background:var(--anatomy-paper);opacity:0;transition:opacity .34s ease;pointer-events:none}
+.yf-stage.is-aiming .yf-figfoot::before{opacity:1}
+.yf-plasma.is-drag-pulse{filter:drop-shadow(0 0 calc(var(--yf-aura,9px) * 1.6) var(--yf-aura-color,transparent)) brightness(1.18) saturate(1.05)!important}
+.yf-plasma.is-drag-pulse .yf-plasma-glow2{opacity:calc(var(--yf-glow,.3) * 1.85)!important}
+.yf-plasma.is-drag-pulse .yf-plasma-body2{filter:brightness(calc(var(--yf-plasma-bright,1) * 1.26))}
+.yf-plasma.is-drag-pulse .yf-plasma-core2{filter:brightness(calc(var(--yf-plasma-bright,1) * 1.22))}
+@keyframes yf-plasma-break{
+0%{opacity:1;filter:brightness(1) saturate(1)}
+10%{opacity:1;filter:brightness(3.2) saturate(.15)}
+22%{opacity:.95;filter:brightness(2.2) saturate(.4)}
+55%{opacity:.34;filter:brightness(1.1) saturate(.7)}
+100%{opacity:0;filter:brightness(.35) saturate(.6)}
+}
+.yf-plasma.is-breaking{animation:yf-plasma-break .8s cubic-bezier(.18,.62,.32,1) both!important}
+@keyframes yf-plasma-relight{
+0%{opacity:0;filter:brightness(.4) saturate(.7)}
+40%{opacity:1;filter:brightness(1.8) saturate(1.1)}
+100%{opacity:1;filter:brightness(1) saturate(1)}
+}
+.yf-plasma.is-relit{animation:yf-plasma-relight .72s cubic-bezier(.2,.7,.2,1) both!important}
+@keyframes yf-num-tick{0%{opacity:1}20%{opacity:.24}48%{opacity:1}68%{opacity:.55}100%{opacity:1}}
+.is-num-tick{animation:yf-num-tick .34s ease-out}
+/* ---- break / recover teaching notice ---- */
+.yf-break-toast{position:absolute;left:50%;bottom:14px;z-index:8;max-width:min(560px,calc(100% - 28px));padding:9px 13px;border:1px solid #c25a2e;border-radius:4px;background:#1a0f0bee;color:#ffd9b0;font-family:var(--anatomy-mono);font-size:11px;line-height:1.6;letter-spacing:.01em;text-align:left;box-shadow:0 12px 30px #00000052;opacity:0;pointer-events:none;transform:translate(-50%,8px);transition:opacity .18s ease,transform .18s ease}
+.yf-break-toast.is-show{opacity:1;transform:translate(-50%,0)}
+.yf-break-toast[data-tone="recover"]{border-color:#3e8a62;background:#0c1710ee;color:#b9f2d0}
+.yf-story-break{bottom:max(82px,calc(env(safe-area-inset-bottom) + 72px));z-index:8;max-width:min(540px,calc(100vw - 40px));font-size:12px;line-height:1.65}
+/* ---- story micro-action nudge + try control ---- */
+.yf-story-nudge{display:inline-flex;align-items:center;gap:7px;margin:11px 0 0;padding:5px 10px;border:1px dashed #6f5a3d;border-radius:3px;background:#ffffff08;color:#e8bd84;font-family:var(--anatomy-mono);font-size:10px;line-height:1.5;letter-spacing:.03em;white-space:nowrap}
+.yf-story-nudge::after{content:"";width:6px;height:6px;border-top:1.5px solid currentColor;border-right:1.5px solid currentColor;transform:rotate(45deg);opacity:.7;animation:yf-nudge-blink 1.8s ease-in-out infinite}
+.yf-story-nudge[data-nudge-dir="down"]::after{transform:rotate(135deg)}
+@keyframes yf-nudge-blink{0%,100%{opacity:.45}50%{opacity:1}}
+.yf-story-try{display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center;margin:13px 0 0;padding:8px 10px;border:1px solid #4a4237;border-radius:3px;background:#0f0d0a;font-family:var(--anatomy-mono);font-size:10.5px;line-height:1.4;letter-spacing:.03em;color:#cfc5b5}
+.yf-story-try>span{grid-column:1/2;color:#b9af9f}
+.yf-story-try output{grid-column:2/3;grid-row:1/2;color:#f0e7d8;font-variant-numeric:tabular-nums}
+.yf-story-try input[type=range]{grid-column:1/3;grid-row:2/3;width:100%;height:20px;margin:0;background:transparent;accent-color:#e08a2e;cursor:ew-resize}
+.yf-story-try input[type=range]:focus-visible{outline:2px solid #e08a2e;outline-offset:4px}
+.yf-story-try small{grid-column:1/3;font-size:9px;line-height:1.5;color:#9a9183}
+.yf-story-try.is-story-beat{outline:1.5px solid #e08a2e;outline-offset:3px}
 @media (prefers-reduced-motion:reduce){
 .yf-story-beat,.yf-story-leader circle{animation:none!important}
 .yf-story-read.is-impact{animation:none!important;box-shadow:0 0 0 3px #e08a2e55!important}
 .yf-tour.is-floating{transition:none!important}
+.yf-stage,.yf-figfoot::before{transition:none!important}
+.yf-break-toast{transition:none!important}
+.yf-plasma.is-breaking,.yf-plasma.is-relit{animation:none!important}
+.is-num-tick,.yf-story-nudge::after{animation:none!important}
 }
 </style>
 <script>
@@ -893,6 +941,7 @@ body.yf-tour-floating .yf-tour-dock>.yf-tour{position:fixed}
   <div class="yf-story-shade" aria-hidden="true"></div>
   <div class="yf-story-notes" data-story-notes aria-hidden="true"></div>
   <span class="yf-story-brand" aria-hidden="true">YF-1 · 仿星器教学模型</span>
+  <div class="yf-break-toast yf-story-break" data-story-break data-tone="break" hidden role="status" aria-live="polite"></div>
   <div class="yf-story-viewport">
     <div class="yf-story-track" data-story-track>
       <article class="yf-story-panel" data-story-panel="0" aria-roledescription="章节" aria-label="第 1 屏，共 4 屏：封面">
@@ -906,22 +955,34 @@ body.yf-tour-floating .yf-tour-dock>.yf-tour{position:fixed}
       </article>
       <article class="yf-story-panel" data-story-panel="1" aria-roledescription="章节" aria-label="第 2 屏，共 4 屏：问题" aria-hidden="true" inert>
         <div class="yf-story-copy">
-          <p class="yf-story-kicker" data-story-beat-kicker data-story-kicker-base="02 / 04 · 难题">02 / 04 · 难题 · 拍 1 / 2</p>
+          <p class="yf-story-kicker" data-story-beat-kicker data-story-kicker-base="02 / 04 · 难题">02 / 04 · 难题 · 拍 1 / 3</p>
           <div class="yf-story-beats">
-            <section class="yf-story-beat" data-story-beat="0" data-beat-title="装不住的火" data-beat-target=".yf-story-arc" data-beat-label="等离子体" data-beat-side="right">
-              <h2 class="yf-story-title" data-story-title tabindex="-1">装不住的火</h2>
-              <p class="yf-story-body" data-beat-body>上亿度，一碰就化</p>
+            <section class="yf-story-beat" data-story-beat="0" data-beat-title="先猜一猜" data-beat-target=".yf-story-arc" data-beat-label="等离子体" data-beat-side="right">
+              <h2 class="yf-story-title" data-story-title tabindex="-1">先猜一猜</h2>
+              <p class="yf-story-body" data-beat-body>猜猜：上亿度的火，用什么装？</p>
+              <span class="yf-story-nudge" data-story-nudge data-nudge-dir="right">微行动：先猜，再下一拍</span>
             </section>
-            <section class="yf-story-beat" data-story-beat="1" data-beat-title="磁场当容器" data-beat-target=".it[data-piece='coil']" data-beat-label="扭曲线圈" data-beat-side="right" hidden>
-              <h2 class="yf-story-title" data-story-title tabindex="-1">磁场当容器</h2>
-              <p class="yf-story-body" data-beat-body>唯一能兜住</p>
+            <section class="yf-story-beat" data-story-beat="1" data-beat-title="答案是磁场" data-beat-target=".it[data-piece='coil']" data-beat-label="扭曲线圈" data-beat-side="right" hidden>
+              <h2 class="yf-story-title" data-story-title tabindex="-1">答案是磁场</h2>
+              <p class="yf-story-body" data-beat-body>看不见的磁笼，把火悬在真空室中间</p>
+              <span class="yf-story-nudge" data-story-nudge data-nudge-dir="right">微行动：盯住发光的线圈</span>
+            </section>
+            <section class="yf-story-beat" data-story-beat="2" data-beat-title="你来试" data-beat-target=".yf-story-try" data-beat-label="磁场 B" data-beat-side="right" data-beat-ui="1" data-beat-channel="b" hidden>
+              <h2 class="yf-story-title" data-story-title tabindex="-1">你来试</h2>
+              <p class="yf-story-body" data-beat-body>把磁场往右拖，看火被收得更紧</p>
+              <label class="yf-story-try" data-story-try>
+                <span>磁场 B</span><output for="yf-story-try-b" data-story-try-out>2.70 T</output>
+                <input id="yf-story-try-b" type="range" min="2" max="3" step="0.05" value="2.7" aria-label="试试磁场强度，2 到 3 特斯拉">
+                <small>往右：磁场更强，等离子体收得更紧、边缘更锐</small>
+              </label>
+              <span class="yf-story-nudge" data-story-nudge data-nudge-dir="right">微行动：磁场拖右一档</span>
             </section>
           </div>
           <div class="yf-story-beat-nav">
-            <span class="yf-story-beat-progress" data-beat-progress>拍 1 / 2</span>
+            <span class="yf-story-beat-progress" data-beat-progress>拍 1 / 3</span>
             <button type="button" class="yf-story-beat-next" data-story-beat-next>下一拍 →</button>
           </div>
-          <button type="button" class="yf-story-cta" data-story-go="2" data-story-after-beat hidden>看那只笼子</button>
+          <button type="button" class="yf-story-cta" data-story-go="2" data-story-after-beat hidden>继续看那只笼子 →</button>
         </div>
       </article>
       <article class="yf-story-panel" data-story-panel="2" aria-roledescription="章节" aria-label="第 3 屏，共 4 屏：机器" aria-hidden="true" inert>
@@ -931,14 +992,17 @@ body.yf-tour-floating .yf-tour-dock>.yf-tour{position:fixed}
             <section class="yf-story-beat" data-story-beat="0" data-beat-title="环形真空室" data-beat-target=".it[data-piece='vessel']" data-beat-label="真空室" data-beat-side="right">
               <h2 class="yf-story-title" data-story-title tabindex="-1">环形真空室</h2>
               <p class="yf-story-body" data-beat-body>把火悬在中间</p>
+              <span class="yf-story-nudge" data-story-nudge data-nudge-dir="right">微行动：找那一圈真空室</span>
             </section>
             <section class="yf-story-beat" data-story-beat="1" data-beat-title="扭曲线圈" data-beat-target=".it[data-piece='coil']" data-beat-label="扭曲线圈" data-beat-side="right" hidden>
               <h2 class="yf-story-title" data-story-title tabindex="-1">扭曲线圈</h2>
               <p class="yf-story-body" data-beat-body>六组拧螺旋</p>
+              <span class="yf-story-nudge" data-story-nudge data-nudge-dir="right">微行动：数数六组线圈</span>
             </section>
             <section class="yf-story-beat" data-story-beat="2" data-beat-title="橙色等离子体" data-beat-target=".yf-story-arc" data-beat-label="等离子体" data-beat-side="right" hidden>
               <h2 class="yf-story-title" data-story-title tabindex="-1">橙色等离子体</h2>
               <p class="yf-story-body" data-beat-body>带电会发光</p>
+              <span class="yf-story-nudge" data-story-nudge data-nudge-dir="right">微行动：看中间那团橙光</span>
             </section>
           </div>
           <div class="yf-story-beat-nav">
@@ -955,10 +1019,12 @@ body.yf-tour-floating .yf-tour-dock>.yf-tour{position:fixed}
             <section class="yf-story-beat" data-story-beat="0" data-beat-title="先抬磁场" data-beat-target="#yf-story-b" data-beat-label="磁场 B" data-beat-side="right" data-beat-ui="1" data-beat-reads="temp beta" data-beat-channel="b">
               <h2 class="yf-story-title" data-story-title tabindex="-1">先抬磁场</h2>
               <p class="yf-story-body" data-beat-body>撑开红线</p>
+              <span class="yf-story-nudge" data-story-nudge data-nudge-dir="down">微行动：磁场拖右一档</span>
             </section>
             <section class="yf-story-beat" data-story-beat="1" data-beat-title="再加功率" data-beat-target="#yf-story-p" data-beat-label="加热 P" data-beat-side="right" data-beat-ui="1" data-beat-reads="q temp" data-beat-channel="p" hidden>
               <h2 class="yf-story-title" data-story-title tabindex="-1">再加功率</h2>
               <p class="yf-story-body" data-beat-body>推 Q 过 1</p>
+              <span class="yf-story-nudge" data-story-nudge data-nudge-dir="down">微行动：功率拖右一档</span>
             </section>
           </div>
           <div class="yf-story-beat-nav">
@@ -1246,6 +1312,7 @@ body.yf-tour-floating .yf-tour-dock>.yf-tour{position:fixed}
             <span class="iso-plate-corner yf-fig-readout" data-corner="readout" data-readout>温度 8.7 keV · 约束 0.34 s · 增益 0.69</span>
             <span class="iso-caption">十二段真空室围成环形，六组三维扭曲的超导线圈从外侧环抱；前侧两段上半壳剖开，露出带三个场周期扭曲的等离子体环。顶部导览先解释这台机器、橙色等离子体与 Q／β／τE 三个词；页面右上或导览卡里的「开始分步导览」会用 7 步带做：认识线圈与等离子体、点亮、读三个数、做对比实验、触发并恢复破裂、自己达成 Q≥1，最后打开进阶与专家层。右上「名词解释」可随时查术语。入门层用磁场与加热功率驱动模型；进阶层可独立调节密度 n、分解部件、叠加磁力线与标注，并点选部件查看信息；专家层实时代入 τE、温度、β 与 Q 公式，给出参数扫描和事件日志。数据是教学模型量级，参考 W7-X 约束水平；岩超聚能 YF-1 的真实工程参数未公开，图中数值不代表工程规格。</span>
           </div>
+          <span class="yf-break-toast yf-stage-break" data-break-toast data-tone="break" hidden role="status" aria-live="polite"></span>
         </div>
       </div>
     </main>
@@ -1989,6 +2056,7 @@ const liveRegion = root.querySelector(".yf-live");
 let phaseShown = "";
 const lcd = Object.fromEntries([...root.querySelectorAll("[data-lcd]")].map((el) => [el.dataset.lcd, el]));
 const led = root.querySelector("[data-led]");
+for (const el of root.querySelectorAll("[data-lcd],[data-now-temp],[data-now-q],[data-now-beta]")) el.setAttribute("data-flash", "");
 const knobs = Object.fromEntries([...root.querySelectorAll("[data-needle]")].map((el) => [el.dataset.needle, el]));
 const modelOf = function modelOf(B, Pheat, n20 = 1) {
   const tau = 0.34 * Math.pow(B / 2.5, 0.9) * Math.pow(n20, 0.3) * Math.pow(Pheat / 8, -0.45);
@@ -2004,7 +2072,28 @@ const readoutOf = (m) =>
   m.disrupt
     ? `β ${m.beta.toFixed(1)}% 超限 · 等离子体破裂`
     : `温度 ${m.T.toFixed(1)} keV · 约束 ${m.tau.toFixed(2)} s · 增益 ${m.Q.toFixed(2)}`;
-const setText = (el, text) => { if (el && el.textContent !== text) el.textContent = text; };
+const tickAt = new WeakMap();
+const tickTimers = new WeakMap();
+function flashNumber(el) {
+  if (!el || still.matches) return;
+  const now = performance.now();
+  if (now - (tickAt.get(el) || 0) < 110) return;
+  tickAt.set(el, now);
+  el.classList.remove("is-num-tick");
+  void el.getBoundingClientRect();
+  el.classList.add("is-num-tick");
+  const prev = tickTimers.get(el);
+  if (prev) clearTimeout(prev);
+  tickTimers.set(el, setTimeout(() => {
+    el.classList.remove("is-num-tick");
+    tickTimers.delete(el);
+  }, 340));
+}
+function setText(el, text) {
+  if (!el || el.textContent === text) return;
+  el.textContent = text;
+  if (el.hasAttribute("data-flash")) flashNumber(el);
+}
 function say(text) { if (readout.textContent !== text) readout.textContent = text; }
 function describe() {
   const m = modelOf(shownB, shownP, shownN);
@@ -3568,6 +3657,76 @@ function plasmaTargetsOf(m) {
     gain: m.disrupt ? 0 : clamp((m.Q - 1) / 0.75, 0, 1)
   };
 }
+const plasmaNotices = new WeakMap();
+function registerPlasmaNotice(surface, handlers) {
+  if (surface && handlers) plasmaNotices.set(surface, handlers);
+}
+const plasmaPulseTimers = new WeakMap();
+function pulsePlasma(surface) {
+  const arc = surface ? surface.querySelector(".yf-plasma") : null;
+  if (!arc || arc.classList.contains("is-disrupt") || arc.classList.contains("is-breaking")) return;
+  arc.classList.remove("is-drag-pulse");
+  void arc.getBoundingClientRect();
+  arc.classList.add("is-drag-pulse");
+  const prev = plasmaPulseTimers.get(arc);
+  if (prev) clearTimeout(prev);
+  plasmaPulseTimers.set(arc, setTimeout(() => {
+    arc.classList.remove("is-drag-pulse");
+    plasmaPulseTimers.delete(arc);
+  }, 200));
+}
+const BREAK_NOTICE = "β 顶穿红线，等离子体破裂熄灭了——先抬磁场兜住，再加功率";
+const RECOVER_NOTICE = "兜住了，火又着了";
+const noticeSlots = { sim: { timer: 0, hide: 0 }, story: { timer: 0, hide: 0 } };
+function noticeElement(kind) {
+  return kind === "story" ? document.querySelector("[data-story-break]") : document.querySelector("[data-break-toast]");
+}
+function showPlasmaNotice(kind, text, tone, hold) {
+  const el = noticeElement(kind);
+  if (!el) return;
+  const slot = noticeSlots[kind];
+  clearTimeout(slot.timer);
+  clearTimeout(slot.hide);
+  slot.hide = 0;
+  el.textContent = text;
+  el.dataset.tone = tone || "break";
+  el.hidden = false;
+  void el.offsetWidth;
+  el.classList.add("is-show");
+  slot.timer = setTimeout(() => hidePlasmaNotice(kind), hold || 6000);
+}
+function hidePlasmaNotice(kind) {
+  const el = noticeElement(kind);
+  if (!el) return;
+  const slot = noticeSlots[kind];
+  clearTimeout(slot.timer);
+  slot.timer = 0;
+  el.classList.remove("is-show");
+  clearTimeout(slot.hide);
+  slot.hide = setTimeout(() => {
+    el.hidden = true;
+    slot.hide = 0;
+  }, 200);
+}
+function plasmaLook(state) {
+  const body = plasmaTone(state.heat);
+  const core = plasmaTone(Math.min(1, 0.18 + state.heat * 0.9));
+  const glow = plasmaMix(body, [255, 178, 92], 0.35);
+  const bodyTint = plasmaMix(plasmaMix(body, [255, 252, 244], state.gain * 0.32), PLASMA_WARN, state.near * 0.16);
+  const glowTint = plasmaMix(plasmaMix(glow, [255, 176, 96], 0.2), PLASMA_CYAN, state.gain * 0.55);
+  const coreTint = plasmaMix(plasmaMix(core, [255, 255, 255], state.gain * 0.22), PLASMA_WARN, state.near * 0.1);
+  const glowOff = (10 + 24 * state.power + 16 * state.heat) * (1 - 0.18 * state.field) * (1 + 0.12 * state.near + 0.1 * state.gain);
+  const bodyOff = (3 + 8.6 * state.power + 3.4 * state.heat) * (1 - 0.3 * state.field);
+  const coreOff = (1.2 + 2.8 * state.heat + 2.2 * state.power) * (1 - 0.3 * state.field);
+  const glowOp = clamp(0.1 + 0.48 * state.heat + 0.26 * state.power + 0.12 * state.gain + 0.08 * state.near, 0.08, 0.95);
+  const bodyOp = clamp(0.68 + 0.3 * state.field + 0.14 * state.heat - 0.24 * state.near, 0.28, 1);
+  const coreOp = clamp(0.5 + 0.44 * state.field + 0.16 * state.heat - 0.26 * state.near, 0.25, 1);
+  const blur = clamp(6 - 4.6 * state.field + 2.6 * state.near - 0.6 * state.heat + (1 - state.fade) * 1.5, 1.05, 7.5);
+  const bright = clamp(0.74 + 0.55 * state.heat + 0.2 * state.gain - 0.1 * state.near, 0.6, 1.42);
+  const aura = clamp((3.5 + 20 * state.power + 17 * state.heat) * (1 - 0.22 * state.field) + 3 * state.near + 3 * state.gain, 3.2, 42);
+  const auraColor = "rgba(" + Math.round(glowTint[0]) + "," + Math.round(glowTint[1]) + "," + Math.round(glowTint[2]) + ",.5)";
+  return { bodyTint, glowTint, coreTint, glowOff, bodyOff, coreOff, glowOp, bodyOp, coreOp, blur, bright, aura, auraColor };
+}
 const plasmaRig = new WeakMap();
 function drivePlasma(surface, m, options = {}) {
   if (!surface) return null;
@@ -3576,7 +3735,7 @@ function drivePlasma(surface, m, options = {}) {
   const calm = still.matches || options.snap;
   let rig = plasmaRig.get(surface);
   if (!rig) {
-    rig = { heat: want.heat, power: want.power, field: want.field, near: want.near, gain: want.gain, fade: options.fade == null ? (m.disrupt ? 0 : 1) : options.fade, at: now, arc: null, svg: null, blur: null };
+    rig = { heat: want.heat, power: want.power, field: want.field, near: want.near, gain: want.gain, fade: options.fade == null ? (m.disrupt ? 0 : 1) : options.fade, at: now, arc: null, svg: null, blur: null, disrupt: m.disrupt, breakTimer: 0, relitTimer: 0 };
     plasmaRig.set(surface, rig);
   }
   const dt = Math.min(0.2, Math.max(0, (now - rig.at) / 1000));
@@ -3594,41 +3753,57 @@ function drivePlasma(surface, m, options = {}) {
     rig.svg = rig.arc ? rig.arc.ownerSVGElement : null;
     rig.blur = rig.svg ? rig.svg.querySelector("feGaussianBlur") : null;
   }
-  const body = plasmaTone(rig.heat);
-  const core = plasmaTone(Math.min(1, 0.18 + rig.heat * 0.9));
-  const glow = plasmaMix(body, [255, 178, 92], 0.35);
-  const bodyTint = plasmaMix(plasmaMix(body, PLASMA_WARN, rig.near * 0.62), PLASMA_CYAN, rig.gain * 0.55);
-  const glowTint = plasmaMix(plasmaMix(glow, PLASMA_WARN, rig.near * 0.5), PLASMA_CYAN, rig.gain * 0.8);
-  const coreTint = plasmaMix(plasmaMix(core, PLASMA_WARN, rig.near * 0.3), [226, 255, 255], rig.gain * 0.6);
-  const glowOff = (20 + 20 * rig.power + 12 * rig.heat) * (1 - 0.3 * rig.field) * (1 + 0.28 * rig.near + 0.22 * rig.gain);
-  const bodyOff = (7 + 4.4 * rig.heat + 4 * rig.power) * (1 - 0.22 * rig.field);
-  const coreOff = (1.4 + 2.6 * rig.heat + 1.3 * rig.power) * (1 - 0.18 * rig.field);
-  const glowOp = clamp(0.1 + 0.48 * rig.heat + 0.26 * rig.power + 0.12 * rig.gain + 0.08 * rig.near, 0.08, 0.92);
-  const bodyOp = clamp(0.68 + 0.3 * rig.field + 0.14 * rig.heat - 0.24 * rig.near, 0.28, 1);
-  const coreOp = clamp(0.5 + 0.44 * rig.field + 0.16 * rig.heat - 0.26 * rig.near, 0.25, 1);
-  const blur = clamp(3.5 - 1.9 * rig.field + 2.4 * rig.near - 0.5 * rig.heat + (1 - rig.fade) * 1.2, 1.1, 6.4);
-  const bright = clamp(0.76 + 0.52 * rig.heat + 0.18 * rig.gain - 0.1 * rig.near, 0.62, 1.4);
-  const aura = (5 + 14 * rig.heat + 10 * rig.power) * (1 - 0.18 * rig.field) + 4 * rig.near + 4 * rig.gain;
-  const auraColor = "rgba(" + Math.round(glowTint[0]) + "," + Math.round(glowTint[1]) + "," + Math.round(glowTint[2]) + ",.5)";
-  surface.style.setProperty("--yf-glow-color", plasmaRgb(glowTint));
-  surface.style.setProperty("--yf-body-color", plasmaRgb(bodyTint));
-  surface.style.setProperty("--yf-core-color", plasmaRgb(coreTint));
-  surface.style.setProperty("--yf-glow-w", glowOff.toFixed(2) + "px");
-  surface.style.setProperty("--yf-body-w", bodyOff.toFixed(2) + "px");
-  surface.style.setProperty("--yf-core-w", coreOff.toFixed(2) + "px");
-  surface.style.setProperty("--yf-glow", glowOp.toFixed(3));
-  surface.style.setProperty("--yf-body-op", bodyOp.toFixed(3));
-  surface.style.setProperty("--yf-core-op", coreOp.toFixed(3));
-  surface.style.setProperty("--yf-plasma-bright", bright.toFixed(3));
+  if (rig.disrupt !== m.disrupt) {
+    const wasDisrupt = rig.disrupt;
+    rig.disrupt = m.disrupt;
+    if (rig.arc) {
+      if (m.disrupt) {
+        rig.arc.classList.remove("is-relit");
+        void rig.arc.getBoundingClientRect();
+        rig.arc.classList.add("is-breaking");
+        if (rig.breakTimer) clearTimeout(rig.breakTimer);
+        rig.breakTimer = setTimeout(() => {
+          rig.breakTimer = 0;
+          if (rig.arc) rig.arc.classList.remove("is-breaking");
+        }, 820);
+      } else {
+        rig.arc.classList.remove("is-breaking");
+        if (rig.breakTimer) { clearTimeout(rig.breakTimer); rig.breakTimer = 0; }
+        void rig.arc.getBoundingClientRect();
+        rig.arc.classList.add("is-relit");
+        if (rig.relitTimer) clearTimeout(rig.relitTimer);
+        rig.relitTimer = setTimeout(() => {
+          rig.relitTimer = 0;
+          if (rig.arc) rig.arc.classList.remove("is-relit");
+        }, 760);
+      }
+    }
+    const notice = plasmaNotices.get(surface);
+    if (notice) {
+      if (m.disrupt && notice.onBreak) notice.onBreak();
+      else if (!m.disrupt && wasDisrupt && notice.onRecover) notice.onRecover();
+    }
+  }
+  const look = plasmaLook(rig);
+  surface.style.setProperty("--yf-glow-color", plasmaRgb(look.glowTint));
+  surface.style.setProperty("--yf-body-color", plasmaRgb(look.bodyTint));
+  surface.style.setProperty("--yf-core-color", plasmaRgb(look.coreTint));
+  surface.style.setProperty("--yf-glow-w", look.glowOff.toFixed(2) + "px");
+  surface.style.setProperty("--yf-body-w", look.bodyOff.toFixed(2) + "px");
+  surface.style.setProperty("--yf-core-w", look.coreOff.toFixed(2) + "px");
+  surface.style.setProperty("--yf-glow", look.glowOp.toFixed(3));
+  surface.style.setProperty("--yf-body-op", look.bodyOp.toFixed(3));
+  surface.style.setProperty("--yf-core-op", look.coreOp.toFixed(3));
+  surface.style.setProperty("--yf-plasma-bright", look.bright.toFixed(3));
   surface.style.setProperty("--yf-plasma-op", clamp(rig.fade, 0, 1).toFixed(3));
-  surface.style.setProperty("--yf-aura", aura.toFixed(2) + "px");
-  surface.style.setProperty("--yf-aura-color", auraColor);
+  surface.style.setProperty("--yf-aura", look.aura.toFixed(2) + "px");
+  surface.style.setProperty("--yf-aura-color", look.auraColor);
   surface.style.setProperty("--yf-jitter", (1.2 + 2.6 * rig.near).toFixed(2) + "px");
   surface.style.setProperty("--yf-field-dash", (2.4 - 0.95 * rig.field).toFixed(2) + " " + (3.6 - 1.7 * rig.field).toFixed(2));
   surface.style.setProperty("--yf-field-op", (0.42 + 0.42 * rig.field).toFixed(3));
   surface.style.setProperty("--yf-field-w", (0.72 + 0.5 * rig.field).toFixed(3) + "px");
   if (rig.blur) {
-    const deviation = blur.toFixed(2);
+    const deviation = look.blur.toFixed(2);
     if (rig.blur.getAttribute("stdDeviation") !== deviation) rig.blur.setAttribute("stdDeviation", deviation);
   }
   if (rig.arc) {
@@ -3639,6 +3814,40 @@ function drivePlasma(surface, m, options = {}) {
     rig.arc.classList.toggle("is-gain", !m.disrupt && rig.gain > 0.45);
   }
   return rig;
+}
+function plasmaEndpoint(B, P) {
+  const m = modelOf(B, P, 1);
+  const state = plasmaTargetsOf(m);
+  state.fade = 1;
+  return { m, state, look: plasmaLook(state) };
+}
+function plasmaAmplitudeCheck() {
+  const lowP = plasmaEndpoint(3, 4);
+  const highP = plasmaEndpoint(3, 12);
+  const lowB = plasmaEndpoint(2, 6);
+  const highB = plasmaEndpoint(3, 6);
+  const colorGap = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+  const strokeRatio = highP.look.bodyOff / lowP.look.bodyOff;
+  const glowRatio = highP.look.aura / lowP.look.aura;
+  const glowWidthRatio = highP.look.glowOff / lowP.look.glowOff;
+  const colorDistance = colorGap(lowP.look.bodyTint, highP.look.bodyTint);
+  const blurRatio = lowB.look.blur / highB.look.blur;
+  const pass = strokeRatio >= 2.5 && glowRatio >= 3 && glowWidthRatio >= 3 && colorDistance >= 120 && blurRatio >= 2
+    && !lowP.m.disrupt && !highP.m.disrupt && !lowB.m.disrupt && !highB.m.disrupt;
+  return {
+    pass,
+    strokeRatio: Number(strokeRatio.toFixed(2)),
+    glowRatio: Number(glowRatio.toFixed(2)),
+    glowWidthRatio: Number(glowWidthRatio.toFixed(2)),
+    blurRatio: Number(blurRatio.toFixed(2)),
+    colorDistance: Number(colorDistance.toFixed(1)),
+    endpoints: {
+      p4: { width: Number(lowP.look.bodyOff.toFixed(2)), aura: Number(lowP.look.aura.toFixed(2)), color: lowP.look.bodyTint.map((value) => Math.round(value)) },
+      p12: { width: Number(highP.look.bodyOff.toFixed(2)), aura: Number(highP.look.aura.toFixed(2)), color: highP.look.bodyTint.map((value) => Math.round(value)) },
+      b2: { blur: Number(lowB.look.blur.toFixed(2)) },
+      b3: { blur: Number(highB.look.blur.toFixed(2)) }
+    }
+  };
 }
 function plasmaSettled(rig, m) {
   if (!rig) return true;
@@ -3656,12 +3865,12 @@ function draw() {
   say(text);
   const phase = m.disrupt ? "β 超限，等离子体破裂，状态灯转红" : "稳定约束，等离子体运行";
   if (phase !== phaseShown) { phaseShown = phase; if (liveRegion) liveRegion.textContent = phase; }
-  if (lcd.B) lcd.B.textContent = "磁场 " + fmt2(shownB) + " T";
-  if (lcd.P) lcd.P.textContent = "功率 " + fmt1(shownP) + " MW · n " + fmt2(m.n20);
-  if (lcd.T) lcd.T.textContent = m.disrupt ? "温度 -- keV" : "温度 " + fmt1(m.T) + " keV";
-  if (lcd.Tau) lcd.Tau.textContent = "约束 " + fmt2(m.tau) + " s";
-  if (lcd.Q) lcd.Q.textContent = "增益 " + fmt2(m.Q);
-  if (lcd.Beta) lcd.Beta.textContent = "β " + fmt1(m.beta) + " / 6.8 %";
+  if (lcd.B) setText(lcd.B, "磁场 " + fmt2(shownB) + " T");
+  if (lcd.P) setText(lcd.P, "功率 " + fmt1(shownP) + " MW · n " + fmt2(m.n20));
+  if (lcd.T) setText(lcd.T, m.disrupt ? "温度 -- keV" : "温度 " + fmt1(m.T) + " keV");
+  if (lcd.Tau) setText(lcd.Tau, "约束 " + fmt2(m.tau) + " s");
+  if (lcd.Q) setText(lcd.Q, "增益 " + fmt2(m.Q));
+  if (lcd.Beta) setText(lcd.Beta, "β " + fmt1(m.beta) + " / 6.8 %");
   if (led) led.setAttribute("data-state", m.disrupt ? "bad" : m.beta > 6.2 ? "warn" : "good");
   if (knobs.B) knobs.B.setAttribute("transform", "rotate(" + (-120 + ((shownB - 2) / 1) * 240) + ")");
   if (knobs.P) knobs.P.setAttribute("transform", "rotate(" + (-120 + ((shownP - 4) / 8) * 240) + ")");
@@ -3714,7 +3923,16 @@ const storyUI = storyRoot ? {
   readTemp: storyRoot.querySelector('[data-story-read="temp"]'),
   readQ: storyRoot.querySelector('[data-story-read="q"]'),
   readBeta: storyRoot.querySelector('[data-story-read="beta"]'),
+  tryB: storyRoot.querySelector("#yf-story-try-b"),
+  tryOut: storyRoot.querySelector("[data-story-try-out]"),
 } : null;
+if (storyUI) {
+  for (const el of storyRoot.querySelectorAll("[data-story-temp],[data-story-q],[data-story-beta]")) el.setAttribute("data-flash", "");
+  registerPlasmaNotice(storyUI.visual, {
+    onBreak: () => showPlasmaNotice("story", BREAK_NOTICE, "break", 6000),
+    onRecover: () => showPlasmaNotice("story", RECOVER_NOTICE, "recover", 3000),
+  });
+}
 let storyIndex = 0;
 let activeMode = document.documentElement.getAttribute("data-yf-mode") === "sim" ? "sim" : "story";
 let storyVisualBuilt = false;
@@ -3731,6 +3949,18 @@ let storyNoteRaf = 0;
 let storyChannelTimer = 0;
 const storyNoteTimers = [];
 const storyCoilGroups = new Map();
+let storySeeded = false;
+let storyTouched = false;
+
+function seedStoryDefaults() {
+  if (storySeeded) return;
+  storySeeded = true;
+  if (storyTouched) return;
+  if (Math.abs(targetB - 2.5) < 1e-6 && Math.abs(targetP - 8) < 1e-6) {
+    targetB = 2.7;
+    targetP = 5.5;
+  }
+}
 
 function readStoredStoryMode() {
   try {
@@ -4108,6 +4338,7 @@ function storyOutputsFromInputs() {
   if (!storyUI || !storyUI.b || !storyUI.p) return;
   setText(storyUI.bOut, fmt2(Number(storyUI.b.value)) + " T");
   setText(storyUI.pOut, fmt1(Number(storyUI.p.value)) + " MW");
+  setText(storyUI.tryOut, fmt2(Number(storyUI.b.value)) + " T");
 }
 
 let storyPlasmaFrame = 0;
@@ -4126,9 +4357,20 @@ function pumpStoryPlasma() {
 function resetStoryVisual() {
   if (!storyUI || !storyUI.visual) return;
   if (storyPlasmaFrame) { cancelAnimationFrame(storyPlasmaFrame); storyPlasmaFrame = 0; }
+  const rig = plasmaRig.get(storyUI.visual);
+  if (rig) {
+    if (rig.breakTimer) clearTimeout(rig.breakTimer);
+    if (rig.relitTimer) clearTimeout(rig.relitTimer);
+  }
   plasmaRig.delete(storyUI.visual);
   const arc = storyUI.visual.querySelector(".yf-plasma");
-  if (arc) arc.classList.remove("is-near-limit", "is-arc-shake", "is-disrupt", "is-gain");
+  if (arc) {
+    arc.classList.remove("is-near-limit", "is-arc-shake", "is-disrupt", "is-gain", "is-breaking", "is-relit", "is-drag-pulse");
+    const pulse = plasmaPulseTimers.get(arc);
+    if (pulse) clearTimeout(pulse);
+    plasmaPulseTimers.delete(arc);
+  }
+  hidePlasmaNotice("story");
   const blur = storyUI.visual.querySelector("feGaussianBlur");
   if (blur) blur.setAttribute("stdDeviation", "3.2");
   for (const name in PLASMA_DEFAULT) storyUI.visual.style.setProperty(name, PLASMA_DEFAULT[name]);
@@ -4170,6 +4412,7 @@ function syncStoryInputs() {
   targetP = Math.round(clamp(targetP, 4, 12) * 4) / 4;
   storyUI.b.value = String(targetB);
   storyUI.p.value = String(targetP);
+  if (storyUI.tryB) storyUI.tryB.value = String(targetB);
   storyOutputsFromInputs();
   updateStoryReadouts(modelOf(targetB, targetP, clamp(targetN, 0.5, 1.5)));
 }
@@ -4285,8 +4528,16 @@ function setStoryScreen(index, options = {}) {
       else dot.removeAttribute("aria-current");
     });
   }
-  if (name === "task") syncStoryInputs();
-  else resetStoryVisual();
+  if (name === "task") {
+    seedStoryDefaults();
+    syncStoryInputs();
+  } else {
+    resetStoryVisual();
+    if (name === "problem") {
+      seedStoryDefaults();
+      syncStoryInputs();
+    }
+  }
   const beats = storyPanelBeats(index);
   const beat = options.beat === "last" ? Math.max(0, beats.length - 1) : options.beat;
   setStoryBeat(beat, { focus: options.focus, keepScroll: options.keepScroll });
@@ -4414,23 +4665,39 @@ if (storyRoot) {
     if (!storyUI || !storyUI.b || !storyUI.p) return;
     targetB = clamp(Number(storyUI.b.value), 2, 3);
     targetP = clamp(Number(storyUI.p.value), 4, 12);
+    storyTouched = true;
+    if (storyUI.tryB) storyUI.tryB.value = String(targetB);
     storyOutputsFromInputs();
     updateStoryReadouts(modelOf(targetB, targetP, clamp(targetN, 0.5, 1.5)));
     pulseStoryChannel(event.target === storyUI.b ? "b" : "p");
+    pulsePlasma(storyUI.visual);
+  };
+  const storyTryInput = () => {
+    if (!storyUI || !storyUI.tryB) return;
+    targetB = clamp(Number(storyUI.tryB.value), 2, 3);
+    storyTouched = true;
+    if (storyUI.b) storyUI.b.value = String(targetB);
+    storyOutputsFromInputs();
+    updateStoryReadouts(modelOf(targetB, targetP, clamp(targetN, 0.5, 1.5)));
+    pulsePlasma(storyUI.visual);
   };
   if (storyUI.b) {
     storyUI.b.addEventListener("input", storyInput);
-    storyUI.b.addEventListener("pointerdown", () => pulseStoryChannel("b"));
+    storyUI.b.addEventListener("pointerdown", () => { pulseStoryChannel("b"); pulsePlasma(storyUI.visual); });
     storyUI.b.addEventListener("pointerup", endStoryChannelSoon);
     storyUI.b.addEventListener("pointercancel", endStoryChannelSoon);
     storyUI.b.addEventListener("blur", endStoryChannelSoon);
   }
   if (storyUI.p) {
     storyUI.p.addEventListener("input", storyInput);
-    storyUI.p.addEventListener("pointerdown", () => pulseStoryChannel("p"));
+    storyUI.p.addEventListener("pointerdown", () => { pulseStoryChannel("p"); pulsePlasma(storyUI.visual); });
     storyUI.p.addEventListener("pointerup", endStoryChannelSoon);
     storyUI.p.addEventListener("pointercancel", endStoryChannelSoon);
     storyUI.p.addEventListener("blur", endStoryChannelSoon);
+  }
+  if (storyUI.tryB) {
+    storyUI.tryB.addEventListener("input", storyTryInput);
+    storyUI.tryB.addEventListener("pointerdown", () => pulsePlasma(storyUI.visual));
   }
   if (storyUI.visualInner) {
     storyUI.visualInner.addEventListener("transitionend", () => { if (activeMode === "story") scheduleStoryNote(); });
@@ -4591,11 +4858,36 @@ stage.addEventListener("keydown", (event) => {
   stopCoach();
   wake();
 });
+let stageAimTimer = 0;
+let stageAimHeld = false;
+function stageAim(on) {
+  if (!stage) return;
+  clearTimeout(stageAimTimer);
+  if (on) {
+    stage.classList.add("is-aiming");
+    if (!stageAimHeld) stageAimTimer = setTimeout(() => stage.classList.remove("is-aiming"), 420);
+    return;
+  }
+  stageAimTimer = setTimeout(() => stage.classList.remove("is-aiming"), 260);
+}
 for (const [slider, set] of [[sliderB, (v) => (targetB = v)], [sliderP, (v) => (targetP = v)], [sliderN, (v) => (targetN = v)]]) {
   if (!slider) continue;
-  slider.addEventListener("input", () => { stopCoach(); set(Number(slider.value)); wake(); });
+  slider.addEventListener("input", () => { stopCoach(); set(Number(slider.value)); wake(); stageAim(true); pulsePlasma(stage); });
   slider.addEventListener("focus", wake);
+  slider.addEventListener("pointerdown", () => { stageAimHeld = true; stageAim(true); pulsePlasma(stage); });
+  slider.addEventListener("pointerup", () => { stageAimHeld = false; stageAim(false); });
+  slider.addEventListener("pointercancel", () => { stageAimHeld = false; stageAim(false); });
+  slider.addEventListener("blur", () => { stageAimHeld = false; stageAim(false); });
 }
+window.addEventListener("pointerup", () => {
+  if (!stageAimHeld) return;
+  stageAimHeld = false;
+  stageAim(false);
+}, true);
+window.addEventListener("blur", () => {
+  stageAimHeld = false;
+  stageAim(false);
+});
 if (sliderE) {
   sliderE.addEventListener("input", () => { stopCoach(); explode = Number(sliderE.value) / 100; applyExplode(); wake(); });
   sliderE.addEventListener("focus", wake);
@@ -4614,6 +4906,14 @@ if (activeMode === "sim") {
   if (still.matches) touring = false;
   else idleAt = setTimeout(() => { if (!apart) { touring = true; clock = 0; kick(); } }, 3000);
 }
+registerPlasmaNotice(stage, {
+  onBreak: () => showPlasmaNotice("sim", BREAK_NOTICE, "break", 6000),
+  onRecover: () => showPlasmaNotice("sim", RECOVER_NOTICE, "recover", 3000),
+});
+const plasmaAmplitude = plasmaAmplitudeCheck();
+document.documentElement.setAttribute("data-plasma-amp", plasmaAmplitude.pass ? "pass" : "fail");
+window.__yfPlasmaAmplitude = plasmaAmplitude;
+if (!plasmaAmplitude.pass) console.error("YF-1 plasma amplitude gate failed", plasmaAmplitude);
 renderTasks();
 updateInfo(modelOf(shownB, shownP, shownN));
 setDepth(1);

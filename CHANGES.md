@@ -817,3 +817,115 @@ tick          0a991b6b83067423aa32f38c73dc466361568479
 - 备份：`index.bak5.html` 与动手前 `HEAD:index.html` 的 blob 同为 `054f6482…`；`specs/`、`dsh-verify-out/` 保留为未跟踪自验产物。
 - 提交：单提交、不 push，提交信息 `等离子体视觉实时耦合物理状态（render 层）`。
 
+## 24. 实时变化可见化 · 破裂教学 · 故事引导节奏（第 3 轮）
+
+### 24.1 锚点
+
+- 视觉反馈样式：`/* ---- live plasma feedback: drag pulse, stage dim, number tick ---- */`（L867）
+- 破裂/恢复提示样式：`/* ---- break / recover teaching notice ---- */`（L893）
+- 故事微行动与试拖控件：`/* ---- story micro-action nudge + try control ---- */`（L898）
+- 故事提示元素：`[data-story-break]`（L943）；模拟器提示元素：`[data-break-toast]`（L1314）
+- 故事第 2 屏三段式与试拖滑杆：L954–L982（`data-story-beat="2"` 的 `.yf-story-try`）
+- 每拍微行动：L962 / L967 / L977 / L994 / L999 / L1004 / L1021 / L1026
+- 读数闪变：`[data-flash]` 初始化（L2058）→ `flashNumber()`（L2076）→ `setText()`（L2094）
+- 共用驱动：`plasmaLook()`（L3710）→ `drivePlasma()`（L3730）→ `plasmaAmplitudeCheck()`（L3823）
+- 故事安全默认值：`seedStoryDefaults()`（L3954）→ `setStoryScreen()` 进入 problem/task 时调用（L4501）
+- 故事试拖与脉冲：`storyTryInput()` / 输入监听（L4660 起）
+- 主区拖动接入：`stageAim()` 与滑杆 pointer/input/blur 监听（L4860 起）
+- 幅度门落地：`data-plasma-amp` 与 `window.__yfPlasmaAmplitude`（L4903）
+
+### 24.2 改了什么、为什么
+
+| 位置 | 改动 | 为什么 |
+| --- | --- | --- |
+| `plasmaLook()` / `drivePlasma()` 的 P 支路 | 弧粗改为 `(3 + 8.6·power + 3.4·heat)·(1 - 0.3·field)`；辉光描边改为 `(10 + 24·power + 16·heat)…`；drop-shadow 半径改为 `(3.5 + 20·power + 17·heat)…`；body/core 颜色按 heat 连续插值，Q≥1 时向白热收束，青色只留在外晕 | P=4→12 的可见跨度从原来的约 1.8 倍/2.2 倍放大到实测 3.74 倍/5.48 倍；颜色从深橙连续过渡到暖白，不再只靠“青/橙”二值切换 |
+| B 支路 | 弧粗收紧系数由 0.14 提到 0.30；`feGaussianBlur` 改为 `6 − 4.6·field + 2.6·near − 0.6·heat`，高 B 时边缘明显更锐 | “兜住感”不只靠颜色：B=2→3 时 blur 7.44→1.13（6.58 倍），弧粗同步收窄，肉眼可辨 |
+| 主区拖动反馈 | 新增 `.is-drag-pulse`（200ms 增亮：drop-shadow×1.6、body/core brightness↑、glow opacity×1.85）与 `.yf-stage.is-aiming`（背景 `#332b22`、暖色描边，0.34s 过渡） | 拖动瞬间“拖到哪亮到哪”；舞台背景暗化把浅色背景吃掉的辉光对比拉回来；松手/失焦后 260ms 渐回 |
+| 读数 | `[data-lcd]`、三个 now 读数、三个故事读数标记 `data-flash`；`setText()` 内容变化时加 `.is-num-tick`（opacity 闪变 0.34s，110ms 节流） | 数字变化有反馈；SVG 文本没有用 transform，避免覆盖 LCD 自身的 `translate` 属性 |
+| 破裂 | `drivePlasma()` 检测 `rig.disrupt` 翻转：加 `.is-breaking` 800ms（先 `brightness(3.2)` 闪白再渐灭），并弹 `[data-break-toast]` / `[data-story-break]`；恢复时加 `.is-relit` 720ms、换成“兜住了，火又着了” | 让“消失”可见、可懂；破裂提示 6s 自动收起，恢复时立即替换；主区与故事任务屏共用同一驱动和同一套文案 |
+| 故事默认值 | 进入第 2/4 屏时 `seedStoryDefaults()` 把出厂 2.50 T / 8.0 MW 安全地改成 **2.70 T / 5.5 MW**；只在未动过故事滑杆且仍是出厂值时生效 | 2.70 T 下 P=12 MW 的 β 仍为 6.43%（安全），用户拉满功率不会再“一拉就黑”；同时 B=3.0/P=5.5 的 Q 只有约 0.6，仍需“先抬磁场、再加功率”两步才过 Q=1，叙事不被破坏 |
+| 第 2 屏三段式 | 原“装不住的火 → 磁场当容器”两拍改为 **先猜一猜 → 答案是磁场 → 你来试**；第三拍内置 `#yf-story-try-b` 磁场试拖滑杆，直接驱动故事克隆弧 | 按“提问 → 揭示 → 动手”的节奏走；用户在故事里先摸到 B 对弧的收紧/锐化，再到任务屏调 B/P |
+| 微行动 | 8 拍每拍末尾加 `.yf-story-nudge`，文案 10–11 字（含“微行动：”），CSS 小箭头按 `data-nudge-dir` 指向右/下 | 每拍都给一个不超过 12 字、指向本拍控件或下一步的小动作；箭头是装饰，不占文本字数 |
+| 幅度门 | `plasmaAmplitudeCheck()` 用同一套 `plasmaLook()` 计算 B=3.0 下 P=4/12 的端点，门槛：宽度≥2.5×、drop-shadow≥3×、辉光描边≥3×、RGB 距离≥120、B=2/3 blur≥2×；不达标 `console.error` 且 `data-plasma-amp=fail` | “幅度是验收标准”，把验收写进页面自身；本轮实测全部通过，`data-plasma-amp=pass` |
+
+没有新增 DOM 依赖、没有新增外部文件、没有改动任何物理计算；渲染层只消费 `modelOf` 的输出。
+
+### 24.3 自验（真实 Chromium，dsh_verify，`file:///C:/Users/92993/yf1-stellarator-sim/`）
+
+`specs/round3-harness.html` 由 `specs/build-round3-harness.mjs` 用当前 `index.html` 注入断言生成；`specs/round3-assert.js` 全程监听 `error` / `unhandledrejection`。结果：
+
+| spec | 结果 | 覆盖 |
+| --- | --- | --- |
+| `specs/round3-acceptance.json` | **PASS 30/30 spec；页内 harness PASS 51/51 checks** | 幅度、脉冲、舞台暗化、读数闪变、破裂/恢复提示、故事 8 拍微行动、故事默认值、试拖、故事破裂/恢复、无 JS 报错 |
+| `specs/round3-v-*.json`（6 个） | **PASS 6/6 spec，共 38 步** | 真实鼠标/输入事件后的拖动增亮、暗化、破裂提示、恢复提示、故事任务屏、故事破裂提示 |
+| `specs/acceptance-harness.json` | **PASS 20/20** | 既有通用回归；测试侧已把拍数断言从 7 拍更新为 8 拍，并把“总字数下降”改为“每拍平均≤10 字”（三段式多一拍） |
+
+关键实测值（来自 `#r3-result` / `window.__yfR3Report`）：
+
+```text
+P=4  -> P=12（B=3.0，两端都不破裂）
+stroke-width      2.74 px -> 10.26 px    3.74x
+drop-shadow 半径   6.28 px -> 34.4 px     5.48x
+辉光描边宽        11.72 px -> 45.31 px    3.87x
+body 颜色         rgb(203,94,27) -> rgb(253,225,199)   RGB 距离 221.9
+温度读数           7.0 keV -> 12.8 keV
+
+B=2 -> B=3（P=6）
+feGaussianBlur    7.44 -> 1.13            6.58x 更锐
+弧粗              5.76 px -> 4.70 px      收紧约 18%
+
+拖动反馈
+is-drag-pulse     40ms 内出现，320ms 检查已清除
+stage background  rgb(51,43,34)（拖动中）→ 松手/失焦 260ms 后渐回
+readout tick      出现并可清除
+
+破裂/恢复（模拟器与故事均验证）
+is-breaking + yf-plasma-break   触发后存在；1s 后 class 清除且弧 opacity <0.25
+破裂提示文案                    含“β 顶穿红线”“磁场”“破裂”，6s 自动收起
+is-relit + 兜住了，火又着了      恢复后出现；500ms 内弧 opacity 回升 >0.35
+故事默认值                       2.70 T / 5.5 MW；2.70 T + P=12 时 opacity >0.8、Q≥1、不破裂
+故事微行动                       8/8 拍存在，长度 10–11 字（≤12）
+```
+
+补充：故事第 2 屏现在是 3 拍，`specs/story-nav-real.json` 等按旧 2 拍写死的脚本不再适用；本轮以 `round3-*` 套件和已更新的通用 `acceptance-harness` 为准。
+
+关键截图：
+
+```text
+dsh-verify-out/round3-acceptance/00-round3-summary.png            PASS 51/51；端点数值一览
+dsh-verify-out/round3-acceptance/01-round3-metrics.png            完整 metrics JSON
+dsh-verify-out/round3-acceptance/03-round3-break-toast.png        主区破裂提示
+dsh-verify-out/round3-acceptance/04-round3-recover-toast.png      主区“兜住了，火又着了”
+dsh-verify-out/round3-acceptance/05-round3-story-task.png         故事任务屏 Q=1.88 白热弧
+dsh-verify-out/round3-acceptance/06-round3-story-break.png        故事任务屏破裂提示
+dsh-verify-out/round3-visuals/round3-v-drag/drag-pulse.png        真实拖动：暗化 + 脉冲
+dsh-verify-out/round3-visuals/round3-v-hold/hold-dim.png          暗化舞台
+dsh-verify-out/round3-visuals/round3-v-break/break-toast.png      主区破裂提示
+dsh-verify-out/round3-visuals/round3-v-recover/recover-toast.png  主区恢复提示
+dsh-verify-out/round3-visuals/round3-v-story/story-task.png       故事任务屏
+dsh-verify-out/round3-visuals/round3-v-story-break/story-break-toast.png  故事破裂提示
+```
+
+### 24.4 约束核对
+
+- 物理计算 12 函数：`specs/check-physics.mjs` 对 `index.bak6.html` 与 `index.html` 逐项 SHA-1，12/12 一致：
+
+```text
+modelOf       5ec6fda8d40c4802b0c64c4d12bd3cdeaee5ac6f
+readoutOf     aa133e18aea03ea5bc066477911eaf3c85fc1b83
+spring        38a19e490d0c944cb9926971ec6aee0708d46d1b
+bForMargin    2a339b8147bae6334a48952fdac243d3e4e8fc18
+pForMargin    498f687502500478584b117f29e6fc174793a2a2
+pForQ         6dacd1468960a7e1fb3b6596b3602d1538478dde
+pForTemp      104f73d85fac51227f956d82beddb043563f4a42
+diagnosisOf   637ad8abfe946126cff0db2f70b1e9441aa8ead8
+updateExpert  bff1976a949aae3389431fe26e14c1ce10093606
+updateScan    9dcd187f4388896d4f4c5f06887b8abf434db9a8
+updateNow     4c11a3df6a334908008a5be90689896937cfee95
+tick          0a991b6b83067423aa32f38c73dc466361568479
+```
+
+- 单文件零依赖：`<script src>` 0、`<link>` 0、`@import` 0；`http://` 4 处均为 SVG 命名空间字符串；未新增外部文件。
+- 备份：`index.bak6.html` 的 git blob 为 `646220eaa8b688e6a575cd3315a341e7ddd9e8f3`，与动手前 `HEAD:index.html` 完全相同。
+- 提交：单提交、不 push，提交信息 `视觉幅度与破裂教学：P/B 耦合、脉冲暗化、故事三段引导`。
+
