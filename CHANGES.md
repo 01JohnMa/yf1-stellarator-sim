@@ -420,3 +420,199 @@ e3174df  自验修正：故事读数、交棒竞态与视觉状态收尾
 ```
 
 本轮 `CHANGES.md`（含锚点与自验记录）随紧随其后的文档提交加入；代码提交 `e3174df` 已包含最终自验结论对应的代码。`index.bak2.html` 为本轮动手前备份，未加入 git；`index.bak.html` 为上轮备份，保留。均不 push。
+
+---
+
+# 第 3 轮：分拍叙事 + 图上就近标注 + 任务屏联动 + 浮动导览卡（2026-10-19）
+
+基线：`3c3f393`（故事模式四屏、七步导览、入门层渐进披露完成态）
+备份：`index.bak3.html`（动手前 `cp`，未加入 git；`.gitignore` 的 `index.bak*.html` 已覆盖）
+
+## 16. 故事 2–4 屏改为分拍叙事
+
+### 锚点
+
+- 分拍 DOM：`[data-story-panel="1..3"] [data-story-beat]`、`[data-beat-body]`、`[data-story-beat-next]`
+- 分拍样式：`.yf-story-beats` / `.yf-story-beat` / `.yf-story-body` / `.yf-story-beat-nav`（新增 CSS 块约 L803–L865）
+- 拍状态机：`storyPanelBeats()` / `activeStoryBeat()` / `setStoryBeat()` / `storyNext()` / `storyPrev()`（约 L3604–L4180）
+- 屏级入口：`setStoryScreen()`（约 L4118）；滚轮约 L4302；键盘约 L4322
+- 视觉高亮：`.yf-story-visual .it.is-story-beat`（约 L821）；线圈序列 `lightNextCoilGroup()`（约 L3942）
+
+### 拍拆分与文字量
+
+| 屏 | 拍 | 拍标题 | 正文（≤25 字） | 图上被讲对象 |
+| --- | --- | --- | --- | --- |
+| 2 难题 | 1 / 2 | 装不住的火 | 上亿度，一碰就化（8） | 等离子体弧 |
+| 2 难题 | 2 / 2 | 磁场当容器 | 唯一能兜住（5） | 六组扭曲线圈 |
+| 3 机器 | 1 / 3 | 环形真空室 | 把火悬在中间（6） | 真空室 |
+| 3 机器 | 2 / 3 | 扭曲线圈 | 六组拧螺旋（5） | 扭曲线圈 |
+| 3 机器 | 3 / 3 | 橙色等离子体 | 带电会发光（5） | 等离子体弧 |
+| 4 任务 | 1 / 2 | 先抬磁场 | 撑开红线（4） | 磁场 B 滑杆 |
+| 4 任务 | 2 / 2 | 再加功率 | 推 Q 过 1（4） | 加热 P 滑杆 |
+
+- 旧版 2–4 屏副文（去空白）：19 + 24 + 22 = **65 字**；新版 7 拍正文合计 **37 字**，减少 **43.1%**（要求 ≥40%）。
+- 左栏只保留拍标题、≤25 字单行正文、拍进度与动作；原先的整段解释不再出现。
+- 每拍只高亮一个对象集合：等离子体弧 → 线圈 → 真空室 → 线圈 → 等离子体弧 → B 滑杆 → P 滑杆；相邻拍的高亮集合均发生变化。
+- 线圈逐组点亮只在“扭曲线圈”拍启动；切到真空室/等离子体拍会 `clearCoilSequence()`，避免旧动画抢焦点。
+
+### 翻拍交互
+
+| 位置 | 改动 | 为什么 |
+| --- | --- | --- |
+| “下一拍 →”按钮 | 每个多拍屏在拍标题下新增 `[data-story-beat-next]`；最后一拍隐藏，末拍 CTA 出现 | 点击即可翻拍，不依赖找底部箭头 |
+| 底部箭头 | 有下一拍时先翻拍；最后一拍才翻屏。上一箭头反向：先上一拍，再上一屏的最后一拍 | 保持单一翻页入口，但先拍后屏 |
+| 滚轮 | 沿用“先滚动面板、到边界再翻”的规则；边界时先翻拍 | 不破坏长内容滚动，也符合“滚轮翻拍” |
+| 键盘 | ←→/↑↓/PageUp/PageDown 逐拍；Home/End 跳屏并回到第 1 拍 | 与原有键盘路径兼容 |
+| 进度点 | 点任意屏重置该屏第 1 拍 | 避免从第 2 拍进入新屏的错位 |
+| 可访问性 | 非当前拍 `hidden + inert`；`aria-live` 播报“第 X 屏，拍 Y / N”；翻拍后聚焦当前拍标题 | 读屏与键盘不会落到隐藏拍 |
+
+## 17. 图上就近标注：标注点 + 引导线 + 短语标签
+
+### 锚点
+
+- 标注层：`<div class="yf-story-notes" data-story-notes aria-hidden="true">`（约 L882）
+- 动态元素：`ensureStoryNote()` 创建 `.yf-story-leader`（`<path>` + `<circle>`）与 `.yf-story-note`
+- 定位：`storyNoteAnchor()` / `positionStoryNote()` / `scheduleStoryNote()`（约 L3604–L3740）
+- 样式：`.yf-story-note` / `.yf-story-leader` / `.is-corner`（约 L825–L840）
+
+### 改了什么、为什么
+
+| 位置 | 改动 | 为什么 |
+| --- | --- | --- |
+| 标注点 | 在代表部件 `getBoundingClientRect()` 的边缘画 3.4px 圆点，带 2.4s 呼吸 | 让“讲的是哪一个部件”有明确落点 |
+| 引导线 | 全屏 SVG 三层折线（水平—垂直—水平 / 垂直—水平—垂直），虚线 26px 间距 | 标签与部件之间形成可追踪的视觉链路 |
+| 短语标签 | 从 `data-beat-label` 读取，7 个标签为 等离子体/扭曲线圈/真空室/扭曲线圈/等离子体/磁场 B/加热 P，最长 4 字（要求 ≤8） | 图上直接给词，不要求用户回左栏找 |
+| 代表部件选择 | 多部件目标（线圈/真空室）按“离视觉焦点近 + 面积惩罚 + 是否在视口”挑一个代表；可用 `data-beat-anchor` 收窄 | 六组线圈有 102 个 `.it`，不能把标签放在包围盒外 |
+| 避让 | 标签避开视口四边、左栏 copy 区、其他滑杆/读数卡；冲突时尝试左/右/下/上 | 不遮挡被讲控件，避免本轮反馈中的“空间距离远/互相覆盖” |
+| 窄屏 ≤760px | 标签退化为右上角标：`right:12px`、`top:max(48px, safe-area + 42px)`，隐藏引导线与圆点 | 窄屏没有横向空间；角标固定、单条不重叠 |
+| 跟随 | 屏切换、visual transform `transitionend`、窗口 resize、面板滚动时重排 | 故事图有 1.1s 位移过渡；任务屏内容可滚动，标注必须跟着走 |
+
+## 18. 任务屏：滑杆贴读数 + 影响连线 + 脉冲
+
+### 锚点
+
+- 任务屏精简控件：`[data-story-panel="3"] .yf-story-play`（约 L935–L967）
+- 读数：`[data-story-read="temp|q|beta"]`；滑杆：`#yf-story-b` / `#yf-story-p`
+- 连线层：`[data-story-links]` + `drawStoryLinks()`（约 L3742–L3810）
+- 通道状态：`pulseStoryChannel()` / `endStoryChannelSoon()`（约 L3812–L3836）
+- 样式：`.yf-story-links` / `.yf-story-link` / `.is-impact`（约 L841–L849）
+
+### 改了什么、为什么
+
+| 位置 | 改动 | 为什么 |
+| --- | --- | --- |
+| 布局顺序 | 三张读数卡在上，滑杆紧接其下 16px；B/P 两杆并排放在 560px 控件区内 | 读数与滑杆同屏、同区，打破“讲解在左、控制在远” |
+| 磁场连线 | B 滑杆拇指 → 温度卡底边；B 滑杆拇指 → β 卡底边 | 对应“磁场杆 → β/温度” |
+| 功率连线 | P 滑杆拇指 → Q 卡底边；P 滑杆拇指 → 温度卡底边 | 对应“功率杆 → Q/温度” |
+| 拖动高亮 | `input`/`pointerdown` 设 `data-story-channel="b|p"`，点亮同色连线、压暗另一通道；`pointerup` 后 380ms 清除 | 让“正在动哪根杆、影响哪些数”即时可见 |
+| 读数脉冲 | 受影响读数加 `.is-impact`，0.5s × 2 的 box-shadow 脉冲；B 为琥珀、P 为青绿 | 读数不只是数字变化，也有注意提示 |
+| 初始/换拍 | B 拍预点亮 B 通道、P 拍预点亮 P 通道；换拍/换屏清理活动通道与脉冲 | 讲解与控件状态同步，不残留上一拍 |
+| 可访问性 | `aria-label` 保留完整量程说明；连线 SVG `aria-hidden`；读数变化同时写入 `aria-live` 目标行 | 视觉连线不替代读屏信息 |
+
+## 19. 七步导览卡：从固定角落改为浮动贴靠
+
+### 锚点
+
+- 卡片：`#yf-tour`（DOM 约 L1220）；样式 `.yf-tour.is-floating`（约 L851–L861）
+- 定位：`resetTourCardPosition()` / `tourCardAnchor()` / `positionTourCard()` / `scheduleTourPosition()`（约 L2749–L2862）
+- 目标渲染：`renderTour()` 中 `applyTourTargets()` / `tourFocusEl` / `scheduleTourPosition()`（约 L2981）
+- 滚动避让：`tourScroll()`（约 L2685）；滚动监听约 L2865
+
+### 改了什么、为什么
+
+| 位置 | 改动 | 为什么 |
+| --- | --- | --- |
+| 桌面 ≥1100px | 卡片 `position:fixed`，由 JS 选左/右/上/下贴靠当前 focus/target；不再固定右下角 | 讲解词与被讲控件同视野 |
+| 安全区 | 左界 = 侧栏右缘 + 12px；上界 64px（让出模式切换）；右/下各 12px；卡片宽 348、最大高 66vh | 智能避让侧栏与视口边缘 |
+| 目标选择 | 优先 focus 元素；若 focus 是整个 stage/nowbar 等超大元素，则在 `.is-tour-target` 中选离主视区焦点近、面积较小的代表 | 第 1 步等目标是一整张图时，仍能贴到具体线圈 |
+| 防遮挡 | 候选位置打分：覆盖当前 target 罚 1000，越界/位移越小越优；目标在侧栏时卡片落在主区 | 既不挡控件，也不压侧栏 |
+| 跟随 | 主区/侧栏 scroll、resize、每步渲染后 rAF + 120/520ms 二次定位；`tourScroll` 只在卡片与 target 横向重叠时才限制纵向滚动 | 滚动后卡片仍跟着；浮动卡不再把 target 强行顶到卡片上方 |
+| 窄屏 | ≤1099px 保持原有底部导览卡/抽屉逻辑；JS 不添加 `is-floating` | 手机上浮动卡无横向空间，保留可用性 |
+| 完成/退出 | `renderTourFinish()` / `exitTour()` 清空 `tourFocusEl`、复位 floating 样式与 `body.yf-tour-floating` | 不把上一轮的定位状态带到下一次 |
+
+## 20. 自验
+
+### 20.1 脚本语法
+
+最终文件共 2 段真正执行的 `<script>`（防闪 classic 328 字符 + 主 module 143312 字符；第三处 `<script` 出现在导出用的模板字符串里，不是标签）：
+
+```text
+node --check script1.js  -> 0
+node --check script2.js  -> 0
+```
+
+### 20.2 关键结构
+
+```text
+.yf-story                      1
+data-story-screen             存在（4 屏）
+[data-depth]                  3
+input[type=range]             6（模拟器 4 + 故事 2）
+#yf-more-controls             1（默认折叠）
+.yf-tour                      1
+data-story-beat               7
+data-story-notes / links      存在
+静态重复 id                   0
+```
+
+### 20.3 新增文本/几何/联动断言（host 侧 dsh-verify + Playwright）
+
+浏览器验收：`dsh-verify` spec 20/20 通过；页内 harness 79/79 项通过。断言包括：
+
+```text
+每拍正文去空白长度        8,5,6,5,5,4,4；均 ≤25；合计 37（旧 65，-43.1%）
+7 个标签长度              等离子体4 / 扭曲线圈4 / 真空室3 / 扭曲线圈4 / 等离子体4 / 磁场 B4 / 加热 P4；均 ≤8
+7 拍标注                  note 与高亮部件均在同一 iframe 视口；标签边距 26px，<300px
+6 次拍推进                高亮部件签名全部变化（弧→线圈→真空室→线圈→弧→B→P）
+B 输入                    温度/β 文本变化；temp+beta 获 .is-impact；B 通道 2 条连线有 d
+P 输入                    Q/温度文本变化；q+temp 获 .is-impact；P 通道 2 条连线有 d
+拖杆 120ms                 .is-impact 仍存在；data-story-channel=b/p
+导览第 1/2 步             卡片 is-floating=true；left=392 ≥ sidebar.right+12=392；不覆盖 P 控件；P 控件在视口内
+≤760px                    标签 is-corner=true；无引导线；与右上模式切换不重叠；在视口内
+页面异常/控制台错误       0
+```
+
+说明：shell 直接拉起 Chrome 仍会被 crashpad/命名管道拒绝；本轮真实浏览器验收改由 host 侧 `dsh-verify` 执行（Chromium/Playwright），因此不再沿用上一轮“浏览器无法启动”的结论。截图保存在未跟踪的 `dsh-verify-out/`：
+
+```text
+story-beats/s2-beat1-plasma.png、s2-beat2-coils.png
+story-beats/s3-beat1-vessel.png、s3-beat2-coils.png、s3-beat3-plasma.png
+story-beats/s4-beat1-b.png、s4-beat2-p.png
+harness-tour/tour-step2.png
+harness-narrow/narrow-s2.png
+```
+
+### 20.4 物理计算逻辑不变
+
+动手前后用 brace-aware 提取并对以下函数做 SHA-1，逐项一致（12/12）：
+
+```text
+modelOf       85b56267569ff905939484c176c6ab3b4e32d7c3
+updateExpert  bff1976a949aae3389431fe26e14c1ce10093606
+updateScan    9dcd187f4388896d4f4c5f06887b8abf434db9a8
+bForMargin    2a339b8147bae6334a48952fdac243d3e4e8fc18
+pForMargin    498f687502500478584b117f29e6fc174793a2a2
+pForQ         6dacd1468960a7e1fb3b6596b3602d1538478dde
+pForTemp      104f73d85fac51227f956d82beddb043563f4a42
+updateNow     4c11a3df6a334908008a5be90689896937cfee95
+diagnosisOf   637ad8abfe946126cff0db2f70b1e9441aa8ead8
+tick          0a991b6b83067423aa32f38c73dc466361568479
+spring        38a19e490d0c944cb9926971ec6aee0708d46d1b
+readoutOf     21b5964194330972eb06622d887b8f5122628285
+```
+
+### 20.5 单文件、零依赖
+
+```text
+<script src>      0
+<link>            0
+@import           0
+http 引用         仅 SVG 命名空间 http://www.w3.org/2000/svg
+新增依赖          无
+```
+
+## 21. 本轮提交
+
+单提交（不 push）：`分拍叙事 + 图上标注 + 任务屏联动 + 浮动导览卡`
+
+`index.bak3.html` 为动手前备份，保留为未跟踪文件；`CHANGES.md` 与本轮最终 `index.html` 一起提交。

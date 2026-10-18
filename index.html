@@ -799,6 +799,66 @@ html[data-yf-mode="sim"] .yf-main-scroll{padding-top:max(54px,calc(env(safe-area
 .yf-story[data-story-screen="cover"] .yf-story-visual-inner{animation:none}
 .yf-story[data-story-screen="problem"] .yf-story-visual .yf-story-arc .yf-plasma{animation:none}
 }
+/* ---- story beats / near-callouts / linked controls v2 ---- */
+.yf-story-beats{position:relative;min-height:0}
+.yf-story-beat[hidden]{display:none!important}
+.yf-story-beat{animation:yf-story-beat-in .34s cubic-bezier(.32,.72,0,1)}
+@keyframes yf-story-beat-in{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+.yf-story-body{margin:14px 0 0;max-width:24em;font-size:clamp(14px,1.25vw,17px);line-height:1.65;letter-spacing:.02em;color:#b9af9f}
+.yf-story-beat .yf-story-title{max-width:11em}
+.yf-story-beat-nav{display:flex;align-items:center;gap:14px;margin-top:22px;font-family:var(--anatomy-mono)}
+.yf-story-beat-progress{font-size:9px;letter-spacing:.15em;color:#948a7b;font-variant-numeric:tabular-nums}
+.yf-story-beat-next{appearance:none;border:1px solid #c98a3e;border-radius:2px;background:#1a1510;color:#f0c98f;font-family:var(--anatomy-mono);font-size:11px;letter-spacing:.08em;padding:9px 13px;cursor:pointer;transition:background .16s ease,border-color .16s ease}
+.yf-story-beat-next:hover{background:#2a2117;border-color:#e0a45a;color:#ffe0b0}
+.yf-story-beat-next:focus-visible{outline:2px solid #f0b56a;outline-offset:3px}
+.yf-story-beat-next[hidden],.yf-story-cta[hidden]{display:none!important}
+.yf-story-visual .it.is-story-beat{opacity:1!important}
+.yf-story-visual .it.is-story-beat .iso-edge,.yf-story-visual .it.is-story-beat .tb-edge{stroke:#f0a34a!important;stroke-width:1.05}
+.yf-story-visual .it.is-story-beat .yf-plasma{filter:drop-shadow(0 0 13px #f2a23ccc)!important}
+.yf-story-visual .it.is-story-beat .yf-plasma-body2{stroke:#f0a34a}
+.yf-story-notes{position:absolute;inset:0;z-index:4;pointer-events:none}
+.yf-story-leader{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.yf-story-leader path{fill:none;stroke:#f0a34a;stroke-width:1.15;stroke-linecap:round;stroke-dasharray:3 3;filter:drop-shadow(0 0 4px #e08a2e55)}
+.yf-story-leader circle{fill:#f0a34a;stroke:#0b0a09;stroke-width:2;filter:drop-shadow(0 0 5px #e08a2e);animation:yf-story-dot 2.4s ease-in-out infinite}
+@keyframes yf-story-dot{0%,100%{opacity:.72}50%{opacity:1}}
+.yf-story-note{position:absolute;z-index:2;max-width:190px;padding:5px 9px 5px 8px;border:1px solid #e08a2e;border-radius:3px;background:#100d09e8;color:#ffd9a6;font-family:var(--anatomy-mono);font-size:11px;line-height:1.35;letter-spacing:.06em;white-space:nowrap;box-shadow:0 5px 18px #00000059,0 0 0 3px #e08a2e14;backdrop-filter:blur(6px)}
+.yf-story-note[hidden]{display:none!important}
+.yf-story-note[data-side="right"]{border-left-width:3px}
+.yf-story-note[data-side="left"]{border-right-width:3px}
+.yf-story-note[data-side="below"]{border-top-width:3px}
+.yf-story-note[data-side="above"]{border-bottom-width:3px}
+.yf-story-note.is-corner{right:12px!important;left:auto!important;top:max(48px,calc(env(safe-area-inset-top) + 42px))!important;max-width:calc(100vw - 24px);font-size:10px;padding:4px 8px;background:#100d09f5}
+.yf-story-notes.is-corner .yf-story-leader{display:none}
+.yf-story-slider.is-story-beat{outline:1.5px solid #e08a2e;outline-offset:5px;border-radius:3px}
+.yf-story-read.is-story-beat{outline:1.5px solid #e08a2e;outline-offset:2px;background:#ffffff0d}
+.yf-story-play{position:relative}
+.yf-story-readouts{position:relative;z-index:1;margin-top:0}
+.yf-story-links{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:visible}
+.yf-story-link-svg{display:block;width:100%;height:100%;overflow:visible}
+.yf-story-link{fill:none;stroke-width:1.15;stroke-dasharray:3 4;opacity:.32;transition:opacity .18s ease,stroke-width .18s ease}
+.yf-story-link[data-channel="b"]{stroke:#e08a2e}
+.yf-story-link[data-channel="p"]{stroke:#1f8a78}
+.yf-story-play[data-story-beat-channel="b"] .yf-story-link[data-channel="b"],.yf-story-play[data-story-beat-channel="p"] .yf-story-link[data-channel="p"]{opacity:.78;stroke-dasharray:none}
+.yf-story-play[data-story-channel="b"] .yf-story-link[data-channel="b"],.yf-story-play[data-story-channel="p"] .yf-story-link[data-channel="p"]{opacity:1;stroke-width:2.2;stroke-dasharray:none}
+.yf-story-play[data-story-channel="b"] .yf-story-link[data-channel="p"],.yf-story-play[data-story-channel="p"] .yf-story-link[data-channel="b"]{opacity:.12}
+.yf-story-sliders{position:relative;z-index:1;margin-top:16px}
+@keyframes yf-story-read-pulse{0%,100%{box-shadow:0 0 0 0 #e08a2e00}45%{box-shadow:0 0 0 4px #e08a2e45}}
+.yf-story-read.is-impact{animation:yf-story-read-pulse .5s ease-in-out 2}
+.yf-story-play[data-story-channel="p"] .yf-story-read.is-impact{animation-name:yf-story-read-pulse-p}
+@keyframes yf-story-read-pulse-p{0%,100%{box-shadow:0 0 0 0 #1f8a7800}45%{box-shadow:0 0 0 4px #1f8a7845}}
+@media (min-width:1100px){
+.yf-tour.is-floating{position:fixed;right:auto;bottom:auto;z-index:70;width:min(348px,calc(100vw - 404px));max-height:min(66vh,560px);transition:left .26s cubic-bezier(.32,.72,0,1),top .26s cubic-bezier(.32,.72,0,1);will-change:left,top}
+body.yf-tour-floating .yf-tour-dock{height:0;padding:0;border:0;background:transparent;overflow:visible}
+body.yf-tour-floating .yf-tour-dock>.yf-tour{position:fixed}
+}
+@media (max-width:1099px){
+.yf-tour.is-floating{position:fixed;left:8px;right:8px;bottom:8px;top:auto!important;width:auto;max-height:48vh}
+}
+@media (prefers-reduced-motion:reduce){
+.yf-story-beat,.yf-story-leader circle{animation:none!important}
+.yf-story-read.is-impact{animation:none!important;box-shadow:0 0 0 3px #e08a2e55!important}
+.yf-tour.is-floating{transition:none!important}
+}
 </style>
 <script>
 (function(){
@@ -821,6 +881,7 @@ html[data-yf-mode="sim"] .yf-main-scroll{padding-top:max(54px,calc(env(safe-area
   <div class="yf-story-glow" aria-hidden="true"></div>
   <div class="yf-story-visual" data-story-visual aria-hidden="true"><div class="yf-story-visual-inner" data-story-visual-inner></div></div>
   <div class="yf-story-shade" aria-hidden="true"></div>
+  <div class="yf-story-notes" data-story-notes aria-hidden="true"></div>
   <span class="yf-story-brand" aria-hidden="true">YF-1 · 仿星器教学模型</span>
   <div class="yf-story-viewport">
     <div class="yf-story-track" data-story-track>
@@ -835,34 +896,75 @@ html[data-yf-mode="sim"] .yf-main-scroll{padding-top:max(54px,calc(env(safe-area
       </article>
       <article class="yf-story-panel" data-story-panel="1" aria-roledescription="章节" aria-label="第 2 屏，共 4 屏：问题" aria-hidden="true" inert>
         <div class="yf-story-copy">
-          <p class="yf-story-kicker">02 / 04 · 难题</p>
-          <h2 class="yf-story-title" data-story-title tabindex="-1">上亿度的火，装不住</h2>
-          <p class="yf-story-sub" data-story-sub>任何材料都装不住，唯一的容器，是磁场。</p>
-          <button type="button" class="yf-story-cta" data-story-go="2">看那只笼子</button>
+          <p class="yf-story-kicker" data-story-beat-kicker data-story-kicker-base="02 / 04 · 难题">02 / 04 · 难题 · 拍 1 / 2</p>
+          <div class="yf-story-beats">
+            <section class="yf-story-beat" data-story-beat="0" data-beat-title="装不住的火" data-beat-target=".yf-story-arc" data-beat-label="等离子体" data-beat-side="right">
+              <h2 class="yf-story-title" data-story-title tabindex="-1">装不住的火</h2>
+              <p class="yf-story-body" data-beat-body>上亿度，一碰就化</p>
+            </section>
+            <section class="yf-story-beat" data-story-beat="1" data-beat-title="磁场当容器" data-beat-target=".it[data-piece='coil']" data-beat-label="扭曲线圈" data-beat-side="right" hidden>
+              <h2 class="yf-story-title" data-story-title tabindex="-1">磁场当容器</h2>
+              <p class="yf-story-body" data-beat-body>唯一能兜住</p>
+            </section>
+          </div>
+          <div class="yf-story-beat-nav">
+            <span class="yf-story-beat-progress" data-beat-progress>拍 1 / 2</span>
+            <button type="button" class="yf-story-beat-next" data-story-beat-next>下一拍 →</button>
+          </div>
+          <button type="button" class="yf-story-cta" data-story-go="2" data-story-after-beat hidden>看那只笼子</button>
         </div>
       </article>
       <article class="yf-story-panel" data-story-panel="2" aria-roledescription="章节" aria-label="第 3 屏，共 4 屏：机器" aria-hidden="true" inert>
         <div class="yf-story-copy">
-          <p class="yf-story-kicker">03 / 04 · 机器</p>
-          <h2 class="yf-story-title" data-story-title tabindex="-1">看不见的笼子</h2>
-          <p class="yf-story-sub" data-story-sub>六组扭曲线圈，把环形真空室里的等离子体兜在中间。</p>
-          <button type="button" class="yf-story-cta" data-story-go="3">去开火</button>
+          <p class="yf-story-kicker" data-story-beat-kicker data-story-kicker-base="03 / 04 · 机器">03 / 04 · 机器 · 拍 1 / 3</p>
+          <div class="yf-story-beats">
+            <section class="yf-story-beat" data-story-beat="0" data-beat-title="环形真空室" data-beat-target=".it[data-piece='vessel']" data-beat-label="真空室" data-beat-side="right">
+              <h2 class="yf-story-title" data-story-title tabindex="-1">环形真空室</h2>
+              <p class="yf-story-body" data-beat-body>把火悬在中间</p>
+            </section>
+            <section class="yf-story-beat" data-story-beat="1" data-beat-title="扭曲线圈" data-beat-target=".it[data-piece='coil']" data-beat-label="扭曲线圈" data-beat-side="right" hidden>
+              <h2 class="yf-story-title" data-story-title tabindex="-1">扭曲线圈</h2>
+              <p class="yf-story-body" data-beat-body>六组拧螺旋</p>
+            </section>
+            <section class="yf-story-beat" data-story-beat="2" data-beat-title="橙色等离子体" data-beat-target=".yf-story-arc" data-beat-label="等离子体" data-beat-side="right" hidden>
+              <h2 class="yf-story-title" data-story-title tabindex="-1">橙色等离子体</h2>
+              <p class="yf-story-body" data-beat-body>带电会发光</p>
+            </section>
+          </div>
+          <div class="yf-story-beat-nav">
+            <span class="yf-story-beat-progress" data-beat-progress>拍 1 / 3</span>
+            <button type="button" class="yf-story-beat-next" data-story-beat-next>下一拍 →</button>
+          </div>
+          <button type="button" class="yf-story-cta" data-story-go="3" data-story-after-beat hidden>去开火</button>
         </div>
       </article>
       <article class="yf-story-panel" data-story-panel="3" aria-roledescription="章节" aria-label="第 4 屏，共 4 屏：任务" aria-hidden="true" inert>
         <div class="yf-story-copy">
-          <p class="yf-story-kicker">04 / 04 · 任务</p>
-          <h2 class="yf-story-title" data-story-title tabindex="-1">你来开火</h2>
-          <p class="yf-story-sub" data-story-sub>磁场兜住，功率加热；把 Q 推过 1，别碰 β 红线。</p>
-          <div class="yf-story-play" role="group" aria-label="精简控制台">
-            <div class="yf-story-sliders">
-              <label class="yf-story-slider" for="yf-story-b"><span>磁场 B</span><output for="yf-story-b" data-story-b-out>2.50 T</output><input id="yf-story-b" type="range" min="2" max="3" step="0.05" value="2.5" aria-label="故事模式磁场强度，2 到 3 特斯拉"></label>
-              <label class="yf-story-slider" for="yf-story-p"><span>加热 P</span><output for="yf-story-p" data-story-p-out>8.0 MW</output><input id="yf-story-p" type="range" min="4" max="12" step="0.25" value="8" aria-label="故事模式加热功率，4 到 12 兆瓦"></label>
-            </div>
+          <p class="yf-story-kicker" data-story-beat-kicker data-story-kicker-base="04 / 04 · 任务">04 / 04 · 任务 · 拍 1 / 2</p>
+          <div class="yf-story-beats">
+            <section class="yf-story-beat" data-story-beat="0" data-beat-title="先抬磁场" data-beat-target="#yf-story-b" data-beat-label="磁场 B" data-beat-side="right" data-beat-ui="1" data-beat-reads="temp beta" data-beat-channel="b">
+              <h2 class="yf-story-title" data-story-title tabindex="-1">先抬磁场</h2>
+              <p class="yf-story-body" data-beat-body>撑开红线</p>
+            </section>
+            <section class="yf-story-beat" data-story-beat="1" data-beat-title="再加功率" data-beat-target="#yf-story-p" data-beat-label="加热 P" data-beat-side="right" data-beat-ui="1" data-beat-reads="q temp" data-beat-channel="p" hidden>
+              <h2 class="yf-story-title" data-story-title tabindex="-1">再加功率</h2>
+              <p class="yf-story-body" data-beat-body>推 Q 过 1</p>
+            </section>
+          </div>
+          <div class="yf-story-beat-nav">
+            <span class="yf-story-beat-progress" data-beat-progress>拍 1 / 2</span>
+            <button type="button" class="yf-story-beat-next" data-story-beat-next>下一拍 →</button>
+          </div>
+          <div class="yf-story-play" data-story-play role="group" aria-label="精简控制台">
             <div class="yf-story-readouts">
               <div class="yf-story-read" data-story-read="temp" data-tone="good"><span>温度</span><b data-story-temp>8.7 keV</b><small data-story-temp-ref>约 1.0 亿 °C</small></div>
               <div class="yf-story-read" data-story-read="q"><span>增益 Q</span><b data-story-q>0.69</b><small data-story-q-ref>还差 0.31</small></div>
               <div class="yf-story-read" data-story-read="beta" data-tone="warn"><span>β 余量</span><b data-story-beta>还剩 1.2 个百分点</b><small data-story-beta-ref>红线 6.8% · 守住了</small></div>
+            </div>
+            <div class="yf-story-links" data-story-links aria-hidden="true"></div>
+            <div class="yf-story-sliders">
+              <label class="yf-story-slider" data-story-channel="b" for="yf-story-b"><span>磁场 B</span><output for="yf-story-b" data-story-b-out>2.50 T</output><input id="yf-story-b" type="range" min="2" max="3" step="0.05" value="2.5" aria-label="故事模式磁场强度，2 到 3 特斯拉"></label>
+              <label class="yf-story-slider" data-story-channel="p" for="yf-story-p"><span>加热 P</span><output for="yf-story-p" data-story-p-out>8.0 MW</output><input id="yf-story-p" type="range" min="4" max="12" step="0.25" value="8" aria-label="故事模式加热功率，4 到 12 兆瓦"></label>
             </div>
             <p class="yf-story-goal" data-story-goal aria-live="polite">目标：把 Q 推过 1，同时别让 β 归零。</p>
           </div>
@@ -2423,6 +2525,9 @@ const tour = {
   drawerOpen: false,
 };
 let tourTargetEls = [];
+let tourFocusEl = null;
+let tourPosRaf = 0;
+const tourPosTimers = [];
 const TOUR_TITLES = [
   "认识这台机器",
   "亲手点亮它",
@@ -2501,6 +2606,7 @@ function tourMissing(m) {
 function clearTourTargets() {
   for (const el of tourTargetEls) el.classList.remove("is-tour-target");
   tourTargetEls = [];
+  tourFocusEl = null;
   svg.classList.remove("has-tour-parts");
 }
 function tourTargetsForStep() {
@@ -2578,10 +2684,12 @@ function tourScroll(el, align) {
     const rect = el.getBoundingClientRect();
     const safeTop = view.top + 14;
     let safeBottom = view.bottom - 16;
-    if (card && card.height > 0 && card.top > view.top && card.left < view.right && card.right > view.left) safeBottom = Math.min(safeBottom, card.top - 14);
+    const cardOverX = card && card.height > 0 && card.left < rect.right && card.right > rect.left;
+    if (cardOverX && card.top > view.top) safeBottom = Math.min(safeBottom, card.top - 14);
     const area = Math.max(80, safeBottom - safeTop);
     const delta = align === "top" || rect.height > area ? rect.top - safeTop : (rect.top + rect.height / 2) - (safeTop + area / 2);
     if (Math.abs(delta) > 3) tourScrollBy(box, delta);
+    scheduleTourPosition();
   };
   requestAnimationFrame(run);
   setTimeout(() => {
@@ -2590,8 +2698,10 @@ function tourScroll(el, align) {
     const view = tourView(box);
     const card = tourRoot.hidden ? null : tourRoot.getBoundingClientRect();
     const rect = el.getBoundingClientRect();
-    const limit = card && card.height > 0 && card.top > view.top && card.left < view.right && card.right > view.left ? card.top - 12 : view.bottom - 16;
+    const cardOverX = card && card.height > 0 && card.left < rect.right && card.right > rect.left;
+    const limit = cardOverX && card.top > view.top ? card.top - 12 : view.bottom - 16;
     if (rect.bottom > limit && rect.top > view.top + 10) tourScrollBy(box, rect.bottom - limit + 8);
+    scheduleTourPosition();
   }, still.matches ? 30 : 460);
 }
 const sidePanel = root.querySelector("#yf-side");
@@ -2637,6 +2747,121 @@ function syncTourDrawer(focusSelector) {
 function syncTourZones() {
   const show = tour.active && !tour.finish && tour.step === 1;
   for (const zone of root.querySelectorAll("[data-goal]")) zone.hidden = !show;
+}
+function resetTourCardPosition() {
+  if (!tourRoot) return;
+  tourRoot.classList.remove("is-floating");
+  tourRoot.style.left = "";
+  tourRoot.style.top = "";
+  tourRoot.style.right = "";
+  tourRoot.style.bottom = "";
+  document.body.classList.remove("yf-tour-floating");
+  delete tourRoot.dataset.tourSide;
+}
+function tourCardAnchor() {
+  if (!tour.active || tour.finish || !tourRoot || tourRoot.hidden) return null;
+  let focus = tourFocusEl;
+  if (focus && focus.closest) {
+    const target = focus.closest(".is-tour-target");
+    if (target && !tourRoot.contains(target)) focus = target;
+  }
+  const areaOf = (el) => {
+    const rect = el.getBoundingClientRect();
+    return rect.width * rect.height;
+  };
+  let anchor = focus;
+  if (!anchor || areaOf(anchor) > window.innerWidth * window.innerHeight * 0.16) {
+    const candidates = tourTargetEls.filter((el) => el.isConnected && !tourRoot.contains(el));
+    if (candidates.length) {
+      const main = root.querySelector(".yf-main");
+      const mainRect = main ? main.getBoundingClientRect() : { left: 380, top: 0, width: window.innerWidth - 380, height: window.innerHeight };
+      const px = mainRect.left + mainRect.width * 0.68;
+      const py = mainRect.top + mainRect.height * 0.46;
+      let best = Infinity;
+      for (const el of candidates) {
+        const rect = el.getBoundingClientRect();
+        if (rect.width < 2 || rect.height < 2) continue;
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const onScreen = rect.right > 0 && rect.left < window.innerWidth && rect.bottom > 0 && rect.top < window.innerHeight;
+        const score = Math.hypot(cx - px, cy - py) + (onScreen ? 0 : 500) + Math.min(areaOf(el) / 2200, 90);
+        if (score < best) {
+          best = score;
+          anchor = el;
+        }
+      }
+    }
+  }
+  if (!anchor || tourRoot.contains(anchor)) return null;
+  return anchor;
+}
+function positionTourCard() {
+  if (!tour.active || !tourRoot || tourRoot.hidden || tour.finish) return;
+  if (!matchMedia("(min-width:1100px)").matches) {
+    resetTourCardPosition();
+    return;
+  }
+  const anchor = tourCardAnchor();
+  if (!anchor || !anchor.isConnected) return;
+  const ar = anchor.getBoundingClientRect();
+  if (ar.width < 2 || ar.height < 2) return;
+  const side = root.querySelector(".yf-side");
+  const sr = side ? side.getBoundingClientRect() : null;
+  const cardW = tourRoot.offsetWidth || 348;
+  const cardH = tourRoot.offsetHeight || 430;
+  const safe = {
+    left: Math.max(12, sr ? sr.right + 12 : 12),
+    top: 64,
+    right: window.innerWidth - 12,
+    bottom: window.innerHeight - 12
+  };
+  if (safe.right - safe.left < cardW + 4) {
+    resetTourCardPosition();
+    return;
+  }
+  const gap = 14;
+  const candidates = [
+    { side: "right", x: ar.right + gap, y: ar.top + ar.height / 2 - cardH / 2 },
+    { side: "left", x: ar.left - cardW - gap, y: ar.top + ar.height / 2 - cardH / 2 },
+    { side: "below", x: ar.left + ar.width / 2 - cardW / 2, y: ar.bottom + gap },
+    { side: "above", x: ar.left + ar.width / 2 - cardW / 2, y: ar.top - cardH - gap }
+  ];
+  let chosen = null;
+  let best = Infinity;
+  for (let index = 0; index < candidates.length; index++) {
+    const item = candidates[index];
+    const x = clamp(item.x, safe.left, Math.max(safe.left, safe.right - cardW));
+    const y = clamp(item.y, safe.top, Math.max(safe.top, safe.bottom - cardH));
+    const hitAnchor = !(x + cardW <= ar.left - 6 || x >= ar.right + 6 || y + cardH <= ar.top - 6 || y >= ar.bottom + 6);
+    const score = (hitAnchor ? 1000 : 0) + Math.abs(x - item.x) + Math.abs(y - item.y) + index * 4;
+    if (score < best) {
+      best = score;
+      chosen = { x, y, side: item.side };
+    }
+  }
+  if (!chosen) return;
+  tourRoot.style.left = chosen.x + "px";
+  tourRoot.style.top = chosen.y + "px";
+  tourRoot.style.right = "auto";
+  tourRoot.style.bottom = "auto";
+  tourRoot.classList.add("is-floating");
+  document.body.classList.add("yf-tour-floating");
+  tourRoot.dataset.tourSide = chosen.side;
+}
+function scheduleTourPosition() {
+  if (!tour.active) return;
+  cancelAnimationFrame(tourPosRaf);
+  tourPosRaf = requestAnimationFrame(() => {
+    tourPosRaf = 0;
+    positionTourCard();
+  });
+  for (const timer of tourPosTimers) clearTimeout(timer);
+  tourPosTimers.length = 0;
+  for (const delay of [120, 520]) tourPosTimers.push(setTimeout(positionTourCard, delay));
+}
+for (const scroller of [root.querySelector(".yf-side-scroll"), root.querySelector(".yf-main")]) {
+  if (!scroller) continue;
+  scroller.addEventListener("scroll", () => { if (tour.active) scheduleTourPosition(); }, { passive: true });
 }
 function tourExtraHtml() {
   const m = tourModel();
@@ -2755,8 +2980,10 @@ function renderTour() {
   syncTourZones();
   const look = tourTargetsForStep();
   applyTourTargets(look.targets);
+  tourFocusEl = look.focus ? root.querySelector(look.focus) : null;
   syncTourDrawer(look.focus);
   tourScroll(look.focus ? root.querySelector(look.focus) : null, look.align);
+  scheduleTourPosition();
   tourUI.live.textContent = "第 " + (step + 1) + " 步，共 7 步：" + title;
   kick();
 }
@@ -2782,6 +3009,7 @@ function renderTourFinish() {
   tourUI.finish.hidden = false;
   syncTourZones();
   clearTourTargets();
+  tourFocusEl = null;
   tourUI.live.textContent = "分步导览完成：你已经能自己玩这个模型了。";
 }
 function stopTourDemo() {
@@ -2877,6 +3105,7 @@ function startTour() {
   setTargets({ b: 2.5, p: 8, n: 1 });
   document.body.classList.add("yf-tour-on");
   tourRoot.hidden = false;
+  resetTourCardPosition();
   tourUI.actions.hidden = false;
   tourUI.finish.hidden = true;
   syncTourZones();
@@ -2894,6 +3123,7 @@ function exitTour() {
   tourRoot.hidden = true;
   document.body.classList.remove("yf-tour-on");
   clearTourTargets();
+  resetTourCardPosition();
   syncTourZones();
   if (tourUI.actions) tourUI.actions.hidden = false;
   if (tourUI.finish) tourUI.finish.hidden = true;
@@ -3322,6 +3552,9 @@ const storyUI = storyRoot ? {
   track: storyRoot.querySelector("[data-story-track]"),
   visual: storyRoot.querySelector("[data-story-visual]"),
   visualInner: storyRoot.querySelector("[data-story-visual-inner]"),
+  notes: storyRoot.querySelector("[data-story-notes]"),
+  play: storyRoot.querySelector("[data-story-play]"),
+  links: storyRoot.querySelector("[data-story-links]"),
   prev: storyRoot.querySelector("[data-story-prev]"),
   next: storyRoot.querySelector("[data-story-next]"),
   dots: storyRoot.querySelector("[data-story-dots]"),
@@ -3347,6 +3580,15 @@ let storyVisualBuilt = false;
 let storyCoilTimer = 0;
 let storyCoilAt = 0;
 let storyHandoffTimer = 0;
+let storyBeatIndex = 0;
+let storyNoteEl = null;
+let storyLeaderSvg = null;
+let storyLeaderPath = null;
+let storyLeaderDot = null;
+let storyLinkSvg = null;
+let storyNoteRaf = 0;
+let storyChannelTimer = 0;
+const storyNoteTimers = [];
 const storyCoilGroups = new Map();
 
 function readStoredStoryMode() {
@@ -3361,6 +3603,302 @@ function hashStoryMode() {
   return value === "story" || value === "sim" ? value : "";
 }
 
+function storyPanelBeats(panelIndex) {
+  const panel = storyPanels[panelIndex];
+  return panel ? [...panel.querySelectorAll("[data-story-beat]")] : [];
+}
+function activeStoryPanel() {
+  return storyPanels[storyIndex] || null;
+}
+function activeStoryBeat() {
+  const beats = storyPanelBeats(storyIndex);
+  return beats[storyBeatIndex] || null;
+}
+function storyBeatTargetIsUi(beat) {
+  return Boolean(beat && (beat.hasAttribute("data-beat-ui") || /^#yf-story-|^\[data-story-/.test(beat.dataset.beatTarget || "")));
+}
+function storyBeatHasCoil(beat) {
+  return Boolean(beat && /coil/.test(beat.dataset.beatTarget || ""));
+}
+function storyCloneSvg() {
+  return storyUI && storyUI.visualInner ? storyUI.visualInner.querySelector("svg") : null;
+}
+function storyTargetElements(beat) {
+  if (!beat) return [];
+  const selector = beat.dataset.beatTarget || "";
+  if (!selector) return [];
+  if (storyBeatTargetIsUi(beat)) return [...storyRoot.querySelectorAll(selector)];
+  const svgClone = storyCloneSvg();
+  return svgClone ? [...svgClone.querySelectorAll(selector)] : [];
+}
+function clearStoryBeatFocus() {
+  if (!storyRoot) return;
+  for (const el of storyRoot.querySelectorAll(".is-story-beat")) el.classList.remove("is-story-beat");
+  storyRoot.removeAttribute("data-story-focus");
+  if (storyUI && storyUI.play) storyUI.play.removeAttribute("data-story-beat-channel");
+}
+function applyStoryBeatFocus(beat) {
+  clearStoryBeatFocus();
+  if (!beat) return;
+  const ui = storyBeatTargetIsUi(beat);
+  for (const el of storyTargetElements(beat)) {
+    const box = ui ? (el.closest(".yf-story-slider,.yf-story-read") || el) : el;
+    box.classList.add("is-story-beat");
+  }
+  for (const key of (beat.dataset.beatReads || "").split(/\s+/).filter(Boolean)) {
+    const read = storyRoot.querySelector('[data-story-read="' + key + '"]');
+    if (read) read.classList.add("is-story-beat");
+  }
+  const target = beat.dataset.beatTarget || "";
+  storyRoot.dataset.storyFocus = ui ? "ui" : /coil/.test(target) ? "coil" : /vessel/.test(target) ? "vessel" : /plasma|arc/.test(target) ? "plasma" : "part";
+  if (storyUI.play) {
+    const channel = beat.dataset.beatChannel || "";
+    if (channel) storyUI.play.dataset.storyBeatChannel = channel;
+    else storyUI.play.removeAttribute("data-story-beat-channel");
+  }
+}
+function ensureStoryNote() {
+  if (!storyUI || !storyUI.notes) return null;
+  if (storyNoteEl) return storyNoteEl;
+  const ns = "http://www.w3.org/2000/svg";
+  storyLeaderSvg = document.createElementNS(ns, "svg");
+  storyLeaderSvg.setAttribute("class", "yf-story-leader");
+  storyLeaderSvg.setAttribute("aria-hidden", "true");
+  storyLeaderSvg.setAttribute("preserveAspectRatio", "none");
+  storyLeaderPath = document.createElementNS(ns, "path");
+  storyLeaderDot = document.createElementNS(ns, "circle");
+  storyLeaderDot.setAttribute("r", "0");
+  storyLeaderSvg.appendChild(storyLeaderPath);
+  storyLeaderSvg.appendChild(storyLeaderDot);
+  storyUI.notes.appendChild(storyLeaderSvg);
+  storyNoteEl = document.createElement("div");
+  storyNoteEl.className = "yf-story-note";
+  storyNoteEl.hidden = true;
+  storyUI.notes.appendChild(storyNoteEl);
+  return storyNoteEl;
+}
+function clearStoryNote() {
+  if (storyNoteEl) {
+    storyNoteEl.hidden = true;
+    storyNoteEl.classList.remove("is-corner");
+    storyNoteEl.removeAttribute("data-note-anchor");
+  }
+  if (storyLeaderPath) storyLeaderPath.setAttribute("d", "");
+  if (storyLeaderDot) {
+    storyLeaderDot.setAttribute("r", "0");
+    storyLeaderDot.setAttribute("cx", "0");
+    storyLeaderDot.setAttribute("cy", "0");
+  }
+  if (storyLeaderSvg) storyLeaderSvg.style.display = "";
+  if (storyUI && storyUI.notes) storyUI.notes.classList.remove("is-corner");
+}
+function storyNoteAnchor(beat) {
+  const ui = storyBeatTargetIsUi(beat);
+  const anchorSelector = beat.dataset.beatAnchor || "";
+  const preferredX = window.innerWidth * 0.68;
+  const preferredY = window.innerHeight * 0.46;
+  let anchor = null;
+  let best = Infinity;
+  for (const el of storyTargetElements(beat)) {
+    if (anchorSelector && !el.matches(anchorSelector)) continue;
+    const rect = el.getBoundingClientRect();
+    if (rect.width < 2 || rect.height < 2) continue;
+    if (ui) {
+      anchor = el.closest(".yf-story-slider,.yf-story-read") || el;
+      break;
+    }
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const onScreen = rect.right > 0 && rect.left < window.innerWidth && rect.bottom > 0 && rect.top < window.innerHeight;
+    const score = Math.hypot(cx - preferredX, cy - preferredY) + (onScreen ? 0 : 600) + Math.min((rect.width * rect.height) / 1200, 120);
+    if (score < best) {
+      best = score;
+      anchor = el;
+    }
+  }
+  return anchor;
+}
+function positionStoryNote() {
+  if (!storyUI || activeMode !== "story" || !storyUI.notes) return;
+  const beat = activeStoryBeat();
+  if (!beat || !storyVisualBuilt) { clearStoryNote(); return; }
+  const label = (beat.dataset.beatLabel || beat.dataset.beatTitle || "").trim();
+  const anchor = storyNoteAnchor(beat);
+  if (!label || !anchor) { clearStoryNote(); return; }
+  const rect = anchor.getBoundingClientRect();
+  if (rect.width < 2 || rect.height < 2) { clearStoryNote(); return; }
+  const note = ensureStoryNote();
+  if (!note) return;
+  note.textContent = label;
+  note.hidden = false;
+  note.classList.remove("is-corner");
+  note.dataset.noteAnchor = anchor.getAttribute("data-name") || anchor.id || anchor.className || "part";
+  const noteW = note.offsetWidth;
+  const noteH = note.offsetHeight;
+  const narrow = window.innerWidth <= 760;
+  if (narrow) {
+    note.classList.add("is-corner");
+    note.dataset.side = "corner";
+    storyUI.notes.classList.add("is-corner");
+    if (storyLeaderSvg) storyLeaderSvg.style.display = "none";
+    return;
+  }
+  if (storyUI.notes) storyUI.notes.classList.remove("is-corner");
+  if (storyLeaderSvg) storyLeaderSvg.style.display = "";
+  storyLeaderSvg.setAttribute("viewBox", "0 0 " + window.innerWidth + " " + window.innerHeight);
+  const copy = activeStoryPanel() ? activeStoryPanel().querySelector(".yf-story-copy") : null;
+  const copyRect = copy ? copy.getBoundingClientRect() : null;
+  const ui = storyBeatTargetIsUi(beat);
+  const otherUiBoxes = ui ? [...storyRoot.querySelectorAll(".yf-story-slider,.yf-story-read")]
+    .filter((el) => el !== anchor && !anchor.contains(el))
+    .map((el) => el.getBoundingClientRect())
+    .filter((box) => box.width > 0 && box.height > 0) : [];
+  const safe = { left: 12, top: 70, right: window.innerWidth - 12, bottom: window.innerHeight - 76 };
+  const gap = 26;
+  const sides = [];
+  for (const side of [beat.dataset.beatSide || "right", "right", "left", "below", "above"]) {
+    if (!sides.includes(side)) sides.push(side);
+  }
+  let chosen = null;
+  for (let index = 0; index < sides.length; index++) {
+    const side = sides[index];
+    let x = 0;
+    let y = 0;
+    if (side === "right") {
+      x = rect.right + gap;
+      y = rect.top + rect.height / 2 - noteH / 2;
+    } else if (side === "left") {
+      x = rect.left - noteW - gap;
+      y = rect.top + rect.height / 2 - noteH / 2;
+    } else if (side === "below") {
+      x = rect.left + rect.width / 2 - noteW / 2;
+      y = rect.bottom + gap;
+    } else {
+      x = rect.left + rect.width / 2 - noteW / 2;
+      y = rect.top - noteH - gap;
+    }
+    const rawX = x;
+    const rawY = y;
+    x = clamp(x, safe.left, Math.max(safe.left, safe.right - noteW));
+    y = clamp(y, safe.top, Math.max(safe.top, safe.bottom - noteH));
+    const hitAnchor = !(x + noteW <= rect.left - 6 || x >= rect.right + 6 || y + noteH <= rect.top - 6 || y >= rect.bottom + 6);
+    const hitCopy = !ui && copyRect && !(x + noteW <= copyRect.left - 8 || x >= copyRect.right + 8 || y + noteH <= copyRect.top - 8 || y >= copyRect.bottom + 8);
+    const hitOtherUi = otherUiBoxes.some((box) => !(x + noteW <= box.left - 6 || x >= box.right + 6 || y + noteH <= box.top - 6 || y >= box.bottom + 6));
+    const score = (hitAnchor ? 1000 : 0) + (hitCopy ? 60 : 0) + (hitOtherUi ? 220 : 0) + Math.abs(x - rawX) + Math.abs(y - rawY) + index * 4;
+    if (!chosen || score < chosen.score) chosen = { side, x, y, score };
+  }
+  if (!chosen) { clearStoryNote(); return; }
+  note.style.left = chosen.x + "px";
+  note.style.top = chosen.y + "px";
+  note.dataset.side = chosen.side;
+  let dotX = 0;
+  let dotY = 0;
+  let lineX = 0;
+  let lineY = 0;
+  if (chosen.side === "right" || chosen.side === "left") {
+    dotX = chosen.side === "right" ? rect.right : rect.left;
+    dotY = clamp(chosen.y + noteH / 2, rect.top + 7, rect.bottom - 7);
+    lineX = chosen.side === "right" ? chosen.x : chosen.x + noteW;
+    lineY = chosen.y + noteH / 2;
+    const mid = (dotX + lineX) / 2;
+    storyLeaderPath.setAttribute("d", "M " + dotX + " " + dotY + " H " + mid + " V " + lineY + " H " + lineX);
+  } else {
+    dotX = clamp(chosen.x + noteW / 2, rect.left + 7, rect.right - 7);
+    dotY = chosen.side === "below" ? rect.bottom : rect.top;
+    lineX = chosen.x + noteW / 2;
+    lineY = chosen.side === "below" ? chosen.y : chosen.y + noteH;
+    const mid = (dotY + lineY) / 2;
+    storyLeaderPath.setAttribute("d", "M " + dotX + " " + dotY + " V " + mid + " H " + lineX + " V " + lineY);
+  }
+  storyLeaderDot.setAttribute("cx", String(dotX));
+  storyLeaderDot.setAttribute("cy", String(dotY));
+  storyLeaderDot.setAttribute("r", "3.4");
+}
+function scheduleStoryNote() {
+  if (!storyUI || activeMode !== "story") return;
+  cancelAnimationFrame(storyNoteRaf);
+  storyNoteRaf = requestAnimationFrame(positionStoryNote);
+  for (const timer of storyNoteTimers) clearTimeout(timer);
+  storyNoteTimers.length = 0;
+  for (const delay of [90, 700, 1180]) storyNoteTimers.push(setTimeout(positionStoryNote, delay));
+}
+function ensureStoryLinkSvg() {
+  if (!storyUI || !storyUI.links) return null;
+  if (storyLinkSvg && storyLinkSvg.isConnected) return storyLinkSvg;
+  const ns = "http://www.w3.org/2000/svg";
+  storyLinkSvg = document.createElementNS(ns, "svg");
+  storyLinkSvg.setAttribute("class", "yf-story-link-svg");
+  storyLinkSvg.setAttribute("aria-hidden", "true");
+  storyLinkSvg.setAttribute("preserveAspectRatio", "none");
+  for (const pair of [["b", "temp"], ["b", "beta"], ["p", "q"], ["p", "temp"]]) {
+    const path = document.createElementNS(ns, "path");
+    path.setAttribute("class", "yf-story-link");
+    path.setAttribute("data-channel", pair[0]);
+    path.setAttribute("data-link", pair[0] + "-" + pair[1]);
+    storyLinkSvg.appendChild(path);
+  }
+  storyUI.links.appendChild(storyLinkSvg);
+  return storyLinkSvg;
+}
+function drawStoryLinks() {
+  if (!storyUI || !storyUI.play || !storyUI.links || activeMode !== "story" || storyIndex !== 3) return;
+  const play = storyUI.play;
+  const width = play.clientWidth;
+  const height = play.clientHeight;
+  if (!width || !height) return;
+  const svg = ensureStoryLinkSvg();
+  if (!svg) return;
+  svg.setAttribute("viewBox", "0 0 " + width + " " + height);
+  const base = play.getBoundingClientRect();
+  for (const pair of [["b", "temp"], ["b", "beta"], ["p", "q"], ["p", "temp"]]) {
+    const channel = pair[0];
+    const key = pair[1];
+    const slider = channel === "b" ? storyUI.b : storyUI.p;
+    const card = storyRoot.querySelector('[data-story-read="' + key + '"]');
+    const path = svg.querySelector('[data-link="' + channel + "-" + key + '"]');
+    if (!slider || !card || !path) continue;
+    const sr = slider.getBoundingClientRect();
+    const cr = card.getBoundingClientRect();
+    if (!sr.width || !cr.width) continue;
+    const min = Number(slider.min) || 0;
+    const max = Number(slider.max) || 1;
+    const value = Number(slider.value);
+    const t = clamp((value - min) / Math.max(0.0001, max - min), 0, 1);
+    const sx = sr.left - base.left + 8 + t * Math.max(0, sr.width - 16);
+    const sy = sr.top - base.top - 2;
+    const ex = cr.left - base.left + cr.width / 2;
+    const ey = cr.bottom - base.top - 3;
+    const mid = (sy + ey) / 2;
+    path.setAttribute("d", "M " + sx + " " + sy + " C " + sx + " " + mid + ", " + ex + " " + mid + ", " + ex + " " + ey);
+  }
+}
+function pulseStoryChannel(channel) {
+  if (!storyUI || !storyUI.play) return;
+  const keys = channel === "b" ? ["temp", "beta"] : channel === "p" ? ["q", "temp"] : [];
+  storyUI.play.dataset.storyChannel = channel;
+  for (const el of storyRoot.querySelectorAll(".yf-story-read.is-impact")) el.classList.remove("is-impact");
+  for (const key of keys) {
+    const card = storyRoot.querySelector('[data-story-read="' + key + '"]');
+    if (!card) continue;
+    void card.offsetWidth;
+    card.classList.add("is-impact");
+  }
+  if (storyChannelTimer) clearTimeout(storyChannelTimer);
+  storyChannelTimer = setTimeout(() => {
+    storyChannelTimer = 0;
+    if (storyUI && storyUI.play) storyUI.play.removeAttribute("data-story-channel");
+    for (const el of storyRoot.querySelectorAll(".yf-story-read.is-impact")) el.classList.remove("is-impact");
+  }, 760);
+  drawStoryLinks();
+}
+function endStoryChannelSoon() {
+  if (storyChannelTimer) clearTimeout(storyChannelTimer);
+  storyChannelTimer = setTimeout(() => {
+    storyChannelTimer = 0;
+    if (storyUI && storyUI.play) storyUI.play.removeAttribute("data-story-channel");
+    for (const el of storyRoot.querySelectorAll(".yf-story-read.is-impact")) el.classList.remove("is-impact");
+  }, 380);
+}
 function buildStoryVisual() {
   if (storyVisualBuilt || !storyUI || !storyUI.visualInner) return;
   const source = document.querySelector(".yf-stage > svg") || document.querySelector(".yf-stage svg");
@@ -3391,6 +3929,9 @@ function buildStoryVisual() {
   }
   storyUI.visual.classList.add("is-ready");
   storyVisualBuilt = true;
+  applyStoryBeatFocus(activeStoryBeat());
+  if (storyIndex === 2 && storyBeatHasCoil(activeStoryBeat())) startCoilSequence();
+  scheduleStoryNote();
 }
 
 function clearCoilSequence() {
@@ -3400,7 +3941,7 @@ function clearCoilSequence() {
 }
 
 function lightNextCoilGroup() {
-  if (activeMode !== "story" || storyIndex !== 2) { storyCoilTimer = 0; return; }
+  if (activeMode !== "story" || storyIndex !== 2 || !storyBeatHasCoil(activeStoryBeat())) { storyCoilTimer = 0; return; }
   const order = [...storyCoilGroups.keys()].sort((a, b) => Number(a) - Number(b));
   if (storyCoilAt >= order.length) {
     storyCoilTimer = setTimeout(() => { clearCoilSequence(); lightNextCoilGroup(); }, 1700);
@@ -3412,6 +3953,7 @@ function lightNextCoilGroup() {
 }
 
 function startCoilSequence() {
+  if (activeMode !== "story" || storyIndex !== 2 || !storyBeatHasCoil(activeStoryBeat())) return;
   clearCoilSequence();
   if (!storyCoilGroups.size) return;
   if (still.matches) {
@@ -3479,6 +4021,82 @@ function syncStoryInputs() {
   updateStoryReadouts(modelOf(targetB, targetP, clamp(targetN, 0.5, 1.5)));
 }
 
+function setStoryBeat(index, options = {}) {
+  const panel = activeStoryPanel();
+  const beats = storyPanelBeats(storyIndex);
+  if (storyUI.play) storyUI.play.removeAttribute("data-story-channel");
+  for (const el of storyRoot.querySelectorAll(".yf-story-read.is-impact")) el.classList.remove("is-impact");
+  if (!panel || !beats.length) {
+    storyBeatIndex = 0;
+    clearStoryBeatFocus();
+    clearStoryNote();
+    if (storyIndex !== 2) clearCoilSequence();
+    if (storyUI.prev) storyUI.prev.disabled = storyIndex === 0;
+    if (storyUI.next) {
+      storyUI.next.disabled = storyIndex === storyPanels.length - 1;
+      storyUI.next.setAttribute("aria-label", storyIndex === storyPanels.length - 1 ? "已是最后一屏" : "下一屏");
+    }
+    if (panel) {
+      for (const cta of panel.querySelectorAll("[data-story-after-beat]")) cta.hidden = false;
+      const nextBeat = panel.querySelector("[data-story-beat-next]");
+      if (nextBeat) nextBeat.hidden = true;
+    }
+    return;
+  }
+  index = Math.max(0, Math.min(beats.length - 1, Number(index) || 0));
+  storyBeatIndex = index;
+  const beat = beats[index];
+  beats.forEach((item, at) => {
+    const on = at === index;
+    item.hidden = !on;
+    item.toggleAttribute("inert", !on);
+    item.classList.toggle("is-active", on);
+  });
+  panel.dataset.storyBeat = String(index);
+  const kicker = panel.querySelector("[data-story-beat-kicker]");
+  if (kicker) {
+    const base = kicker.dataset.storyKickerBase || "02 / 04 · 难题";
+    setText(kicker, base + " · 拍 " + (index + 1) + " / " + beats.length);
+  }
+  const progress = panel.querySelector("[data-beat-progress]");
+  if (progress) setText(progress, "拍 " + (index + 1) + " / " + beats.length);
+  const lastBeat = index >= beats.length - 1;
+  const nextBeat = panel.querySelector("[data-story-beat-next]");
+  if (nextBeat) nextBeat.hidden = lastBeat;
+  for (const cta of panel.querySelectorAll("[data-story-after-beat]")) cta.hidden = !lastBeat;
+  if (storyUI.prev) {
+    storyUI.prev.disabled = storyIndex === 0 && index === 0;
+    storyUI.prev.setAttribute("aria-label", index > 0 ? "上一拍" : "上一屏");
+  }
+  if (storyUI.next) {
+    const lastScreen = storyIndex === storyPanels.length - 1;
+    storyUI.next.disabled = lastScreen && lastBeat;
+    storyUI.next.setAttribute("aria-label", lastBeat ? (lastScreen ? "已是最后一屏" : "下一屏") : "下一拍");
+  }
+  if (storyUI.live) setText(storyUI.live, "第 " + (storyIndex + 1) + " 屏，拍 " + (index + 1) + " / " + beats.length + "：" + (beat.dataset.beatTitle || beat.textContent.trim()));
+  applyStoryBeatFocus(beat);
+  if (storyIndex === 2) {
+    if (storyBeatHasCoil(beat)) startCoilSequence();
+    else clearCoilSequence();
+  } else {
+    clearCoilSequence();
+  }
+  if (!options.keepScroll && panel.scrollTop > 10) {
+    panel.scrollTo({ top: 0, behavior: still.matches ? "auto" : "smooth" });
+  }
+  scheduleStoryNote();
+  if (storyIndex === 3) {
+    requestAnimationFrame(drawStoryLinks);
+    setTimeout(drawStoryLinks, 90);
+  }
+  if (options.focus) {
+    const title = beat.querySelector("[data-story-title]");
+    if (title) {
+      title.setAttribute("tabindex", "-1");
+      try { title.focus({ preventScroll: true }); } catch { title.focus(); }
+    }
+  }
+}
 function setStoryScreen(index, options = {}) {
   if (!storyRoot || !storyPanels.length) return;
   const count = storyPanels.length;
@@ -3499,19 +4117,26 @@ function setStoryScreen(index, options = {}) {
       else dot.removeAttribute("aria-current");
     });
   }
-  if (storyUI.prev) storyUI.prev.disabled = index === 0;
-  if (storyUI.next) storyUI.next.disabled = index === count - 1;
-  const title = storyPanels[index] && storyPanels[index].querySelector("[data-story-title]");
-  if (storyUI.live) setText(storyUI.live, "第 " + (index + 1) + " 屏，共 " + count + " 屏：" + (title ? title.textContent.trim() : ""));
-  if (name === "machine") startCoilSequence();
-  else clearCoilSequence();
   if (name === "task") syncStoryInputs();
   else resetStoryVisual();
-  if (options.focus) {
-    const heading = title;
-    if (heading) {
-      heading.setAttribute("tabindex", "-1");
-      try { heading.focus({ preventScroll: true }); } catch { heading.focus(); }
+  const beats = storyPanelBeats(index);
+  const beat = options.beat === "last" ? Math.max(0, beats.length - 1) : options.beat;
+  setStoryBeat(beat, { focus: options.focus, keepScroll: options.keepScroll });
+  if (name === "task") {
+    requestAnimationFrame(drawStoryLinks);
+    setTimeout(drawStoryLinks, 90);
+  }
+  if (!beats.length) {
+    if (storyUI.live) {
+      const panel = storyPanels[index];
+      setText(storyUI.live, "第 " + (index + 1) + " 屏，共 " + count + " 屏：" + (panel ? panel.getAttribute("aria-label") : ""));
+    }
+    if (options.focus) {
+      const heading = storyPanels[index] && storyPanels[index].querySelector("[data-story-title]");
+      if (heading) {
+        heading.setAttribute("tabindex", "-1");
+        try { heading.focus({ preventScroll: true }); } catch { heading.focus(); }
+      }
     }
   }
 }
@@ -3544,15 +4169,18 @@ function applyMode(mode, options = {}) {
     setGloss(false);
     hideGlossTip();
     buildStoryVisual();
-    setStoryScreen(storyIndex, { keepScroll: true });
+    setStoryScreen(storyIndex, { keepScroll: true, beat: storyBeatIndex });
     if (!options.initial && focusWasInPage) {
-      const heading = storyPanels[storyIndex] && storyPanels[storyIndex].querySelector("[data-story-title]");
+      const panel = storyPanels[storyIndex];
+      const heading = panel && (panel.querySelector(".yf-story-beat:not([hidden]) [data-story-title]") || panel.querySelector("[data-story-title]"));
       if (heading) {
         try { heading.focus({ preventScroll: true }); } catch { heading.focus(); }
       }
     }
   } else {
     clearCoilSequence();
+    clearStoryNote();
+    if (storyUI && storyUI.play) storyUI.play.removeAttribute("data-story-channel");
     if (storyRoot && storyRoot.contains(document.activeElement)) {
       try { document.activeElement.blur(); } catch {}
     }
@@ -3580,28 +4208,66 @@ function storyHandoff() {
   }, 60);
 }
 
+function storyNext(options = {}) {
+  const beats = storyPanelBeats(storyIndex);
+  if (beats.length && storyBeatIndex < beats.length - 1) {
+    setStoryBeat(storyBeatIndex + 1, options);
+    return;
+  }
+  if (storyIndex < storyPanels.length - 1) setStoryScreen(storyIndex + 1, { ...options, beat: 0 });
+}
+function storyPrev(options = {}) {
+  if (storyBeatIndex > 0) {
+    setStoryBeat(storyBeatIndex - 1, options);
+    return;
+  }
+  if (storyIndex > 0) setStoryScreen(storyIndex - 1, { ...options, beat: "last" });
+}
+
 if (storyRoot) {
-  if (storyUI.prev) storyUI.prev.addEventListener("click", () => setStoryScreen(storyIndex - 1, { focus: true }));
-  if (storyUI.next) storyUI.next.addEventListener("click", () => setStoryScreen(storyIndex + 1, { focus: true }));
+  if (storyUI.prev) storyUI.prev.addEventListener("click", () => storyPrev({ focus: true }));
+  if (storyUI.next) storyUI.next.addEventListener("click", () => storyNext({ focus: true }));
   if (storyUI.dots) storyUI.dots.addEventListener("click", (event) => {
     const dot = event.target.closest("[data-story-dot]");
     if (!dot) return;
-    setStoryScreen(Number(dot.dataset.storyDot), { focus: true });
+    setStoryScreen(Number(dot.dataset.storyDot), { focus: true, beat: 0 });
   });
   storyRoot.addEventListener("click", (event) => {
+    if (event.target.closest("[data-story-beat-next]")) { storyNext({ focus: true }); return; }
     const go = event.target.closest("[data-story-go]");
-    if (go) { setStoryScreen(Number(go.dataset.storyGo), { focus: true }); return; }
+    if (go) { setStoryScreen(Number(go.dataset.storyGo), { focus: true, beat: 0 }); return; }
     if (event.target.closest("[data-story-handoff]")) storyHandoff();
   });
-  const storyInput = () => {
+  const storyInput = (event) => {
     if (!storyUI || !storyUI.b || !storyUI.p) return;
     targetB = clamp(Number(storyUI.b.value), 2, 3);
     targetP = clamp(Number(storyUI.p.value), 4, 12);
     storyOutputsFromInputs();
     updateStoryReadouts(modelOf(targetB, targetP, clamp(targetN, 0.5, 1.5)));
+    pulseStoryChannel(event.target === storyUI.b ? "b" : "p");
   };
-  if (storyUI.b) storyUI.b.addEventListener("input", storyInput);
-  if (storyUI.p) storyUI.p.addEventListener("input", storyInput);
+  if (storyUI.b) {
+    storyUI.b.addEventListener("input", storyInput);
+    storyUI.b.addEventListener("pointerdown", () => pulseStoryChannel("b"));
+    storyUI.b.addEventListener("pointerup", endStoryChannelSoon);
+    storyUI.b.addEventListener("pointercancel", endStoryChannelSoon);
+    storyUI.b.addEventListener("blur", endStoryChannelSoon);
+  }
+  if (storyUI.p) {
+    storyUI.p.addEventListener("input", storyInput);
+    storyUI.p.addEventListener("pointerdown", () => pulseStoryChannel("p"));
+    storyUI.p.addEventListener("pointerup", endStoryChannelSoon);
+    storyUI.p.addEventListener("pointercancel", endStoryChannelSoon);
+    storyUI.p.addEventListener("blur", endStoryChannelSoon);
+  }
+  if (storyUI.visualInner) {
+    storyUI.visualInner.addEventListener("transitionend", () => { if (activeMode === "story") scheduleStoryNote(); });
+  }
+  for (const panel of storyPanels) {
+    panel.addEventListener("scroll", () => {
+      if (activeMode === "story" && panel === activeStoryPanel()) scheduleStoryNote();
+    }, { passive: true });
+  }
 }
 
 for (const button of document.querySelectorAll("[data-mode-set]")) {
@@ -3635,15 +4301,18 @@ window.addEventListener("wheel", (event) => {
     if (!canScroll && event.cancelable) event.preventDefault();
     return;
   }
-  const next = storyIndex + (down ? 1 : -1);
+  const lastBeat = Math.max(0, storyPanelBeats(storyIndex).length - 1);
+  const atEnd = storyIndex === storyPanels.length - 1 && storyBeatIndex >= lastBeat;
+  const atStart = storyIndex === 0 && storyBeatIndex <= 0;
   storyWheelDelta = 0;
-  if (next < 0 || next >= storyPanels.length) {
+  if ((down && atEnd) || (!down && atStart)) {
     if (!canScroll && event.cancelable) event.preventDefault();
     return;
   }
   if (event.cancelable) event.preventDefault();
   storyWheelAt = now + 760;
-  setStoryScreen(next);
+  if (down) storyNext();
+  else storyPrev();
 }, { passive: false });
 
 document.addEventListener("keydown", (event) => {
@@ -3652,16 +4321,16 @@ document.addEventListener("keydown", (event) => {
   if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.tagName === "SELECT" || target.isContentEditable)) return;
   if (event.key === "ArrowRight" || event.key === "ArrowDown" || event.key === "PageDown") {
     event.preventDefault();
-    setStoryScreen(storyIndex + 1, { focus: true });
+    storyNext({ focus: true });
   } else if (event.key === "ArrowLeft" || event.key === "ArrowUp" || event.key === "PageUp") {
     event.preventDefault();
-    setStoryScreen(storyIndex - 1, { focus: true });
+    storyPrev({ focus: true });
   } else if (event.key === "Home") {
     event.preventDefault();
-    setStoryScreen(0, { focus: true });
+    setStoryScreen(0, { focus: true, beat: 0 });
   } else if (event.key === "End") {
     event.preventDefault();
-    setStoryScreen(storyPanels.length - 1, { focus: true });
+    setStoryScreen(storyPanels.length - 1, { focus: true, beat: 0 });
   }
 });
 
@@ -3669,6 +4338,17 @@ window.addEventListener("hashchange", () => {
   const hash = hashStoryMode();
   if (hash) applyMode(hash, { persist: true });
   else applyMode(readStoredStoryMode() || "story");
+});
+let storyResizeRaf = 0;
+window.addEventListener("resize", () => {
+  cancelAnimationFrame(storyResizeRaf);
+  storyResizeRaf = requestAnimationFrame(() => {
+    if (activeMode === "story") {
+      scheduleStoryNote();
+      drawStoryLinks();
+    }
+    if (tourActive) scheduleTourPosition();
+  });
 });
 
 const bootHash = hashStoryMode();
