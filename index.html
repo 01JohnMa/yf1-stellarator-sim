@@ -548,6 +548,18 @@ html,body{max-width:100%}
 .yf-depth button{flex:1;padding:6px 4px;font-size:10.5px}
 .yf-depth-note{display:block;margin-top:4px;font-size:8.5px}
 .yf-level{margin-top:8px;scroll-margin-top:12px}
+.yf-more{margin-top:9px;border:1px solid #e0dbcf;border-radius:3px;background:#fffdf8}
+.yf-more summary{display:flex;align-items:center;flex-wrap:wrap;gap:3px 7px;list-style:none;cursor:pointer;padding:9px 11px;font-size:10px;letter-spacing:.04em;color:#4a4842;user-select:none}
+.yf-more summary::-webkit-details-marker{display:none}
+.yf-more summary::before{content:"▸";font-size:9px;color:#a86214;transition:transform .15s ease}
+.yf-more[open] summary::before{transform:rotate(90deg)}
+.yf-more summary:focus-visible{outline:2px solid #1f8a78;outline-offset:-2px;border-radius:3px}
+.yf-more-title{font-weight:600;color:#2c2a24}
+.yf-more-hint{font-size:8.5px;color:#9a958a;letter-spacing:.02em}
+.yf-more-body{padding:0 10px 10px;border-top:1px dashed #e6dfd2}
+.yf-more-body .yf-presets{margin-top:9px}
+.yf-more-body .yf-diagnosis,.yf-more-body .yf-missions{margin-top:8px}
+.yf-more-note{margin:9px 0 0;font-size:8.8px;line-height:1.55;color:#9a958a}
 .yf-controls{grid-template-columns:1fr;max-width:none;margin:0;padding:10px 11px 8px;gap:8px}
 .yf-presets{grid-template-columns:1fr;gap:5px;margin-top:7px}
 .yf-preset{padding:7px 9px}
@@ -695,6 +707,10 @@ body.yf-tour-on{padding-bottom:calc(48vh + 16px)}
       <label class="yf-control"><span class="yf-control-name">磁场 <b>B</b></span><input id="yf-b" type="range" min="2" max="3" step="0.05" value="2.5" aria-label="磁场强度，2 到 3 特斯拉"><output id="yf-b-out" for="yf-b">2.50 T</output><span class="yf-range-goal" data-goal="b" hidden><em>2.3–2.6 T</em></span></label>
       <label class="yf-control"><span class="yf-control-name">加热功率 <b>P</b></span><input id="yf-p" type="range" min="4" max="12" step="0.25" value="8" aria-label="加热功率，4 到 12 兆瓦"><output id="yf-p-out" for="yf-p">8.0 MW</output><span class="yf-range-goal" data-goal="p" hidden><em>5–7 MW</em></span></label>
     </div>
+    <details class="yf-more" id="yf-more-controls">
+      <summary><span class="yf-more-title">更多控件</span><span class="yf-more-hint">预设工况 · 诊断 · 三关任务</span></summary>
+      <div class="yf-more-body">
+        <p class="yf-more-note">默认收起，先把两根滑杆玩熟；点开后下次会自动展开。</p>
     <div class="yf-presets" role="group" aria-label="预设工况">
       <button type="button" class="yf-preset" data-preset="light"><b>点亮等离子体</b><span>B 2.40 T · P 6.0 MW</span><span class="yf-preset-result" data-preset-preview>正在计算…</span></button>
       <button type="button" class="yf-preset" data-preset="steady"><b>稳态运行</b><span>B 2.80 T · P 9.5 MW</span><span class="yf-preset-result" data-preset-preview>正在计算…</span></button>
@@ -735,6 +751,8 @@ body.yf-tour-on{padding-bottom:calc(48vh + 16px)}
         <div><b>三关完成 · 教学任务通关</b><span>稳定约束保持 10 秒，并把聚变增益推过 Q=1。</span></div>
       </div>
     </div>
+      </div>
+    </details>
   </section>
 
   <section class="yf-level" data-level="2" aria-label="进阶" hidden>
@@ -843,12 +861,12 @@ body.yf-tour-on{padding-bottom:calc(48vh + 16px)}
     <main class="yf-main">
       <div class="yf-main-scroll">
         <div class="yf-nowbar" role="group" aria-label="当前读数">
-    <div class="yf-now"><span class="yf-now-label">温度</span><b data-now-temp>8.7 keV</b><small data-now-temp-ref>约 1.0 亿 °C · 太阳核心的 7 倍</small></div>
-    <div class="yf-now"><span class="yf-now-label">增益 Q</span><b data-now-q>0.69</b><small data-now-q-ref>目标 ≥ 1 · 还差 0.31</small></div>
+    <div class="yf-now"><span class="yf-now-label">温度</span><b data-now-temp>8.7 keV</b><small data-now-temp-ref>有多热：约 1.0 亿 °C · 太阳核心的 7 倍</small></div>
+    <div class="yf-now"><span class="yf-now-label">增益 Q</span><b data-now-q>0.69</b><small data-now-q-ref>回本线 Q=1 · 还差 0.31</small></div>
     <div class="yf-now yf-beta" data-beta data-tone="warn">
       <div class="yf-beta-head"><span class="yf-now-label">β 余量</span><b data-now-beta>还剩 1.2 个百分点</b></div>
       <div class="yf-beta-track"><i data-now-beta-bar style="width:17.6%"></i></div>
-      <small data-now-beta-note>归零就破裂 · 教学上限 6.8%</small>
+      <small data-now-beta-note>离 6.8% 红线 · 归零就破裂</small>
     </div>
   </div>
         <div class="yf-figure" role="group" aria-label="YF-1 仿星器 · 扭曲线圈约束等离子体">
@@ -1655,6 +1673,34 @@ function revealLevel(level) {
     panel.scrollIntoView({ behavior: still.matches ? "auto" : "smooth", block: "start" });
   }, 60);
 }
+const moreControls = root.querySelector("#yf-more-controls");
+const MORE_CONTROLS_KEY = "yf-more-controls-open";
+let moreControlsAuto = false;
+function readMoreControlsOpen() {
+  try { return localStorage.getItem(MORE_CONTROLS_KEY) === "1"; } catch { return false; }
+}
+function rememberMoreControlsOpen() {
+  try { localStorage.setItem(MORE_CONTROLS_KEY, "1"); } catch {}
+}
+if (moreControls) {
+  if (readMoreControlsOpen()) moreControls.open = true;
+  moreControls.addEventListener("toggle", () => {
+    if (!moreControls.open) return;
+    if (moreControlsAuto) { moreControlsAuto = false; return; }
+    rememberMoreControlsOpen();
+  });
+}
+function expandMoreControls(remember) {
+  if (!moreControls) return;
+  if (!moreControls.open) {
+    moreControlsAuto = !remember;
+    moreControls.open = true;
+  }
+  if (remember) rememberMoreControlsOpen();
+}
+function syncMoreControlsForTour() {
+  if (tourActive && !tour.finish && tour.step === 4 && tour.crashed) expandMoreControls(false);
+}
 for (const button of depthButtons) button.addEventListener("click", () => { stopCoach(); setDepth(Number(button.dataset.depth)); if (!tourActive) revealLevel(Number(button.dataset.depth)); wake(); });
 const glossButton = root.querySelector("#yf-gloss-btn");
 const glossPanel = root.querySelector("#yf-gloss");
@@ -2276,6 +2322,7 @@ function tourExtraHtml() {
 function renderTour() {
   if (!tour.active) return;
   if (tour.finish) { renderTourFinish(); return; }
+  syncMoreControlsForTour();
   const step = tour.step;
   const m = tourModel();
   let title = TOUR_TITLES[step];
@@ -2377,6 +2424,7 @@ function renderTour() {
   kick();
 }
 function renderTourFinish() {
+  expandMoreControls(true);
   tourUI.progress.textContent = "7 / 7 步 · 完成";
   let dots = "";
   for (let index = 0; index < 7; index++) dots += '<i class="is-done"></i>';
@@ -2392,7 +2440,7 @@ function renderTourFinish() {
     "<li><strong>想更热</strong><span>加功率；但先看 β 余量，别把红线顶穿。</span></li>" +
     "<li><strong>想更稳</strong><span>升磁场；β 上限会撑开，热量也漏得更慢。</span></li>" +
     "<li><strong>想冲 Q≥1</strong><span>先升磁场，再加功率，最后留一点 β 余量。</span></li>" +
-    "</ul><p>点「自由探索」退出导览，或「再走一遍」从头开始。</p>";
+    "</ul><p>入门层的「更多控件」已经展开并记住：预设、诊断和三关任务都在里面。点「自由探索」退出导览，或「再走一遍」从头开始。</p>";
   tourUI.actions.hidden = true;
   tourUI.finish.hidden = false;
   syncTourZones();
@@ -2876,14 +2924,14 @@ function updateNow(m) {
   if (nowTemp) setText(nowTemp, m.disrupt ? "已熄灭" : fmt1(m.T) + " keV");
   if (nowTempRef) {
     setText(nowTempRef, m.disrupt
-      ? "破裂后温度归零"
-      : "约 " + (m.T * 0.116).toFixed(1) + " 亿 °C · 太阳核心的 " + Math.max(1, Math.round(m.T * 0.7733)) + " 倍");
+      ? "已熄灭 · 破裂后温度归零"
+      : "有多热：约 " + (m.T * 0.116).toFixed(1) + " 亿 °C · 太阳核心的 " + Math.max(1, Math.round(m.T * 0.7733)) + " 倍");
   }
   if (nowQ) setText(nowQ, m.disrupt ? "0" : fmt2(m.Q));
-  if (nowQRef) setText(nowQRef, m.disrupt ? "破裂后归零" : m.Q >= 1 ? "已过 1 · 赚了" : "目标 ≥ 1 · 还差 " + fmt2(Math.max(0, 1 - m.Q)));
+  if (nowQRef) setText(nowQRef, m.disrupt ? "已熄灭 · 破裂后 Q 归零" : m.Q >= 1 ? "回本线 Q=1 · 已经回本" : "回本线 Q=1 · 还差 " + fmt2(Math.max(0, 1 - m.Q)));
   if (nowBeta) setText(nowBeta, margin <= 0 ? "已归零 · 破裂" : "还剩 " + fmt1(margin) + " 个百分点");
   if (nowBetaBar) nowBetaBar.style.width = (Math.max(0, margin) / m.betaLim * 100).toFixed(1) + "%";
-  if (nowBetaNote) setText(nowBetaNote, margin <= 0 ? "β 超限 · 等离子体熄灭" : "归零就破裂 · 教学上限 6.8%");
+  if (nowBetaNote) setText(nowBetaNote, margin <= 0 ? "β 超限 · 等离子体熄灭" : "离 6.8% 红线 · 归零就破裂");
   if (nowBetaBox) nowBetaBox.setAttribute("data-tone", margin <= 0 ? "bad" : margin < 0.8 ? "bad" : margin < 1.8 ? "warn" : "good");
 }
 function draw() {
