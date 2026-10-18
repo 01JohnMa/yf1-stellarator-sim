@@ -646,7 +646,232 @@ body.yf-tour-on{padding-bottom:calc(48vh + 16px)}
 .yf-intermediates{grid-template-columns:1fr 1fr}
 .yf-tour-launch-inline{justify-content:center}
 }
-</style></head><body class="iso" data-theme="light"><main class="iso-page"><figure class="iso-figure yf-shell">
+</style>
+<style>
+/* ---- story mode shell v1 ---- */
+html[data-yf-mode="story"] .iso-page{display:none!important}
+html[data-yf-mode="story"],html[data-yf-mode="story"] body{height:100%;overflow:hidden!important;overscroll-behavior:none}
+.yf-mode-switch{position:fixed;top:12px;right:14px;z-index:300;display:inline-flex;align-items:center;gap:2px;padding:3px;border:1px solid #b9b9b4;border-radius:3px;background:rgba(251,251,250,.94);box-shadow:0 2px 12px #00000014;backdrop-filter:blur(8px);font-family:var(--anatomy-mono);font-size:10px;letter-spacing:.06em;transition:background .25s ease,border-color .25s ease}
+.yf-mode-switch button{appearance:none;border:0;border-radius:2px;background:transparent;color:#77736b;font:inherit;letter-spacing:inherit;line-height:1;padding:7px 9px;cursor:pointer;transition:background .16s ease,color .16s ease}
+.yf-mode-switch button:hover{background:#ece9e1;color:#2c2a24}
+.yf-mode-switch button[aria-pressed="true"]{background:#1f8a78;color:#fff}
+.yf-mode-switch button:focus-visible{outline:2px solid #1f8a78;outline-offset:2px}
+.yf-mode-switch .yf-mode-sep{color:#c3bdb1;font-size:9px;line-height:1;user-select:none}
+html[data-yf-mode="story"] .yf-mode-switch{background:rgba(15,14,12,.84);border-color:#4b4439;box-shadow:0 2px 16px #00000066}
+html[data-yf-mode="story"] .yf-mode-switch button{color:#b7ad9d}
+html[data-yf-mode="story"] .yf-mode-switch button:hover{background:#28231c;color:#f0e7d8}
+html[data-yf-mode="story"] .yf-mode-switch button[aria-pressed="true"]{background:#e08a2e;color:#1a130b}
+html[data-yf-mode="story"] .yf-mode-switch button:focus-visible{outline-color:#f0b56a}
+html[data-yf-mode="story"] .yf-mode-switch .yf-mode-sep{color:#5b5347}
+html[data-yf-mode="sim"] .yf-main-scroll{padding-top:54px}
+@media (min-width:1100px){
+html[data-yf-mode="sim"] .yf-corner{top:12px;right:128px}
+}
+.yf-story{position:fixed;inset:0;z-index:200;display:none;height:100vh;height:100dvh;overflow:hidden;background:#0b0a09;color:#f0e7d8;font-family:ui-sans-serif,system-ui,"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
+--anatomy-page:#0d0c0b;--anatomy-card:#151311;--anatomy-text:#c8c0b2;--anatomy-strong:#f0e7d8;--anatomy-muted:#8f8678;
+--anatomy-paper:#151311;--anatomy-face:#201c18;--anatomy-top:#26211b;
+--anatomy-shade-0:#100f0d;--anatomy-shade-1:#15130f;--anatomy-shade-2:#1a1713;--anatomy-shade-3:#211d17;
+--anatomy-lit-top:#2a241c;--anatomy-lit-shade:#211c16;
+--anatomy-hi:#d9cbb7;--anatomy-mid:#7d7466;--anatomy-lo:#4b443a;--anatomy-faint:#302b24;--anatomy-lit:#f0e7d8;
+--anatomy-halo:#000;--anatomy-halo-opacity:.75;--anatomy-dot:#d9cbb7}
+html[data-yf-mode="story"] .yf-story{display:block}
+.yf-story-glow{position:absolute;inset:0;z-index:0;background:radial-gradient(58% 62% at 72% 45%,#d97a1c26,transparent 68%),radial-gradient(42% 44% at 63% 55%,#ffedc414,transparent 70%),#0b0a09;pointer-events:none}
+.yf-story-visual{position:absolute;inset:0;z-index:1;overflow:hidden;pointer-events:none;opacity:0;transition:opacity .9s ease;
+--yf-glow:.35;--yf-body-w:11px;--yf-core-w:4px;--yf-plasma-op:1;--yf-beam-op:.7}
+.yf-story-visual.is-ready{opacity:1}
+.yf-story-visual-inner{position:absolute;left:63%;top:50%;width:min(1480px,138vw);transform:translate(-50%,-50%);transition:left 1.1s cubic-bezier(.32,.72,0,1),transform 1.1s cubic-bezier(.32,.72,0,1),opacity .8s ease;will-change:transform}
+.yf-story-visual-inner svg{display:block;width:100%;height:auto}
+.yf-story-visual .it{transition:opacity .72s ease}
+.yf-story-visual .yf-story-arc{opacity:1!important}
+.yf-story-visual .yf-story-arc .yf-plasma{filter:drop-shadow(0 0 9px #f2a23c73)}
+.yf-story-visual .yf-story-arc .yf-plasma-glow2{opacity:.5}
+.yf-story-visual .is-story-coil-lit .tb-body{fill:#c98537}
+.yf-story-visual .is-story-coil-lit .tb-shine{fill:#f6cf8e}
+.yf-story-visual .is-story-coil-lit .tb-shade{fill:#8d5517}
+.yf-story-visual .is-story-coil-lit .tb-edge{stroke:#f2a23c}
+.yf-story[data-story-screen="cover"] .yf-story-visual-inner{animation:yf-story-drift 28s ease-in-out infinite alternate}
+.yf-story[data-story-screen="cover"] .yf-story-visual .it{opacity:.7}
+.yf-story[data-story-screen="problem"] .yf-story-visual-inner{left:60%;transform:translate(-50%,-50%) scale(1.1)}
+.yf-story[data-story-screen="problem"] .yf-story-visual .it:not(.yf-story-arc){opacity:.07}
+.yf-story[data-story-screen="problem"] .yf-story-visual .yf-story-arc .yf-plasma{filter:drop-shadow(0 0 20px #f2a23cbd);animation:yf-story-breathe 4.8s ease-in-out infinite}
+.yf-story[data-story-screen="machine"] .yf-story-visual-inner{left:59%;transform:translate(-50%,-48%) scale(1.06)}
+.yf-story[data-story-screen="machine"] .yf-story-visual .it:not([data-piece="coil"]):not(.yf-story-arc){opacity:.06}
+.yf-story[data-story-screen="machine"] .yf-story-visual .it[data-piece="coil"]{opacity:.1}
+.yf-story[data-story-screen="machine"] .yf-story-visual .it.is-story-coil-lit{opacity:1}
+.yf-story[data-story-screen="machine"] .yf-story-visual .yf-story-arc{opacity:.92!important}
+.yf-story[data-story-screen="task"] .yf-story-visual-inner{left:62%;transform:translate(-50%,-50%) scale(1.01);opacity:.82}
+.yf-story[data-story-screen="task"] .yf-story-visual .it{opacity:.15}
+.yf-story[data-story-screen="task"] .yf-story-visual .it[data-piece="coil"]{opacity:.28}
+.yf-story[data-story-screen="task"] .yf-story-visual .yf-story-arc .yf-plasma{filter:drop-shadow(0 0 15px #f2a23c8a)}
+@keyframes yf-story-drift{from{transform:translate(-50%,-50%) scale(1)}to{transform:translate(-50.8%,-49.3%) scale(1.025)}}
+@keyframes yf-story-breathe{0%,100%{filter:drop-shadow(0 0 12px #f2a23c8a)}50%{filter:drop-shadow(0 0 26px #f2a23cdd)}}
+.yf-story-shade{position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(90deg,#0a0908f5 0%,#0a0908db 27%,#0a090866 55%,#0a09081f 78%,#0a090880 100%),linear-gradient(0deg,#0a0908eb 0%,#0a090800 43%)}
+.yf-story-brand{position:absolute;top:22px;left:clamp(20px,7vw,110px);z-index:4;font-family:var(--anatomy-mono);font-size:9px;line-height:1.4;letter-spacing:.18em;text-transform:uppercase;color:#8c8273;pointer-events:none}
+.yf-story-viewport{position:absolute;inset:0;z-index:3;overflow:hidden}
+.yf-story-track{display:flex;width:100%;height:100%;transition:transform .62s cubic-bezier(.32,.72,0,1);will-change:transform}
+.yf-story-panel{flex:0 0 100%;width:100%;height:100%;overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column;padding:94px clamp(22px,7vw,110px) 118px;scrollbar-width:thin;scrollbar-color:#4b4439 transparent}
+.yf-story-panel::-webkit-scrollbar{width:8px}
+.yf-story-panel::-webkit-scrollbar-thumb{background:#4b4439;border-radius:5px}
+.yf-story-panel:focus{outline:none}
+.yf-story-copy{position:relative;z-index:2;width:100%;max-width:640px;margin-top:auto;margin-bottom:auto;padding:6px 0}
+.yf-story-kicker{display:flex;align-items:center;gap:10px;margin:0;font-family:var(--anatomy-mono);font-size:10px;line-height:1.4;letter-spacing:.16em;text-transform:uppercase;color:#d99a4f}
+.yf-story-kicker::before{content:"";width:25px;height:1px;flex:0 0 auto;background:#a86214}
+.yf-story-title{margin:15px 0 0;max-width:12em;font-size:clamp(34px,5vw,60px);line-height:1.14;font-weight:600;letter-spacing:-.015em;color:#f6efe3;text-wrap:balance}
+.yf-story-title[tabindex]:focus{outline:none}
+.yf-story-title[tabindex]:focus-visible{outline:2px solid #f0b56a;outline-offset:9px;border-radius:2px}
+.yf-story-sub{margin:16px 0 0;max-width:31em;font-size:clamp(15px,1.5vw,18px);line-height:1.8;letter-spacing:.01em;color:#b9af9f}
+.yf-story-cta{display:inline-flex;align-items:center;justify-content:center;gap:10px;appearance:none;border:1px solid #e08a2e;border-radius:2px;background:#e08a2e;color:#1a130b;font-family:var(--anatomy-mono);font-size:12px;font-weight:700;line-height:1;letter-spacing:.07em;min-height:44px;margin-top:27px;padding:0 19px;cursor:pointer;transition:background .16s ease,border-color .16s ease,transform .1s ease}
+.yf-story-cta:hover{background:#f0a34a;border-color:#f0a34a}
+.yf-story-cta:active{transform:translateY(1px)}
+.yf-story-cta:focus-visible{outline:2px solid #f6d7a2;outline-offset:3px}
+.yf-story-fine{margin:13px 0 0;font-family:var(--anatomy-mono);font-size:9.5px;line-height:1.5;letter-spacing:.06em;color:#776e61}
+.yf-story-play{width:100%;max-width:560px;margin-top:23px;padding:13px 14px 11px;border:1px solid #4a4237;border-radius:4px;background:#12100ddb;box-shadow:0 16px 38px #0000003d;backdrop-filter:blur(10px)}
+.yf-story-sliders{display:grid;grid-template-columns:1fr 1fr;gap:9px 15px}
+.yf-story-slider{display:grid;grid-template-columns:1fr auto;gap:3px 8px;align-items:center;min-width:0;font-family:var(--anatomy-mono);font-size:10px;line-height:1.4;letter-spacing:.03em;color:#b9af9f}
+.yf-story-slider output{color:#f0e7d8;font-variant-numeric:tabular-nums}
+.yf-story-slider input[type=range]{grid-column:1/3;grid-row:2/3;width:100%;height:16px;margin:2px 0 0;background:transparent;accent-color:#e08a2e;cursor:ew-resize}
+.yf-story-slider input[type=range]:focus-visible{outline:2px solid #e08a2e;outline-offset:4px}
+.yf-story-readouts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:11px}
+.yf-story-read{min-width:0;padding:7px 8px;border:1px solid #3a342b;border-radius:2px;background:#ffffff07}
+.yf-story-read>span{display:block;font-family:var(--anatomy-mono);font-size:8px;line-height:1.4;letter-spacing:.1em;color:#8c8273}
+.yf-story-read b{display:block;margin-top:2px;font-family:var(--anatomy-mono);font-size:14px;font-weight:600;line-height:1.25;color:#f4ede1;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.yf-story-read small{display:block;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--anatomy-mono);font-size:8.5px;line-height:1.45;color:#8c8273}
+.yf-story-read[data-tone="good"]{border-color:#3e6b52}
+.yf-story-read[data-tone="warn"]{border-color:#8a6421}
+.yf-story-read[data-tone="bad"]{border-color:#8d3c3c;background:#e5484d0f}
+.yf-story-read[data-tone="bad"] b{color:#ff9a9a}
+.yf-story-goal{margin:9px 0 0;min-height:1.5em;font-family:var(--anatomy-mono);font-size:9.5px;line-height:1.55;color:#a89d8c}
+.yf-story-nav{position:absolute;left:0;right:0;bottom:0;z-index:5;display:flex;align-items:center;justify-content:center;gap:14px;padding:0 clamp(18px,4vw,34px) max(20px,env(safe-area-inset-bottom));pointer-events:none}
+.yf-story-nav>*{pointer-events:auto}
+.yf-story-arrow{appearance:none;display:grid;place-items:center;width:38px;height:38px;padding:0;border:1px solid #4b4439;border-radius:50%;background:#0f0e0c8c;color:#cfc5b5;font-family:var(--anatomy-mono);font-size:16px;line-height:1;cursor:pointer;backdrop-filter:blur(8px);transition:background .16s ease,border-color .16s ease,opacity .16s ease}
+.yf-story-arrow:hover:not(:disabled){border-color:#b08a58;background:#28231ccc;color:#f0e7d8}
+.yf-story-arrow:focus-visible{outline:2px solid #f0b56a;outline-offset:3px}
+.yf-story-arrow:disabled{opacity:.24;cursor:default}
+.yf-story-dots{display:flex;align-items:center;gap:8px;padding:8px 11px;border:1px solid #3a342b;border-radius:40px;background:#0c0b098c;backdrop-filter:blur(8px)}
+.yf-story-dots button{appearance:none;display:block;width:7px;height:7px;padding:0;border:0;border-radius:50%;background:#5e5548;cursor:pointer;transition:width .22s ease,background .22s ease,border-radius .22s ease}
+.yf-story-dots button:hover{background:#a89d8c}
+.yf-story-dots button[aria-current="step"]{width:22px;border-radius:5px;background:#e08a2e}
+.yf-story-dots button:focus-visible{outline:2px solid #f0b56a;outline-offset:3px}
+.yf-story .yf-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+@media (max-width:760px){
+.yf-mode-switch{top:10px;right:10px;font-size:9.5px}
+.yf-mode-switch button{padding:7px 8px}
+html[data-yf-mode="sim"] .yf-main-scroll{padding-top:52px}
+.yf-story-brand{top:18px;left:18px;font-size:8px;letter-spacing:.13em}
+.yf-story-shade{background:linear-gradient(180deg,#0a090899 0%,#0a0908d9 44%,#0a0908f7 100%),linear-gradient(90deg,#0a0908eb 0%,#0a090833 78%,#0a090873 100%)}
+.yf-story-visual-inner{left:56%;top:43%;width:205vw}
+.yf-story[data-story-screen="problem"] .yf-story-visual-inner{left:60%;top:44%;transform:translate(-50%,-50%) scale(1.08)}
+.yf-story[data-story-screen="machine"] .yf-story-visual-inner{left:51%;top:43%;transform:translate(-50%,-48%) scale(1.02)}
+.yf-story[data-story-screen="task"] .yf-story-visual-inner{left:57%;top:40%;transform:translate(-50%,-50%) scale(1);opacity:.5}
+.yf-story-panel{padding:82px 20px 118px}
+.yf-story-copy{max-width:none}
+.yf-story-title{font-size:clamp(30px,9.4vw,42px)}
+.yf-story-sub{font-size:15px;line-height:1.75}
+.yf-story-play{max-width:none;padding:12px}
+.yf-story-sliders{grid-template-columns:1fr;gap:7px}
+.yf-story-readouts{grid-template-columns:1fr 1fr;gap:6px}
+.yf-story-read:nth-child(3){grid-column:1/-1}
+.yf-story-cta{width:100%;margin-top:23px}
+.yf-story-nav{gap:10px;padding-bottom:max(14px,env(safe-area-inset-bottom))}
+.yf-story-arrow{width:34px;height:34px}
+.yf-story-dots{gap:7px}
+}
+@media (max-height:620px) and (min-width:761px){
+.yf-story-panel{padding-top:66px;padding-bottom:92px}
+.yf-story-title{font-size:clamp(30px,4.2vw,46px)}
+.yf-story-play{margin-top:15px}
+.yf-story-cta{margin-top:18px}
+}
+@media (prefers-reduced-motion:reduce){
+.yf-story-track,.yf-story-visual,.yf-story-visual-inner,.yf-story-visual .it,.yf-story-cta,.yf-story-arrow,.yf-story-dots button,.yf-mode-switch{transition:none!important}
+.yf-story[data-story-screen="cover"] .yf-story-visual-inner{animation:none}
+.yf-story[data-story-screen="problem"] .yf-story-visual .yf-story-arc .yf-plasma{animation:none}
+}
+</style>
+<script>
+(function(){
+  var mode="story";
+  try{
+    var hash=(location.hash||"").replace(/^#\/?/,"");
+    var saved=localStorage.getItem("yf-mode");
+    if(hash==="story"||hash==="sim") mode=hash;
+    else if(saved==="story"||saved==="sim") mode=saved;
+  }catch(e){}
+  document.documentElement.setAttribute("data-yf-mode",mode);
+})();
+</script></head><body class="iso" data-theme="light">
+<div class="yf-mode-switch" id="yf-mode-switch" role="group" aria-label="模式切换">
+  <button type="button" data-mode-set="story" aria-pressed="true">故事</button>
+  <span class="yf-mode-sep" aria-hidden="true">|</span>
+  <button type="button" data-mode-set="sim" aria-pressed="false">模拟器</button>
+</div>
+<section class="yf-story" id="yf-story" data-story-screen="cover" role="region" aria-roledescription="故事模式" aria-label="故事模式：我们在地球上造一颗星星">
+  <div class="yf-story-glow" aria-hidden="true"></div>
+  <div class="yf-story-visual" data-story-visual aria-hidden="true"><div class="yf-story-visual-inner" data-story-visual-inner></div></div>
+  <div class="yf-story-shade" aria-hidden="true"></div>
+  <span class="yf-story-brand" aria-hidden="true">YF-1 · 仿星器教学模型</span>
+  <div class="yf-story-viewport">
+    <div class="yf-story-track" data-story-track>
+      <article class="yf-story-panel" data-story-panel="0" aria-roledescription="章节" aria-label="第 1 屏，共 4 屏：封面">
+        <div class="yf-story-copy">
+          <p class="yf-story-kicker">01 / 04 · 封面</p>
+          <h2 class="yf-story-title" data-story-title tabindex="-1">我们在地球上造一颗星星</h2>
+          <p class="yf-story-sub" data-story-sub>岩超聚能 YF-1 仿星器 · 5屏带你亲手点亮它</p>
+          <button type="button" class="yf-story-cta" data-story-go="1">开始 · 进入故事</button>
+          <p class="yf-story-fine">4 章故事 + 1 次亲手开火 · 约 1 分钟</p>
+        </div>
+      </article>
+      <article class="yf-story-panel" data-story-panel="1" aria-roledescription="章节" aria-label="第 2 屏，共 4 屏：问题" aria-hidden="true" inert>
+        <div class="yf-story-copy">
+          <p class="yf-story-kicker">02 / 04 · 难题</p>
+          <h2 class="yf-story-title" data-story-title tabindex="-1">上亿度的火，装不住</h2>
+          <p class="yf-story-sub" data-story-sub>任何材料都装不住，唯一的容器，是磁场。</p>
+          <button type="button" class="yf-story-cta" data-story-go="2">看那只笼子</button>
+        </div>
+      </article>
+      <article class="yf-story-panel" data-story-panel="2" aria-roledescription="章节" aria-label="第 3 屏，共 4 屏：机器" aria-hidden="true" inert>
+        <div class="yf-story-copy">
+          <p class="yf-story-kicker">03 / 04 · 机器</p>
+          <h2 class="yf-story-title" data-story-title tabindex="-1">看不见的笼子</h2>
+          <p class="yf-story-sub" data-story-sub>六组扭曲线圈，把环形真空室里的等离子体兜在中间。</p>
+          <button type="button" class="yf-story-cta" data-story-go="3">去开火</button>
+        </div>
+      </article>
+      <article class="yf-story-panel" data-story-panel="3" aria-roledescription="章节" aria-label="第 4 屏，共 4 屏：任务" aria-hidden="true" inert>
+        <div class="yf-story-copy">
+          <p class="yf-story-kicker">04 / 04 · 任务</p>
+          <h2 class="yf-story-title" data-story-title tabindex="-1">你来开火</h2>
+          <p class="yf-story-sub" data-story-sub>磁场兜住，功率加热；把 Q 推过 1，别碰 β 红线。</p>
+          <div class="yf-story-play" role="group" aria-label="精简控制台">
+            <div class="yf-story-sliders">
+              <label class="yf-story-slider" for="yf-story-b"><span>磁场 B</span><output for="yf-story-b" data-story-b-out>2.50 T</output><input id="yf-story-b" type="range" min="2" max="3" step="0.05" value="2.5" aria-label="故事模式磁场强度，2 到 3 特斯拉"></label>
+              <label class="yf-story-slider" for="yf-story-p"><span>加热 P</span><output for="yf-story-p" data-story-p-out>8.0 MW</output><input id="yf-story-p" type="range" min="4" max="12" step="0.25" value="8" aria-label="故事模式加热功率，4 到 12 兆瓦"></label>
+            </div>
+            <div class="yf-story-readouts">
+              <div class="yf-story-read" data-story-read="temp" data-tone="good"><span>温度</span><b data-story-temp>8.7 keV</b><small data-story-temp-ref>约 1.0 亿 °C</small></div>
+              <div class="yf-story-read" data-story-read="q"><span>增益 Q</span><b data-story-q>0.69</b><small data-story-q-ref>还差 0.31</small></div>
+              <div class="yf-story-read" data-story-read="beta" data-tone="warn"><span>β 余量</span><b data-story-beta>还剩 1.2 个百分点</b><small data-story-beta-ref>红线 6.8% · 守住了</small></div>
+            </div>
+            <p class="yf-story-goal" data-story-goal>目标：把 Q 推过 1，同时别让 β 归零。</p>
+          </div>
+          <button type="button" class="yf-story-cta" data-story-handoff>进入模拟器 · 跟着导览点亮</button>
+        </div>
+      </article>
+    </div>
+  </div>
+  <nav class="yf-story-nav" aria-label="故事翻页">
+    <button type="button" class="yf-story-arrow" data-story-prev aria-label="上一屏" disabled>←</button>
+    <div class="yf-story-dots" data-story-dots role="group" aria-label="故事进度">
+      <button type="button" data-story-dot="0" aria-label="第 1 屏：封面" aria-current="step"></button>
+      <button type="button" data-story-dot="1" aria-label="第 2 屏：问题"></button>
+      <button type="button" data-story-dot="2" aria-label="第 3 屏：机器"></button>
+      <button type="button" data-story-dot="3" aria-label="第 4 屏：任务"></button>
+    </div>
+    <button type="button" class="yf-story-arrow" data-story-next aria-label="下一屏">→</button>
+  </nav>
+  <p class="yf-live" data-story-live aria-live="polite"></p>
+</section>
+<main class="iso-page"><figure class="iso-figure yf-shell">
   <div class="iso-plate yf-app">
     <aside class="yf-side" id="yf-side" data-open="false" aria-label="控制与讲解">
       <button type="button" class="yf-drawer-handle" id="yf-drawer-handle" aria-expanded="false" aria-controls="yf-side-body">
@@ -3066,6 +3291,7 @@ function draw() {
   if (sliderN && document.activeElement !== sliderN) sliderN.value = String(shownN);
   updateDiagnosis(m);
   updateNow(m);
+  updateStoryReadouts(m);
   tourCheck(m);
   if (!m.disrupt) markTask("ignite");
   if (!m.disrupt && m.Q >= 1) markTask("q");
@@ -3075,6 +3301,316 @@ function draw() {
   describe();
 }
 let expertAt = 0;
+
+/* ---- story mode ---- */
+const storyRoot = document.getElementById("yf-story");
+const storyPanels = storyRoot ? [...storyRoot.querySelectorAll("[data-story-panel]")] : [];
+const STORY_SCREENS = ["cover", "problem", "machine", "task"];
+const storyUI = storyRoot ? {
+  track: storyRoot.querySelector("[data-story-track]"),
+  visual: storyRoot.querySelector("[data-story-visual]"),
+  visualInner: storyRoot.querySelector("[data-story-visual-inner]"),
+  prev: storyRoot.querySelector("[data-story-prev]"),
+  next: storyRoot.querySelector("[data-story-next]"),
+  dots: storyRoot.querySelector("[data-story-dots]"),
+  live: storyRoot.querySelector("[data-story-live]"),
+  b: storyRoot.querySelector("#yf-story-b"),
+  p: storyRoot.querySelector("#yf-story-p"),
+  bOut: storyRoot.querySelector("[data-story-b-out]"),
+  pOut: storyRoot.querySelector("[data-story-p-out]"),
+  temp: storyRoot.querySelector("[data-story-temp]"),
+  tempRef: storyRoot.querySelector("[data-story-temp-ref]"),
+  q: storyRoot.querySelector("[data-story-q]"),
+  qRef: storyRoot.querySelector("[data-story-q-ref]"),
+  beta: storyRoot.querySelector("[data-story-beta]"),
+  betaRef: storyRoot.querySelector("[data-story-beta-ref]"),
+  goal: storyRoot.querySelector("[data-story-goal]"),
+  readTemp: storyRoot.querySelector('[data-story-read="temp"]'),
+  readQ: storyRoot.querySelector('[data-story-read="q"]'),
+  readBeta: storyRoot.querySelector('[data-story-read="beta"]'),
+} : null;
+let storyIndex = 0;
+let activeMode = document.documentElement.getAttribute("data-yf-mode") === "sim" ? "sim" : "story";
+let storyVisualBuilt = false;
+let storyCoilTimer = 0;
+let storyCoilAt = 0;
+const storyCoilGroups = new Map();
+
+function buildStoryVisual() {
+  if (storyVisualBuilt || !storyUI || !storyUI.visualInner) return;
+  const source = document.querySelector(".yf-stage > svg") || document.querySelector(".yf-stage svg");
+  if (!source) return;
+  const clone = source.cloneNode(true);
+  clone.querySelectorAll("[id]").forEach((element) => { element.id = "yf-story-" + element.id; });
+  clone.querySelectorAll(".it").forEach((element) => {
+    element.removeAttribute("style");
+    element.classList.remove("is-tour-target");
+  });
+  clone.removeAttribute("role");
+  clone.removeAttribute("tabindex");
+  clone.setAttribute("aria-hidden", "true");
+  clone.setAttribute("focusable", "false");
+  for (const glow of clone.querySelectorAll(".yf-plasma-glow2, .yf-glow")) glow.style.filter = "url(#yf-story-yfBlur)";
+  storyUI.visualInner.appendChild(clone);
+  const arc = clone.querySelector(".yf-plasma");
+  if (arc) {
+    const arcItem = arc.closest(".it");
+    if (arcItem) arcItem.classList.add("yf-story-arc");
+  }
+  for (const item of clone.querySelectorAll('.it[data-piece="coil"]')) {
+    const match = /@(\d+)/.exec(item.getAttribute("data-name") || "");
+    const key = match ? match[1] : "0";
+    if (!storyCoilGroups.has(key)) storyCoilGroups.set(key, []);
+    storyCoilGroups.get(key).push(item);
+  }
+  storyUI.visual.classList.add("is-ready");
+  storyVisualBuilt = true;
+}
+
+function clearCoilSequence() {
+  if (storyCoilTimer) { clearTimeout(storyCoilTimer); storyCoilTimer = 0; }
+  storyCoilAt = 0;
+  for (const group of storyCoilGroups.values()) for (const element of group) element.classList.remove("is-story-coil-lit");
+}
+
+function lightNextCoilGroup() {
+  if (activeMode !== "story" || storyIndex !== 2) { storyCoilTimer = 0; return; }
+  const order = [...storyCoilGroups.keys()].sort((a, b) => Number(a) - Number(b));
+  if (storyCoilAt >= order.length) {
+    storyCoilTimer = setTimeout(() => { clearCoilSequence(); lightNextCoilGroup(); }, 1700);
+    return;
+  }
+  for (const element of storyCoilGroups.get(order[storyCoilAt]) || []) element.classList.add("is-story-coil-lit");
+  storyCoilAt++;
+  storyCoilTimer = setTimeout(lightNextCoilGroup, 640);
+}
+
+function startCoilSequence() {
+  clearCoilSequence();
+  if (!storyCoilGroups.size) return;
+  if (still.matches) {
+    for (const group of storyCoilGroups.values()) for (const element of group) element.classList.add("is-story-coil-lit");
+    return;
+  }
+  lightNextCoilGroup();
+}
+
+function storyOutputsFromInputs() {
+  if (!storyUI || !storyUI.b || !storyUI.p) return;
+  setText(storyUI.bOut, fmt2(Number(storyUI.b.value)) + " T");
+  setText(storyUI.pOut, fmt1(Number(storyUI.p.value)) + " MW");
+}
+
+function updateStoryReadouts(m) {
+  if (!storyUI || activeMode !== "story") return;
+  const margin = m.betaLim - m.beta;
+  if (storyUI.temp) setText(storyUI.temp, m.disrupt ? "已熄灭" : fmt1(m.T) + " keV");
+  if (storyUI.tempRef) setText(storyUI.tempRef, m.disrupt ? "β 超限 · 温度归零" : "约 " + (m.T * 0.116).toFixed(1) + " 亿 °C");
+  if (storyUI.q) setText(storyUI.q, fmt2(m.Q));
+  if (storyUI.qRef) setText(storyUI.qRef, m.disrupt ? "已熄灭 · 破裂" : m.Q >= 1 ? "已经过回本线" : "还差 " + fmt2(Math.max(0, 1 - m.Q)));
+  if (storyUI.beta) setText(storyUI.beta, m.disrupt ? "已归零" : "还剩 " + fmt1(margin) + " 个百分点");
+  if (storyUI.betaRef) setText(storyUI.betaRef, m.disrupt ? "红线 6.8% · 已破裂" : "红线 6.8% · " + (margin < 1.2 ? "贴着红线" : "守住了"));
+  if (storyUI.readTemp) storyUI.readTemp.dataset.tone = m.disrupt ? "bad" : "good";
+  if (storyUI.readQ) {
+    if (m.disrupt) storyUI.readQ.dataset.tone = "bad";
+    else if (m.Q >= 1) storyUI.readQ.dataset.tone = "good";
+    else storyUI.readQ.removeAttribute("data-tone");
+  }
+  if (storyUI.readBeta) storyUI.readBeta.dataset.tone = m.disrupt ? "bad" : margin < 1.2 ? "warn" : "good";
+  if (storyUI.goal) setText(storyUI.goal, m.disrupt
+    ? "破裂了：升磁场或降功率，把 β 拉回红线内。"
+    : m.Q >= 1 ? "Q 已经过 1：这一炉，你点亮了。" : "目标：把 Q 推过 1，同时别让 β 归零。");
+  if (storyUI.visual) {
+    const u = clamp((m.T - 5) / 5.6, 0, 1);
+    const stable = m.disrupt ? 0 : 1;
+    storyUI.visual.style.setProperty("--yf-core-w", (1.6 + 3.4 * u * stable).toFixed(2) + "px");
+    storyUI.visual.style.setProperty("--yf-body-w", (8 + 4.5 * u * stable).toFixed(2) + "px");
+    storyUI.visual.style.setProperty("--yf-glow", (0.16 + 0.38 * u * stable).toFixed(3));
+    storyUI.visual.style.setProperty("--yf-plasma-op", m.disrupt ? "0.06" : "1");
+  }
+}
+
+function syncStoryInputs() {
+  if (!storyUI || !storyUI.b || !storyUI.p) return;
+  targetB = Math.round(clamp(targetB, 2, 3) * 20) / 20;
+  targetP = Math.round(clamp(targetP, 4, 12) * 4) / 4;
+  targetN = 1;
+  storyUI.b.value = String(targetB);
+  storyUI.p.value = String(targetP);
+  storyOutputsFromInputs();
+  updateStoryReadouts(modelOf(targetB, targetP, 1));
+}
+
+function setStoryScreen(index, options = {}) {
+  if (!storyRoot || !storyPanels.length) return;
+  const count = storyPanels.length;
+  index = Math.max(0, Math.min(count - 1, index));
+  storyIndex = index;
+  const name = STORY_SCREENS[index] || "cover";
+  storyRoot.dataset.storyScreen = name;
+  if (storyUI.track) storyUI.track.style.transform = "translate3d(-" + index * 100 + "%,0,0)";
+  storyPanels.forEach((panel, at) => {
+    const active = at === index;
+    panel.setAttribute("aria-hidden", active ? "false" : "true");
+    panel.toggleAttribute("inert", !active);
+    if (active && !options.keepScroll) panel.scrollTop = 0;
+  });
+  if (storyUI.dots) {
+    [...storyUI.dots.querySelectorAll("button")].forEach((dot, at) => {
+      if (at === index) dot.setAttribute("aria-current", "step");
+      else dot.removeAttribute("aria-current");
+    });
+  }
+  if (storyUI.prev) storyUI.prev.disabled = index === 0;
+  if (storyUI.next) storyUI.next.disabled = index === count - 1;
+  const title = storyPanels[index] && storyPanels[index].querySelector("[data-story-title]");
+  if (storyUI.live) setText(storyUI.live, "第 " + (index + 1) + " 屏，共 " + count + " 屏：" + (title ? title.textContent.trim() : ""));
+  if (name === "machine") startCoilSequence();
+  else clearCoilSequence();
+  if (name === "task") syncStoryInputs();
+  if (options.focus) {
+    const heading = title;
+    if (heading) {
+      heading.setAttribute("tabindex", "-1");
+      try { heading.focus({ preventScroll: true }); } catch { heading.focus(); }
+    }
+  }
+}
+
+function applyMode(mode, options = {}) {
+  mode = mode === "sim" ? "sim" : "story";
+  activeMode = mode;
+  document.documentElement.setAttribute("data-yf-mode", mode);
+  document.body.classList.toggle("yf-story-on", mode === "story");
+  const page = document.querySelector(".iso-page");
+  if (page) {
+    page.toggleAttribute("inert", mode === "story");
+    if (mode === "story") page.setAttribute("aria-hidden", "true");
+    else page.removeAttribute("aria-hidden");
+  }
+  if (storyRoot) {
+    storyRoot.toggleAttribute("inert", mode === "sim");
+    storyRoot.setAttribute("aria-hidden", mode === "sim" ? "true" : "false");
+  }
+  for (const button of document.querySelectorAll("[data-mode-set]")) {
+    button.setAttribute("aria-pressed", button.dataset.modeSet === mode ? "true" : "false");
+  }
+  if (mode === "story") {
+    if (tourActive) exitTour();
+    stopCoach();
+    touring = false;
+    clearTimeout(idleAt);
+    setGloss(false);
+    hideGlossTip();
+    buildStoryVisual();
+    setStoryScreen(storyIndex, { keepScroll: true });
+  } else {
+    clearCoilSequence();
+    if (storyRoot && storyRoot.contains(document.activeElement)) {
+      try { document.activeElement.blur(); } catch {}
+    }
+    if (!options.initial) wake();
+  }
+}
+
+function storyHandoff() {
+  if (!storyRoot) return;
+  applyMode("sim");
+}
+
+if (storyRoot) {
+  if (storyUI.prev) storyUI.prev.addEventListener("click", () => setStoryScreen(storyIndex - 1, { focus: true }));
+  if (storyUI.next) storyUI.next.addEventListener("click", () => setStoryScreen(storyIndex + 1, { focus: true }));
+  if (storyUI.dots) storyUI.dots.addEventListener("click", (event) => {
+    const dot = event.target.closest("[data-story-dot]");
+    if (!dot) return;
+    setStoryScreen(Number(dot.dataset.storyDot), { focus: true });
+  });
+  storyRoot.addEventListener("click", (event) => {
+    const go = event.target.closest("[data-story-go]");
+    if (go) { setStoryScreen(Number(go.dataset.storyGo), { focus: true }); return; }
+    if (event.target.closest("[data-story-handoff]")) storyHandoff();
+  });
+  const storyInput = () => {
+    if (!storyUI || !storyUI.b || !storyUI.p) return;
+    targetB = clamp(Number(storyUI.b.value), 2, 3);
+    targetP = clamp(Number(storyUI.p.value), 4, 12);
+    targetN = 1;
+    storyOutputsFromInputs();
+    updateStoryReadouts(modelOf(targetB, targetP, 1));
+  };
+  if (storyUI.b) storyUI.b.addEventListener("input", storyInput);
+  if (storyUI.p) storyUI.p.addEventListener("input", storyInput);
+}
+
+for (const button of document.querySelectorAll("[data-mode-set]")) {
+  button.addEventListener("click", () => applyMode(button.dataset.modeSet === "sim" ? "sim" : "story"));
+}
+
+let storyWheelAt = 0;
+let storyWheelDelta = 0;
+window.addEventListener("wheel", (event) => {
+  if (activeMode !== "story" || !storyPanels.length || event.ctrlKey) return;
+  const panel = storyPanels[storyIndex];
+  if (!panel) return;
+  const delta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
+  if (!delta) return;
+  const down = delta > 0;
+  const canScroll = panel.scrollHeight > panel.clientHeight + 2;
+  const atTop = panel.scrollTop <= 0;
+  const atBottom = panel.scrollTop + panel.clientHeight >= panel.scrollHeight - 2;
+  const now = Date.now();
+  if (now < storyWheelAt) {
+    storyWheelDelta = 0;
+    if (!canScroll && event.cancelable) event.preventDefault();
+    return;
+  }
+  if (canScroll) {
+    if (down && !atBottom) return;
+    if (!down && !atTop) return;
+  }
+  storyWheelDelta += delta;
+  if (Math.abs(storyWheelDelta) < 22) {
+    if (!canScroll && event.cancelable) event.preventDefault();
+    return;
+  }
+  const next = storyIndex + (down ? 1 : -1);
+  storyWheelDelta = 0;
+  if (next < 0 || next >= storyPanels.length) {
+    if (!canScroll && event.cancelable) event.preventDefault();
+    return;
+  }
+  if (event.cancelable) event.preventDefault();
+  storyWheelAt = now + 760;
+  setStoryScreen(next);
+}, { passive: false });
+
+document.addEventListener("keydown", (event) => {
+  if (activeMode !== "story" || event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey) return;
+  const target = event.target;
+  if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.tagName === "SELECT" || target.isContentEditable)) return;
+  if (event.key === "ArrowRight" || event.key === "ArrowDown" || event.key === "PageDown") {
+    event.preventDefault();
+    setStoryScreen(storyIndex + 1, { focus: true });
+  } else if (event.key === "ArrowLeft" || event.key === "ArrowUp" || event.key === "PageUp") {
+    event.preventDefault();
+    setStoryScreen(storyIndex - 1, { focus: true });
+  } else if (event.key === "Home") {
+    event.preventDefault();
+    setStoryScreen(0, { focus: true });
+  } else if (event.key === "End") {
+    event.preventDefault();
+    setStoryScreen(storyPanels.length - 1, { focus: true });
+  }
+});
+
+window.addEventListener("hashchange", () => {
+  const hash = (location.hash || "").replace(/^#\/?/, "");
+  if (hash === "story" || hash === "sim") applyMode(hash);
+});
+
+applyMode(activeMode, { initial: true });
+
 function tourAt(t) {
   return { b: clamp(2.65 + 0.24 * Math.sin(t * 0.21), 2, 3), p: clamp(7.7 + 1.55 * Math.sin(t * 0.13 + 1.1), 4, 12) };
 }
@@ -3164,50 +3700,5 @@ updateInfo(modelOf(shownB, shownP, shownN));
 setDepth(1);
 place();
 draw();
-</script><style>
-/* yf-welcome 新手欢迎层 2026-10-18 */
-.yf-welcome{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:rgba(38,32,24,.45);backdrop-filter:blur(2px)}
-.yf-welcome[hidden]{display:none!important}
-.yf-welcome-card{width:min(560px,calc(100vw - 48px));max-height:calc(100vh - 48px);overflow:auto;background:#fbf8f2;border:1px solid #e2d9c6;border-radius:14px;box-shadow:0 24px 70px #0003;font-family:var(--anatomy-mono);color:#2c2a24;padding:26px 28px 20px}
-.yf-welcome-kicker{font-size:10px;letter-spacing:.14em;color:#1f8a78;font-weight:700}
-.yf-welcome-card h2{margin:10px 0 8px;font-size:21px;line-height:1.4}
-.yf-welcome-card p{margin:0 0 10px;font-size:13.5px;line-height:1.75;color:#5c584e}
-.yf-welcome-card p b{color:#7a4a11}
-.yf-welcome-actions{display:flex;flex-direction:column;gap:9px;margin-top:16px}
-.yf-welcome-actions button{font:inherit;font-size:14.5px;padding:12px 16px;border-radius:10px;cursor:pointer;border:1px solid #d8cfba;text-align:left;background:#fff;color:#2c2a24}
-.yf-welcome-actions .yf-welcome-primary{background:#1f8a78;color:#fff;border-color:#1f8a78;font-weight:700}
-.yf-welcome-actions .yf-welcome-primary:hover{background:#17756a}
-.yf-welcome-actions .yf-welcome-ghost:hover{background:#f4efe4}
-.yf-welcome-actions small{display:block;font-size:11px;color:#9a958a;margin-top:4px;font-weight:400}
-.yf-welcome-note{margin:14px 0 0;font-size:10.5px;color:#8c8c90;line-height:1.6}
-</style>
-<div class="yf-welcome" id="yf-welcome" hidden role="dialog" aria-modal="true" aria-labelledby="yf-welcome-title">
-  <div class="yf-welcome-card">
-    <span class="yf-welcome-kicker">开始之前 · 1 分钟</span>
-    <h2 id="yf-welcome-title">这是一个人造太阳模拟器：先玩两根滑杆，再看懂三个数</h2>
-    <p>这台机器叫<b>仿星器</b>：用<b>磁场</b>当看不见的笼子，把加热到上亿度的<b>等离子体</b>（会发光的带电气体，图里那团橙色）悬在环形真空室里，不让它碰到内壁。磁场就是磁铁周围那种看不见的力，六组扭曲线圈负责把它弯成笼子。</p>
-    <p>你的任务：拉动<b>加热功率</b>（单位 MW，兆瓦；像灶台火力，决定每秒送进多少热）和<b>磁场</b>（单位 T，特斯拉；像笼子的松紧，决定兜不兜得住），让输出的能量超过投入——也就是把 <b>Q</b> 推过 1。Q 是“聚变（太阳发光发热的那种反应）放出的能量 ÷ 投入的加热能量”，过 1 就回本。</p>
-    <p>同时盯住 <b>β</b>：它是“等离子体往外顶的劲儿 ÷ 磁场兜得住的劲儿”，顶到 6.8% 教学上限就会<b>破裂</b>——瞬间散掉、熄灭。读数先看三个：<b>温度</b>有多热、<b>Q</b> 回没回本、<b>β</b> 离红线还有多远。</p>
-    <p>一开始，入门层只直接摆出两根滑杆和这三个读数；预设工况、诊断和三关任务收在「更多控件」里，想深入再点开。走完导览后它会自动展开，并记住你的选择。</p>
-    <div class="yf-welcome-actions">
-      <button type="button" class="yf-welcome-primary" id="yf-welcome-tour">带我走一遍 · 约 3 分钟，边做边讲<small>推荐：零基础，跟着做就行</small></button>
-      <button type="button" class="yf-welcome-ghost" id="yf-welcome-free">我先自己随便玩<small>随时点「开始分步导览」重新开始</small></button>
-    </div>
-    <p class="yf-welcome-note">数值为教学模型量级，不代表 YF-1 工程规格 · 本提示只在首次访问时出现</p>
-  </div>
-</div>
-<script>
-(function(){
-  var KEY='yf-welcome-done', el=document.getElementById('yf-welcome');
-  function done(){ try{localStorage.setItem(KEY,'1')}catch(e){} }
-  function shown(){ try{ return localStorage.getItem(KEY)==='1' }catch(e){ return false } }
-  document.getElementById('yf-welcome-tour').addEventListener('click',function(){
-    done(); el.hidden=true;
-    setTimeout(function(){ var b=document.querySelector('[data-tour-start]'); if(b) b.click(); }, 60);
-  });
-  document.getElementById('yf-welcome-free').addEventListener('click',function(){ done(); el.hidden=true; });
-  el.addEventListener('keydown',function(e){ if(e.key==='Escape'){ done(); el.hidden=true; } });
-  if(!shown()){ el.hidden=false; el.querySelector('.yf-welcome-primary').focus(); }
-})();
 </script>
 </body></html>
