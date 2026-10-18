@@ -3006,4 +3006,48 @@ updateInfo(modelOf(shownB, shownP, shownN));
 setDepth(1);
 place();
 draw();
-</script></body></html>
+</script><style>
+/* yf-welcome 新手欢迎层 2026-10-18 */
+.yf-welcome{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:rgba(38,32,24,.45);backdrop-filter:blur(2px)}
+.yf-welcome[hidden]{display:none!important}
+.yf-welcome-card{width:min(560px,calc(100vw - 48px));max-height:calc(100vh - 48px);overflow:auto;background:#fbf8f2;border:1px solid #e2d9c6;border-radius:14px;box-shadow:0 24px 70px #0003;font-family:var(--anatomy-mono);color:#2c2a24;padding:26px 28px 20px}
+.yf-welcome-kicker{font-size:10px;letter-spacing:.14em;color:#1f8a78;font-weight:700}
+.yf-welcome-card h2{margin:10px 0 8px;font-size:21px;line-height:1.4}
+.yf-welcome-card p{margin:0 0 10px;font-size:13.5px;line-height:1.75;color:#5c584e}
+.yf-welcome-card p b{color:#7a4a11}
+.yf-welcome-actions{display:flex;flex-direction:column;gap:9px;margin-top:16px}
+.yf-welcome-actions button{font:inherit;font-size:14.5px;padding:12px 16px;border-radius:10px;cursor:pointer;border:1px solid #d8cfba;text-align:left;background:#fff;color:#2c2a24}
+.yf-welcome-actions .yf-welcome-primary{background:#1f8a78;color:#fff;border-color:#1f8a78;font-weight:700}
+.yf-welcome-actions .yf-welcome-primary:hover{background:#17756a}
+.yf-welcome-actions .yf-welcome-ghost:hover{background:#f4efe4}
+.yf-welcome-actions small{display:block;font-size:11px;color:#9a958a;margin-top:4px;font-weight:400}
+.yf-welcome-note{margin:14px 0 0;font-size:10.5px;color:#8c8c90;line-height:1.6}
+</style>
+<div class="yf-welcome" id="yf-welcome" hidden role="dialog" aria-modal="true" aria-labelledby="yf-welcome-title">
+  <div class="yf-welcome-card">
+    <span class="yf-welcome-kicker">开始之前 · 30 秒</span>
+    <h2 id="yf-welcome-title">这是一个人造太阳模拟器，你要做的事只有一个</h2>
+    <p>这台机器叫<b>仿星器</b>：用扭曲的磁场，把加热到<b>上亿度的等离子体</b>（图里那团橙色的火）关在环形真空室里，不让它碰到内壁。</p>
+    <p>你的任务：拉动<b>磁场</b>和<b>加热功率</b>两根滑杆，让输出的能量超过输入——也就是把 <b>Q 推过 1</b>；同时盯住 <b>β</b>，它一旦顶到上限，等离子体就会熄灭。</p>
+    <div class="yf-welcome-actions">
+      <button type="button" class="yf-welcome-primary" id="yf-welcome-tour">带我走一遍 · 约 3 分钟，边做边讲<small>推荐：零基础友好，一步一步来</small></button>
+      <button type="button" class="yf-welcome-ghost" id="yf-welcome-free">我先自己随便玩<small>随时可从左侧「分步导览」重新开始</small></button>
+    </div>
+    <p class="yf-welcome-note">数值为教学模型量级，不代表 YF-1 工程规格 · 本提示只在首次访问时出现</p>
+  </div>
+</div>
+<script>
+(function(){
+  var KEY='yf-welcome-done', el=document.getElementById('yf-welcome');
+  function done(){ try{localStorage.setItem(KEY,'1')}catch(e){} }
+  function shown(){ try{ return localStorage.getItem(KEY)==='1' }catch(e){ return false } }
+  document.getElementById('yf-welcome-tour').addEventListener('click',function(){
+    done(); el.hidden=true;
+    requestAnimationFrame(function(){ var b=document.querySelector('[data-tour-start]'); if(b) b.click(); });
+  });
+  document.getElementById('yf-welcome-free').addEventListener('click',function(){ done(); el.hidden=true; });
+  el.addEventListener('keydown',function(e){ if(e.key==='Escape'){ done(); el.hidden=true; } });
+  if(!shown()){ el.hidden=false; el.querySelector('.yf-welcome-primary').focus(); }
+})();
+</script>
+</body></html>
