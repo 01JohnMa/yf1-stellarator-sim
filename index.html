@@ -3203,7 +3203,7 @@ draw();
   function shown(){ try{ return localStorage.getItem(KEY)==='1' }catch(e){ return false } }
   document.getElementById('yf-welcome-tour').addEventListener('click',function(){
     done(); el.hidden=true;
-    requestAnimationFrame(function(){ var b=document.querySelector('[data-tour-start]'); if(b) b.click(); });
+    setTimeout(function(){ var b=document.querySelector('[data-tour-start]'); if(b) b.click(); }, 60);
   });
   document.getElementById('yf-welcome-free').addEventListener('click',function(){ done(); el.hidden=true; });
   el.addEventListener('keydown',function(e){ if(e.key==='Escape'){ done(); el.hidden=true; } });
