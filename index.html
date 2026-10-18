@@ -303,7 +303,7 @@ svg.has-selection .it.is-selected .iso-edge{stroke:#1f8a78!important;stroke-widt
 .yf-nowbar{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,.8fr) minmax(0,1.3fr);gap:8px;max-width:706px;margin:10px auto 0;font-family:var(--anatomy-mono)}
 .yf-now{position:relative;border:1px solid var(--anatomy-faint);border-radius:3px;background:var(--anatomy-paper);padding:7px 10px;min-width:0;transition:border-color .16s ease,box-shadow .16s ease}
 .yf-now.is-tip-open{border-color:#9fcfc3;box-shadow:0 0 0 1px #1f8a781a}
-.yf-now-why{appearance:none;border:0;background:transparent;margin-top:3px;padding:0;font-family:var(--anatomy-mono);font-size:8.3px;line-height:1.4;letter-spacing:.02em;color:#8b8b8f;text-decoration:underline dotted;text-underline-offset:2px;cursor:help}
+.yf-now-why{appearance:none;border:0;background:transparent;margin-top:3px;padding:0;font-family:var(--anatomy-mono);font-size:8.8px;line-height:1.4;letter-spacing:.02em;color:#6f6f73;text-decoration:underline dotted;text-underline-offset:2px;cursor:help}
 .yf-now-why:hover{color:#1f6f60}
 .yf-now-why:focus-visible{outline:2px solid #1f8a78;outline-offset:2px;border-radius:2px}
 .yf-gloss-tip{position:fixed;z-index:150;width:min(310px,calc(100vw - 24px));padding:9px 11px;border:1px solid #a8d4c8;border-radius:4px;background:#fbfdfb;box-shadow:0 12px 32px #00000024;font-family:var(--anatomy-mono);color:#2c2c31;pointer-events:none}
@@ -676,7 +676,7 @@ body.yf-tour-on{padding-bottom:calc(48vh + 16px)}
         <div class="yf-terms">
           <article><span class="yf-term-tag">Q</span><div><h3>增益 Q</h3><p>放出的聚变能量 ÷ 输入的加热能量。</p><b>≥ 1 就算“赚了”。</b></div></article>
           <article><span class="yf-term-tag">β</span><div><h3>β 比压</h3><p>等离子体往外顶的劲儿 ÷ 磁场兜得住的劲儿。</p><b>教学上限 6.8%，越近越危险。</b></div></article>
-          <article><span class="yf-term-tag">τE</span><div><h3>约束时间 τE</h3><p>热量能被磁场关住多久。</p><b>越长越省加热，等离子体越容易热起来。</b></div></article>
+          <article><span class="yf-term-tag">τE</span><div><h3>约束时间 τE</h3><p>热量能被磁场关住多久，像保温杯能保温多久。</p><b>越长越省加热，等离子体越容易热起来。</b></div></article>
         </div>
       </details>
     </div>
@@ -687,7 +687,7 @@ body.yf-tour-on{padding-bottom:calc(48vh + 16px)}
     <dl>
       <dt data-gloss-entry="q">Q 是什么？</dt><dd>放出的聚变能量 ÷ 输入的加热能量。Q≥1 就表示产出超过投入，像做生意回本。</dd>
       <dt data-gloss-entry="beta">β 是什么？</dt><dd>等离子体往外顶的劲儿 ÷ 磁场兜得住的劲儿。越接近 6.8% 上限越危险，超了就破裂，像气球吹太鼓顶穿外皮。</dd>
-      <dt data-gloss-entry="tau">约束时间 τE 是什么？</dt><dd>热量能被磁场关住多久。越长越省加热，等离子体越容易热起来。</dd>
+      <dt data-gloss-entry="tau">约束时间 τE 是什么？</dt><dd>热量能被磁场关住多久，像保温杯能保温多久。越长越省加热，等离子体越容易热起来。</dd>
       <dt data-gloss-entry="temp">温度 T 是什么？</dt><dd>等离子体有多热。这里用 keV 表示，1 keV 约等于 1160 万 °C；读数卡会直接换算成约几亿 °C。</dd>
       <dt data-gloss-entry="field">磁场 B 是什么？</dt><dd>磁铁周围看不见的力。这里六组线圈把它弯成环形笼子，把等离子体托在中间；单位 T 是特斯拉。</dd>
       <dt data-gloss-entry="heating">加热功率 P 是什么？</dt><dd>每秒往等离子体里送多少热量，像灶台的火力大小；单位 MW 是兆瓦，数字越大火越旺。</dd>
@@ -1702,7 +1702,7 @@ function rememberMoreControlsOpen() {
 if (moreControls) {
   if (readMoreControlsOpen()) moreControls.open = true;
   moreControls.addEventListener("toggle", () => {
-    if (!moreControls.open) return;
+    if (!moreControls.open) { moreControlsAuto = false; return; }
     if (moreControlsAuto) { moreControlsAuto = false; return; }
     rememberMoreControlsOpen();
   });
@@ -1735,7 +1735,7 @@ document.addEventListener("keydown", (event) => {
 document.addEventListener("pointerdown", (event) => {
   if (!glossPanel || glossPanel.hidden) return;
   if (glossPanel.contains(event.target) || glossButton.contains(event.target)) return;
-  if (event.target.closest("[data-gloss-open]")) return;
+  if (event.target.closest?.("[data-gloss-open]")) return;
   setGloss(false);
 });
 const glossTip = document.getElementById("yf-gloss-tip");
@@ -2197,7 +2197,7 @@ const TOUR_TITLES = [
 ];
 const TOUR_SAYS = [
   "先记住一个词——磁约束：用磁场当“看不见的笼子”，把上亿度的等离子体（会发光的带电气体）悬在环形真空室中间。图里橙色那团就是等离子体，外面六组扭曲线圈负责造这个笼子。",
-  "加热功率就是每秒往等离子体里送多少热量，像灶台的火力档：火太小点不着，火太大又要小心。单位 MW 是兆瓦。",
+  "加热功率就是每秒往等离子体里送多少热量，像灶台的火力档：火太小点不着，火太大又要小心。把它调到中间、让等离子体稳稳亮着，就叫“点亮”。单位 MW 是兆瓦。",
   "读数卡上有三个关键数，咱们一张一张看，每张只讲一个词。",
   "同一台机器，只动一个旋钮，结果会差很多。我们做两个对照实验：一次只加功率，一次只加磁场，看它们各自把哪个读数推高。",
   "β 是这台机器的红线：超过 6.8% 教学上限，等离子体就会“破裂”——磁场兜不住，整团瞬间散掉、熄灭。先亲手撞一次，再把它救回来。",
@@ -2564,7 +2564,7 @@ function finishDemo(kind) {
   } else {
     const end = modelOf(3, base.p, 1);
     tour.demo.b = true;
-    tour.demoBText = "只加磁场：β 从 " + fmt1(baseModel.beta) + "% 降到 " + fmt1(end.beta) + "%，约束时间 τE（热量能被磁场关住多久）从 " + fmt2(baseModel.tau) + " s 升到 " + fmt2(end.tau) + " s；但功率没加，温度只从 " + fmt1(baseModel.T) + " keV 到 " + fmt1(end.T) + " keV。";
+    tour.demoBText = "只加磁场：β 从 " + fmt1(baseModel.beta) + "% 降到 " + fmt1(end.beta) + "%，约束时间 τE（热量能被磁场关住多久，像保温杯能保温多久）从 " + fmt2(baseModel.tau) + " s 升到 " + fmt2(end.tau) + " s；但功率没加，温度只从 " + fmt1(baseModel.T) + " keV 到 " + fmt1(end.T) + " keV。";
   }
   tour.demo.busy = "";
   tour.sig = "";
@@ -3186,7 +3186,7 @@ draw();
     <span class="yf-welcome-kicker">开始之前 · 1 分钟</span>
     <h2 id="yf-welcome-title">这是一个人造太阳模拟器：先玩两根滑杆，再看懂三个数</h2>
     <p>这台机器叫<b>仿星器</b>：用<b>磁场</b>当看不见的笼子，把加热到上亿度的<b>等离子体</b>（会发光的带电气体，图里那团橙色）悬在环形真空室里，不让它碰到内壁。磁场就是磁铁周围那种看不见的力，六组扭曲线圈负责把它弯成笼子。</p>
-    <p>你的任务：拉动<b>加热功率</b>（像灶台火力，决定每秒送进多少热）和<b>磁场</b>（像笼子的松紧，决定兜不兜得住），让输出的能量超过投入——也就是把 <b>Q</b> 推过 1。Q 是“聚变（太阳发光发热的那种反应）放出的能量 ÷ 投入的加热能量”，过 1 就回本。</p>
+    <p>你的任务：拉动<b>加热功率</b>（单位 MW，兆瓦；像灶台火力，决定每秒送进多少热）和<b>磁场</b>（单位 T，特斯拉；像笼子的松紧，决定兜不兜得住），让输出的能量超过投入——也就是把 <b>Q</b> 推过 1。Q 是“聚变（太阳发光发热的那种反应）放出的能量 ÷ 投入的加热能量”，过 1 就回本。</p>
     <p>同时盯住 <b>β</b>：它是“等离子体往外顶的劲儿 ÷ 磁场兜得住的劲儿”，顶到 6.8% 教学上限就会<b>破裂</b>——瞬间散掉、熄灭。读数先看三个：<b>温度</b>有多热、<b>Q</b> 回没回本、<b>β</b> 离红线还有多远。</p>
     <p>一开始，入门层只直接摆出两根滑杆和这三个读数；预设工况、诊断和三关任务收在「更多控件」里，想深入再点开。走完导览后它会自动展开，并记住你的选择。</p>
     <div class="yf-welcome-actions">
