@@ -301,7 +301,17 @@ svg.has-selection .it.is-selected .iso-edge{stroke:#1f8a78!important;stroke-widt
 .yf-screen[data-piece="cab"]{cursor:pointer;transition:opacity .16s ease}
 /* ---- explanation layer v3 ---- */
 .yf-nowbar{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,.8fr) minmax(0,1.3fr);gap:8px;max-width:706px;margin:10px auto 0;font-family:var(--anatomy-mono)}
-.yf-now{border:1px solid var(--anatomy-faint);border-radius:3px;background:var(--anatomy-paper);padding:7px 10px;min-width:0}
+.yf-now{position:relative;border:1px solid var(--anatomy-faint);border-radius:3px;background:var(--anatomy-paper);padding:7px 10px;min-width:0;transition:border-color .16s ease,box-shadow .16s ease}
+.yf-now.is-tip-open{border-color:#9fcfc3;box-shadow:0 0 0 1px #1f8a781a}
+.yf-now-why{appearance:none;border:0;background:transparent;margin-top:3px;padding:0;font-family:var(--anatomy-mono);font-size:8.3px;line-height:1.4;letter-spacing:.02em;color:#8b8b8f;text-decoration:underline dotted;text-underline-offset:2px;cursor:help}
+.yf-now-why:hover{color:#1f6f60}
+.yf-now-why:focus-visible{outline:2px solid #1f8a78;outline-offset:2px;border-radius:2px}
+.yf-gloss-tip{position:fixed;z-index:150;width:min(310px,calc(100vw - 24px));padding:9px 11px;border:1px solid #a8d4c8;border-radius:4px;background:#fbfdfb;box-shadow:0 12px 32px #00000024;font-family:var(--anatomy-mono);color:#2c2c31;pointer-events:none}
+.yf-gloss-tip[hidden]{display:none!important}
+.yf-gloss-tip b{display:block;font-size:10px;line-height:1.45;letter-spacing:.02em;color:#1f6f60}
+.yf-gloss-tip span{display:block;margin-top:3px;font-size:9.8px;line-height:1.65;color:#3b3b40}
+.yf-gloss-tip i{display:block;margin-top:5px;font-style:normal;font-size:8.5px;line-height:1.4;color:#8b8b8f}
+.yf-gloss dt.is-gloss-hit{background:#fff3d9;box-shadow:0 0 0 3px #fff3d9;color:#8a4d0d}
 .yf-now-label{display:block;font-size:8.5px;letter-spacing:.1em;color:var(--anatomy-muted)}
 .yf-now b{display:block;margin-top:2px;font-size:13px;font-weight:600;line-height:1.25;color:var(--anatomy-hi);font-variant-numeric:tabular-nums}
 .yf-now small{display:block;margin-top:2px;font-size:9px;line-height:1.4;color:var(--anatomy-muted);overflow-wrap:anywhere}
@@ -861,12 +871,19 @@ body.yf-tour-on{padding-bottom:calc(48vh + 16px)}
     <main class="yf-main">
       <div class="yf-main-scroll">
         <div class="yf-nowbar" role="group" aria-label="当前读数">
-    <div class="yf-now"><span class="yf-now-label">温度</span><b data-now-temp>8.7 keV</b><small data-now-temp-ref>有多热：约 1.0 亿 °C · 太阳核心的 7 倍</small></div>
-    <div class="yf-now"><span class="yf-now-label">增益 Q</span><b data-now-q>0.69</b><small data-now-q-ref>回本线 Q=1 · 还差 0.31</small></div>
-    <div class="yf-now yf-beta" data-beta data-tone="warn">
+    <div class="yf-now" data-gloss-key="temp">
+      <span class="yf-now-label">温度</span><b data-now-temp>8.7 keV</b><small data-now-temp-ref>有多热：约 1.0 亿 °C · 太阳核心的 7 倍</small>
+      <button type="button" class="yf-now-why" data-gloss-open="temp" aria-label="这是什么：温度" aria-describedby="yf-gloss-tip">这是什么</button>
+    </div>
+    <div class="yf-now" data-gloss-key="q">
+      <span class="yf-now-label">增益 Q</span><b data-now-q>0.69</b><small data-now-q-ref>回本线 Q=1 · 还差 0.31</small>
+      <button type="button" class="yf-now-why" data-gloss-open="q" aria-label="这是什么：增益 Q" aria-describedby="yf-gloss-tip">这是什么</button>
+    </div>
+    <div class="yf-now yf-beta" data-beta data-gloss-key="beta" data-tone="warn">
       <div class="yf-beta-head"><span class="yf-now-label">β 余量</span><b data-now-beta>还剩 1.2 个百分点</b></div>
       <div class="yf-beta-track"><i data-now-beta-bar style="width:17.6%"></i></div>
       <small data-now-beta-note>离 6.8% 红线 · 归零就破裂</small>
+      <button type="button" class="yf-now-why" data-gloss-open="beta" aria-label="这是什么：β 余量" aria-describedby="yf-gloss-tip">这是什么</button>
     </div>
   </div>
         <div class="yf-figure" role="group" aria-label="YF-1 仿星器 · 扭曲线圈约束等离子体">
@@ -884,7 +901,7 @@ body.yf-tour-on{padding-bottom:calc(48vh + 16px)}
       </div>
     </main>
   </div>
-</figure></main><script type="module">const AZIMUTH = 45;
+</figure></main><div class="yf-gloss-tip" id="yf-gloss-tip" role="tooltip" hidden></div><script type="module">const AZIMUTH = 45;
 const ELEVATION = 30;
 const SHADES = 4;
 const RADIANS = Math.PI / 180;
@@ -1718,8 +1735,91 @@ document.addEventListener("keydown", (event) => {
 document.addEventListener("pointerdown", (event) => {
   if (!glossPanel || glossPanel.hidden) return;
   if (glossPanel.contains(event.target) || glossButton.contains(event.target)) return;
+  if (event.target.closest("[data-gloss-open]")) return;
   setGloss(false);
 });
+const glossTip = document.getElementById("yf-gloss-tip");
+const glossCards = [...root.querySelectorAll(".yf-now[data-gloss-key]")];
+let glossTipTimer = 0;
+let glossTipCard = null;
+function glossEntryOf(key) {
+  const dt = root.querySelector('#yf-gloss [data-gloss-entry="' + key + '"]');
+  if (!dt || !dt.nextElementSibling) return null;
+  return { title: dt.textContent.trim(), body: dt.nextElementSibling.textContent.trim() };
+}
+function openGlossEntry(key) {
+  const dt = root.querySelector('#yf-gloss [data-gloss-entry="' + key + '"]');
+  if (!dt) return;
+  if (isDrawerMode()) setDrawer(true);
+  setGloss(true);
+  dt.classList.add("is-gloss-hit");
+  setTimeout(() => dt.classList.remove("is-gloss-hit"), 1800);
+  dt.scrollIntoView({ behavior: still.matches ? "auto" : "smooth", block: "center" });
+}
+function hideGlossTip() {
+  clearTimeout(glossTipTimer);
+  glossTipTimer = 0;
+  if (!glossTip) return;
+  glossTip.hidden = true;
+  glossTip.replaceChildren();
+  if (glossTipCard) {
+    glossTipCard.classList.remove("is-tip-open");
+    glossTipCard = null;
+  }
+}
+function placeGlossTip(card) {
+  if (!glossTip) return;
+  const rect = card.getBoundingClientRect();
+  const tip = glossTip.getBoundingClientRect();
+  const left = Math.min(Math.max(8, rect.left), window.innerWidth - tip.width - 8);
+  let top = rect.bottom + 8;
+  if (top + tip.height > window.innerHeight - 8) top = Math.max(8, rect.top - tip.height - 8);
+  glossTip.style.left = left + "px";
+  glossTip.style.top = top + "px";
+}
+function showGlossTip(card, key, delay) {
+  if (!glossTip) return;
+  clearTimeout(glossTipTimer);
+  glossTipTimer = setTimeout(() => {
+    if (!card.isConnected) return;
+    const entry = glossEntryOf(key);
+    if (!entry) return;
+    if (glossTipCard && glossTipCard !== card) glossTipCard.classList.remove("is-tip-open");
+    glossTipCard = card;
+    card.classList.add("is-tip-open");
+    const title = document.createElement("b");
+    title.textContent = entry.title;
+    const body = document.createElement("span");
+    body.textContent = entry.body;
+    const hint = document.createElement("i");
+    hint.textContent = "想细看？点「这是什么」打开名词解释";
+    glossTip.replaceChildren(title, body, hint);
+    glossTip.hidden = false;
+    placeGlossTip(card);
+  }, delay);
+}
+for (const card of glossCards) {
+  const key = card.dataset.glossKey;
+  const button = card.querySelector("[data-gloss-open]");
+  card.addEventListener("pointerenter", () => showGlossTip(card, key, 180));
+  card.addEventListener("pointerleave", () => {
+    if (!card.contains(document.activeElement)) hideGlossTip();
+  });
+  card.addEventListener("focusin", () => showGlossTip(card, key, 0));
+  card.addEventListener("focusout", () => {
+    setTimeout(() => {
+      if (!card.contains(document.activeElement) && !card.matches(":hover")) hideGlossTip();
+    }, 0);
+  });
+  if (button) button.addEventListener("click", (event) => {
+    event.preventDefault();
+    hideGlossTip();
+    openGlossEntry(key);
+  });
+}
+document.addEventListener("keydown", (event) => { if (event.key === "Escape") hideGlossTip(); });
+window.addEventListener("scroll", hideGlossTip, true);
+window.addEventListener("resize", hideGlossTip);
 function applyExplode() {
   for (const id of pieceIds) manual[id].target = explode;
   kick();
