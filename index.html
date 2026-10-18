@@ -3336,6 +3336,18 @@ let storyCoilTimer = 0;
 let storyCoilAt = 0;
 const storyCoilGroups = new Map();
 
+function readStoredStoryMode() {
+  try {
+    const value = localStorage.getItem("yf-mode");
+    return value === "story" || value === "sim" ? value : "";
+  } catch { return ""; }
+}
+
+function hashStoryMode() {
+  const value = (location.hash || "").replace(/^#\/?/, "");
+  return value === "story" || value === "sim" ? value : "";
+}
+
 function buildStoryVisual() {
   if (storyVisualBuilt || !storyUI || !storyUI.visualInner) return;
   const source = document.querySelector(".yf-stage > svg") || document.querySelector(".yf-stage svg");
@@ -3511,6 +3523,15 @@ function applyMode(mode, options = {}) {
     }
     if (!options.initial) wake();
   }
+  if (options.persist) {
+    try { localStorage.setItem("yf-mode", mode); } catch {}
+  }
+  if (options.updateHash) {
+    const want = "#" + mode;
+    if (location.hash !== want) {
+      try { history.replaceState(null, "", want); } catch { location.hash = mode; }
+    }
+  }
 }
 
 function storyHandoff() {
@@ -3544,7 +3565,7 @@ if (storyRoot) {
 }
 
 for (const button of document.querySelectorAll("[data-mode-set]")) {
-  button.addEventListener("click", () => applyMode(button.dataset.modeSet === "sim" ? "sim" : "story"));
+  button.addEventListener("click", () => applyMode(button.dataset.modeSet === "sim" ? "sim" : "story", { persist: true, updateHash: true }));
 }
 
 let storyWheelAt = 0;
@@ -3605,11 +3626,14 @@ document.addEventListener("keydown", (event) => {
 });
 
 window.addEventListener("hashchange", () => {
-  const hash = (location.hash || "").replace(/^#\/?/, "");
-  if (hash === "story" || hash === "sim") applyMode(hash);
+  const hash = hashStoryMode();
+  if (hash) applyMode(hash, { persist: true });
+  else applyMode(readStoredStoryMode() || "story");
 });
 
-applyMode(activeMode, { initial: true });
+const bootHash = hashStoryMode();
+const bootMode = bootHash || readStoredStoryMode() || "story";
+applyMode(bootMode, { initial: true, persist: Boolean(bootHash) });
 
 function tourAt(t) {
   return { b: clamp(2.65 + 0.24 * Math.sin(t * 0.21), 2, 3), p: clamp(7.7 + 1.55 * Math.sin(t * 0.13 + 1.1), 4, 12) };
