@@ -3183,13 +3183,15 @@ draw();
 </style>
 <div class="yf-welcome" id="yf-welcome" hidden role="dialog" aria-modal="true" aria-labelledby="yf-welcome-title">
   <div class="yf-welcome-card">
-    <span class="yf-welcome-kicker">开始之前 · 30 秒</span>
-    <h2 id="yf-welcome-title">这是一个人造太阳模拟器，你要做的事只有一个</h2>
-    <p>这台机器叫<b>仿星器</b>：用扭曲的磁场，把加热到<b>上亿度的等离子体</b>（图里那团橙色的火）关在环形真空室里，不让它碰到内壁。</p>
-    <p>你的任务：拉动<b>磁场</b>和<b>加热功率</b>两根滑杆，让输出的能量超过输入——也就是把 <b>Q 推过 1</b>；同时盯住 <b>β</b>，它一旦顶到上限，等离子体就会熄灭。</p>
+    <span class="yf-welcome-kicker">开始之前 · 1 分钟</span>
+    <h2 id="yf-welcome-title">这是一个人造太阳模拟器：先玩两根滑杆，再看懂三个数</h2>
+    <p>这台机器叫<b>仿星器</b>：用<b>磁场</b>当看不见的笼子，把加热到上亿度的<b>等离子体</b>（会发光的带电气体，图里那团橙色）悬在环形真空室里，不让它碰到内壁。磁场就是磁铁周围那种看不见的力，六组扭曲线圈负责把它弯成笼子。</p>
+    <p>你的任务：拉动<b>加热功率</b>（像灶台火力，决定每秒送进多少热）和<b>磁场</b>（像笼子的松紧，决定兜不兜得住），让输出的能量超过投入——也就是把 <b>Q</b> 推过 1。Q 是“聚变（太阳发光发热的那种反应）放出的能量 ÷ 投入的加热能量”，过 1 就回本。</p>
+    <p>同时盯住 <b>β</b>：它是“等离子体往外顶的劲儿 ÷ 磁场兜得住的劲儿”，顶到 6.8% 教学上限就会<b>破裂</b>——瞬间散掉、熄灭。读数先看三个：<b>温度</b>有多热、<b>Q</b> 回没回本、<b>β</b> 离红线还有多远。</p>
+    <p>一开始，入门层只直接摆出两根滑杆和这三个读数；预设工况、诊断和三关任务收在「更多控件」里，想深入再点开。走完导览后它会自动展开，并记住你的选择。</p>
     <div class="yf-welcome-actions">
-      <button type="button" class="yf-welcome-primary" id="yf-welcome-tour">带我走一遍 · 约 3 分钟，边做边讲<small>推荐：零基础友好，一步一步来</small></button>
-      <button type="button" class="yf-welcome-ghost" id="yf-welcome-free">我先自己随便玩<small>随时可从左侧「分步导览」重新开始</small></button>
+      <button type="button" class="yf-welcome-primary" id="yf-welcome-tour">带我走一遍 · 约 3 分钟，边做边讲<small>推荐：零基础，跟着做就行</small></button>
+      <button type="button" class="yf-welcome-ghost" id="yf-welcome-free">我先自己随便玩<small>随时点「开始分步导览」重新开始</small></button>
     </div>
     <p class="yf-welcome-note">数值为教学模型量级，不代表 YF-1 工程规格 · 本提示只在首次访问时出现</p>
   </div>
