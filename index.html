@@ -811,7 +811,7 @@ html[data-yf-mode="sim"] .yf-main-scroll{padding-top:max(54px,calc(env(safe-area
 .yf-story-beat-next{appearance:none;border:1px solid #c98a3e;border-radius:2px;background:#1a1510;color:#f0c98f;font-family:var(--anatomy-mono);font-size:11px;letter-spacing:.08em;padding:9px 13px;cursor:pointer;transition:background .16s ease,border-color .16s ease}
 .yf-story-beat-next:hover{background:#2a2117;border-color:#e0a45a;color:#ffe0b0}
 .yf-story-beat-next:focus-visible{outline:2px solid #f0b56a;outline-offset:3px}
-.yf-story-beat-next[hidden],.yf-story-cta[hidden]{display:none!important}
+.yf-story-beat-next[hidden],.yf-story-cta[hidden],.yf-story-beat-nav[hidden]{display:none!important}
 .yf-story-visual .it.is-story-beat{opacity:1!important}
 .yf-story-visual .it.is-story-beat .iso-edge,.yf-story-visual .it.is-story-beat .tb-edge{stroke:#f0a34a!important;stroke-width:1.05}
 .yf-story-visual .it.is-story-beat .yf-plasma{filter:drop-shadow(0 0 13px #f2a23ccc)!important}
@@ -4026,6 +4026,7 @@ function setStoryBeat(index, options = {}) {
   const beats = storyPanelBeats(storyIndex);
   if (storyUI.play) storyUI.play.removeAttribute("data-story-channel");
   for (const el of storyRoot.querySelectorAll(".yf-story-read.is-impact")) el.classList.remove("is-impact");
+  for (const el of storyRoot.querySelectorAll("[data-beat-body]")) el.removeAttribute("data-beat-body");
   if (!panel || !beats.length) {
     storyBeatIndex = 0;
     clearStoryBeatFocus();
@@ -4061,15 +4062,20 @@ function setStoryBeat(index, options = {}) {
   const progress = panel.querySelector("[data-beat-progress]");
   if (progress) setText(progress, "拍 " + (index + 1) + " / " + beats.length);
   const lastBeat = index >= beats.length - 1;
+  const lastScreen = storyIndex === storyPanels.length - 1;
   const nextBeat = panel.querySelector("[data-story-beat-next]");
-  if (nextBeat) nextBeat.hidden = lastBeat;
+  if (nextBeat) {
+    nextBeat.hidden = false;
+    setText(nextBeat, lastBeat ? (lastScreen ? "进入模拟器 →" : "下一屏 →") : "下一拍 →");
+  }
+  const body = beat.querySelector(".yf-story-body");
+  if (body) body.setAttribute("data-beat-body", "");
   for (const cta of panel.querySelectorAll("[data-story-after-beat]")) cta.hidden = !lastBeat;
   if (storyUI.prev) {
     storyUI.prev.disabled = storyIndex === 0 && index === 0;
     storyUI.prev.setAttribute("aria-label", index > 0 ? "上一拍" : "上一屏");
   }
   if (storyUI.next) {
-    const lastScreen = storyIndex === storyPanels.length - 1;
     storyUI.next.disabled = lastScreen && lastBeat;
     storyUI.next.setAttribute("aria-label", lastBeat ? (lastScreen ? "已是最后一屏" : "下一屏") : "下一拍");
   }
@@ -4110,6 +4116,15 @@ function setStoryScreen(index, options = {}) {
     panel.setAttribute("aria-hidden", active ? "false" : "true");
     panel.toggleAttribute("inert", !active);
     if (active && !options.keepScroll) panel.scrollTop = 0;
+    const kicker = panel.querySelector(".yf-story-kicker[data-story-kicker-base]");
+    if (kicker) kicker.toggleAttribute("data-story-beat-kicker", active);
+    const nav = panel.querySelector(".yf-story-beat-nav");
+    if (nav) nav.hidden = !active;
+    const nextBeat = panel.querySelector("[data-story-beat-next]");
+    if (nextBeat) nextBeat.hidden = !active;
+    if (!active) {
+      for (const cta of panel.querySelectorAll("[data-story-after-beat]")) cta.hidden = true;
+    }
   });
   if (storyUI.dots) {
     [...storyUI.dots.querySelectorAll("button")].forEach((dot, at) => {
@@ -4214,7 +4229,11 @@ function storyNext(options = {}) {
     setStoryBeat(storyBeatIndex + 1, options);
     return;
   }
-  if (storyIndex < storyPanels.length - 1) setStoryScreen(storyIndex + 1, { ...options, beat: 0 });
+  if (storyIndex < storyPanels.length - 1) {
+    setStoryScreen(storyIndex + 1, { ...options, beat: 0 });
+    return;
+  }
+  if (beats.length) storyHandoff();
 }
 function storyPrev(options = {}) {
   if (storyBeatIndex > 0) {

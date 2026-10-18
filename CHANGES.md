@@ -616,3 +616,92 @@ http 引用         仅 SVG 命名空间 http://www.w3.org/2000/svg
 单提交（不 push）：`分拍叙事 + 图上标注 + 任务屏联动 + 浮动导览卡`
 
 `index.bak3.html` 为动手前备份，保留为未跟踪文件；`CHANGES.md` 与本轮最终 `index.html` 一起提交。
+
+## 22. Lead 验收修复：末拍死路与翻屏拍态残留
+
+备份：`index.bak4.html`（动手前 `cp`，未跟踪）。本轮只改 `index.html` 的拍导航锚点与一条 CSS 规则，未改 HTML 结构、未新增依赖；上一节 §16 的“最后一拍隐藏下一拍按钮”由本节明确取代。
+
+### 22.1 复现与根因
+
+| Bug | 真实浏览器复现 | 根因 |
+| --- | --- | --- |
+| BUG1 末拍死路 | 清 localStorage 全新加载 → 封面 CTA 进第 2 屏 → 点“下一拍”到拍 2/2 → 再点“下一拍”，`page.click` 超时，日志显示按钮带 `hidden`；屏幕上只有底部箭头能离开 | `setStoryBeat()` 在最后一拍执行 `nextBeat.hidden = lastBeat`，把“下一拍”按钮设为 `display:none`。末拍根本点不到该按钮，`storyNext()` 的翻屏分支永远不会被它触发；CTA 与底部箭头成了唯二出口 |
+| BUG2 翻屏拍态残留 + 双按钮 | 第 2 屏拍 2/2 时点底部箭头进入第 3 屏；全文档 `[data-story-beat-kicker]` 首个匹配仍是 `02 / 04 · 难题 · 拍 2 / 2`，`[data-beat-body]` 仍是旧正文；同时有 2 个 `.yf-story-beat-next` 的 `offsetParent` 非空 | `setStoryScreen()` 只切换 `aria-hidden` / `inert` 与 track transform，三块 panel 仍然参与布局。非当前屏的拍导航按钮没有 `hidden`，`offsetParent` 仍非空（第 3 屏进入后是第 3、4 屏两个按钮）；`data-story-beat-kicker` / `data-beat-body` 又写在每个 panel/beat 上，全文档查询自然先命中第 2 屏旧节点 |
+
+### 22.2 锚点与最小改动
+
+`git diff --stat`：`index.html` 23 insertions(+), 4 deletions(-)，无标记结构改动。
+
+| 位置 | 改动 | 为什么 |
+| --- | --- | --- |
+| `.yf-story-beat-nav[hidden]`（L814） | 在既有 `[hidden]` 规则里补上拍导航容器 | 作者样式 `.yf-story-beat-nav{display:flex}` 会覆盖 UA 的 `[hidden]`；补 `!important` 后隐藏整个进度 + 按钮行 |
+| `setStoryBeat()`（L4024） | 末拍不再隐藏 `[data-story-beat-next]`；文案按状态改为“下一拍 → / 下一屏 → / 进入模拟器 →”；`data-beat-body` 标记只落在当前拍正文 | 末拍按钮必须可点且必须走 `storyNext()` 的翻屏/交棒分支；当前拍正文标记跟随拍索引，全文档查询不再命中旧拍 |
+| `setStoryScreen()`（L4106） | 逐 panel 门控：仅 active panel 保留 `data-story-beat-kicker`、显示 `.yf-story-beat-nav`、取消按钮 `hidden`；非 active panel 的拍导航、拍按钮与 `[data-story-after-beat]` CTA 隐藏；翻屏仍传 `beat: 0` 或 `"last"` | 用 `data-story-screen` 对应的当前屏做唯一可见源；进入新屏固定第 1 拍，只有“上一屏”反向导航才落到上一屏最后一拍 |
+| `storyNext()`（L4226） | 第 4 屏末拍落到函数末尾时调用 `storyHandoff()` | 末屏末拍的“下一拍”与 CTA 走同一条交棒路径，不再静默无效 |
+
+没有新增 DOM、没有新增全局状态、没有改 `storyHandoff()` / `applyMode()` 的交棒时序。
+
+### 22.3 自验断言（真实浏览器，`file:///C:/Users/92993/yf1-stellarator-sim/`）
+
+`dsh_verify` 结果（均为 Chromium/Playwright，真实鼠标点击；页面无 console / network error）：
+
+| spec | 结果 | 覆盖 |
+| --- | --- | --- |
+| `specs/story-nav-real.json` | PASS 46/46 | 逐屏点“下一拍”：第 2 屏末拍 → 第 3 屏，第 3 屏末拍 → 第 4 屏，第 4 屏末拍 → 模拟器交棒；全局 kicker / body；截图 7 张 |
+| `specs/story-nav-bottom-arrow-file.json` | PASS 28/28 | 直接复现 BUG2 的底部箭头路径：第 2 屏拍 2/2 → 第 3 屏拍 1/3；旧屏按钮 `[hidden]`、新屏按钮 `:not([hidden])`、第 4 屏按钮 `[hidden]`；第 3 屏末拍再经底部箭头 → 第 4 屏 |
+| `specs/story-nav-assert-file.json` | PASS 31/31 | 内嵌断言 harness：`PASS screens=4 lastBeats=3/3 buttons=116 kickers=3 keys=0` |
+| `specs/story-nav-key-file.json` | PASS 24/24 | 方向键：第 2 屏末拍 ArrowRight → 第 3 屏；第 4 屏拍 1 ArrowRight → 拍 2 |
+
+新增断言逐条对应：
+
+1. **每屏末拍点“下一拍”必然翻屏**：第 2 屏末拍 → `data-story-screen="machine"`；第 3 屏末拍 → `"task"`；第 4 屏末拍 → `html[data-yf-mode="sim"]` 且自动启动导览。harness 记录 `lastBeats=3/3`。
+2. **翻屏后 kicker 前缀与新屏编号一致**：第 2 屏 `02 / 04 · 难题 · 拍 1 / 2`；第 3 屏 `03 / 04 · 机器 · 拍 1 / 3`；第 4 屏 `04 / 04 · 任务 · 拍 1 / 2`。`[data-beat-body]` 同步为 `把火悬在中间` / `撑开红线`，不再命中旧屏。断言同时检查 kicker/body 节点位于 active panel。
+3. **任意时刻可见的 `.yf-story-beat-next` 恰好 1 个**：harness 每 80ms + 每次屏切换/末拍点击后统计 `offsetParent !== null` 的按钮，共 116 次检查全部为 1（第 2–4 屏）；封面没有拍导航，计数为 0。这是“任意时刻”在封面这一唯一无拍屏的例外，已在断言里显式区分。
+
+关键截图：
+
+```text
+dsh-verify-out/story-nav-real/02-s2-beat2.png          末拍“下一屏 →”可见，不再死路
+dsh-verify-out/story-nav-real/03-s3-beat1.png          第 3 屏拍 1/3，单一“下一拍”
+dsh-verify-out/story-nav-real/06-s4-beat2.png          第 4 屏末拍“进入模拟器 →”
+dsh-verify-out/story-nav-real/07-handoff-sim.png       交棒后模拟器
+dsh-verify-out/story-nav-bottom-arrow/bug2-fixed-screen3.png  BUG2 底部箭头路径
+dsh-verify-out/story-nav-assert/harness-03-pass-handoff.png   断言 harness PASS 徽标
+dsh-verify-out/story-nav-key/key-01-last-beat-to-screen3.png  方向键末拍翻屏
+dsh-verify-out/narrow-beat2/narrow-s2-beat2.png               390×760 第 2 屏末拍：“下一屏 →” + CTA 不溢出
+```
+
+### 22.4 回归
+
+| spec | 结果 |
+| --- | --- |
+| `specs/acceptance-harness.json` | PASS 20/20 spec；页内 harness **79/79 checks** |
+| `specs/story-beats-shots.json` | PASS 24/24 |
+| `specs/harness-narrow.json` | PASS 4/4（390×760 iframe） |
+| `specs/harness-narrow-beat2.json` | PASS 4/4（390×760，第 2 屏拍 2/2 的“下一屏 →”与 CTA 不溢出） |
+| `specs/harness-tour.json` | PASS 5/5 |
+
+测试侧同步：`specs/harness-wide.html` 的两处 `[data-beat-body]` 选择器改为 `.yf-story-body`，因为 `data-beat-body` 现在是“当前拍”标记、不再是全量拍列表；这是测试选择器修正，不影响页面行为。
+
+### 22.5 约束核对
+
+- 物理计算 12 函数：`specs/check-physics.mjs` 对 `index.bak4.html` 与修复后 `index.html` 逐项 SHA-1，12/12 一致：
+
+```text
+modelOf       5ec6fda8d40c4802b0c64c4d12bd3cdeaee5ac6f
+readoutOf     aa133e18aea03ea5bc066477911eaf3c85fc1b83
+spring        38a19e490d0c944cb9926971ec6aee0708d46d1b
+bForMargin    2a339b8147bae6334a48952fdac243d3e4e8fc18
+pForMargin    498f687502500478584b117f29e6fc174793a2a2
+pForQ         6dacd1468960a7e1fb3b6596b3602d1538478dde
+pForTemp      104f73d85fac51227f956d82beddb043563f4a42
+diagnosisOf   637ad8abfe946126cff0db2f70b1e9441aa8ead8
+updateExpert  bff1976a949aae3389431fe26e14c1ce10093606
+updateScan    9dcd187f4388896d4f4c5f06887b8abf434db9a8
+updateNow     4c11a3df6a334908008a5be90689896937cfee95
+tick          0a991b6b83067423aa32f38c73dc466361568479
+```
+
+- 单文件零依赖：`<script src>` 0、`<link>` 0、`@import` 0；`http://` 仅 SVG 命名空间字符串；未新增外部文件。
+- 备份：`index.bak4.html` 为动手前版本；`specs/`、`dsh-verify-out/` 保留为未跟踪自验产物。
+- 提交：单提交、不 push，提交信息 `修复故事末拍死路与翻屏拍态残留（lead 验收）`。
