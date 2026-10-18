@@ -705,3 +705,115 @@ tick          0a991b6b83067423aa32f38c73dc466361568479
 - 单文件零依赖：`<script src>` 0、`<link>` 0、`@import` 0；`http://` 仅 SVG 命名空间字符串；未新增外部文件。
 - 备份：`index.bak4.html` 为动手前版本；`specs/`、`dsh-verify-out/` 保留为未跟踪自验产物。
 - 提交：单提交、不 push，提交信息 `修复故事末拍死路与翻屏拍态残留（lead 验收）`。
+
+## 23. 等离子体视觉实时耦合物理状态（render 层）
+
+### 23.1 锚点
+
+- 主区等离子体样式：`.yf-plasma-glow2 / .yf-plasma-body2 / .yf-plasma-core2 / .yf-plasma`（约 L134–L150）
+- 场线样式：`.yf-fieldline`（约 L296）
+- 减少动效降级：`@media (prefers-reduced-motion:reduce)` 内 `.yf-plasma.is-arc-shake{animation:none!important}`（L511）
+- 故事视觉默认变量：`.yf-story-visual{--yf-…}`（L696）
+- 故事屏 filter：`.yf-story-visual .yf-story-arc .yf-plasma`（L703）、task 屏（L722）、故事拍高亮（L827）
+- 共用驱动：`/* ---- physics -> plasma rendering ... ---- */`（L3514）→ `drivePlasma()`（L3572）→ `plasmaSettled()`（L3643）
+- 主区接入：`draw()` 内 `drivePlasma(stage, m, { fade: plasma })`（L3652）
+- 故事克隆接入：`buildStoryVisual()` filter（L4058）、`pumpStoryPlasma()`（L4114）、`resetStoryVisual()`（L4126）、`updateStoryReadouts()`（L4162）
+
+### 23.2 改了什么、为什么
+
+| 位置 | 改动 | 为什么 |
+| --- | --- | --- |
+| `.yf-plasma-glow2` / `.yf-plasma-body2` / `.yf-plasma-core2` | 描边色、宽度、透明度、`brightness()` 全部改为读 `--yf-glow-color / --yf-body-color / --yf-core-color / --yf-glow-w / --yf-body-w / --yf-core-w / --yf-glow / --yf-body-op / --yf-core-op / --yf-plasma-bright`，并保留原值作 fallback | 渲染层只消费 `modelOf` 的输出：T 决定色温（暗橙→亮橙→白热）与辉光强度，P 直接决定弧粗与辉光半径，B 收紧宽度并提亮边缘 |
+| `.yf-plasma` | 增加 `filter:drop-shadow(0 0 var(--yf-aura) var(--yf-aura-color))` | 光晕半径与颜色随物理变化，低功率只有小暗橙晕，高功率/Q≥1 变成大范围青色辉光，解决“读数变但机器不动” |
+| `.yf-plasma` | 新增 `.is-arc-shake` 与 `@keyframes yf-arc-shake`，抖动幅度由 `--yf-jitter` 控制 | β 余量低于约 0.85 个百分点时才抖动；`steps(2,end)` 是轻微机械抖动，不是大幅晃动 |
+| `.yf-fieldline` | `stroke-width / stroke-dasharray / opacity` 改为读 `--yf-field-w / --yf-field-dash / --yf-field-op` | 打开“磁力线叠加”时，B 越高虚线越密、越亮，强化“磁场兜住”的视觉 |
+| 减少动效块（L511） | 强制关闭 `.is-arc-shake` 动画 | `prefers-reduced-motion:reduce` 时只保留颜色/透明度变化，无抖动 |
+| `.yf-story-visual` 默认变量 + 故事 filter | 补全同名变量；task 屏与拍高亮 filter 改用 `var(--yf-aura) / var(--yf-aura-color)`；克隆 glow 的 inline filter 追加 `brightness(var(--yf-plasma-bright,1))` | 故事任务屏克隆与模拟器主区共用同一套变量，两处同步响应；不改变叙事屏原有的 9px/13px 光晕观感 |
+| `drivePlasma(surface, m, options)`（新，约 76 行） | 从 `m.T / m.P / m.B / m.Q / m.beta / m.betaLim / m.disrupt` 推导 `heat / power / field / near / gain`，用 0.12s 指数插值写入 CSS 变量，0.16s 渐隐/复亮；按阈值切换 `is-near-limit / is-arc-shake / is-disrupt / is-gain` | 模拟器与故事屏共用同一个驱动函数；插值跟随 rAF，读数与视觉同向变化；破裂熄灭复用主区 tick 已有的 `plasma` 弹簧值（`options.fade`），故事屏用同一驱动的 fade 平滑 |
+| `draw()` | 删除原 `u / stable` 三行手写宽度，改为一次 `drivePlasma(stage, m, { fade: plasma })` | 主区原有 T→宽度逻辑并入共用驱动，避免两套参数打架；`plasma` 弹簧原样作为熄灭系数 |
+| `pumpStoryPlasma()` / `updateStoryReadouts()` | 故事任务屏每次 input/进入时立即 drive，并用 rAF 泵持续到 `plasmaSettled` | 故事滑杆是 `input` 即响应，不依赖松手；渐隐/复亮平滑，切屏时 `resetStoryVisual()` 取消泵并复位变量与 filter |
+| `resetStoryVisual()` | 从手写 4 个变量改为统一复位 `PLASMA_DEFAULT`、清除 4 个状态类、把克隆 `feGaussianBlur` 复位到 3.2 | 叙事屏不再残留上一屏的收紧/破裂外观 |
+
+没有新增 DOM 元素、没有新增依赖、没有改动任何物理计算。
+
+### 23.3 自验断言（真实浏览器，`file:///C:/Users/92993/yf1-stellarator-sim/`）
+
+说明：dsh-verify 的 spec 语言没有拖拽/坐标动作，`fill` 也不支持 `input[type=range]`；因此 `specs/plasma-assert.js` 直接写 `input.value` 并派发冒泡 `input` 事件——这正是原生拖动滑杆时应用收到的事件与处理路径。另用 `specs/plasma-visual-presets.json` 做真实鼠标点击预设按钮的对照。
+
+`dsh_verify` 结果（Chromium/Playwright，页面无 console error）：
+
+| spec | 结果 | 覆盖 |
+| --- | --- | --- |
+| `specs/plasma-coupling.json` | PASS 5/5 spec；页内 harness **PASS 26/26** | P 4→12 在 300ms 内 `.yf-plasma` 的 filter 与子路径样式变化；P 极值可区分；B 收紧/锐化/场线变密；Q≥1 青色；β 贴线抖动、破裂渐隐、恢复；故事屏同步；共用驱动 |
+| `specs/plasma-coupling-reduced.json` | PASS 5/5 spec；页内 harness **PASS 27/27**（reduced-motion） | 颜色仍随 P 变化；`is-near-limit` 在但无 `is-arc-shake`、`animation-name:none`；CSS 降级规则存在 |
+| `specs/plasma-coupling-disrupt.json` | PASS 5/5 spec | 套件结束停在被破坏状态的截图：弧熄灭、T “已熄灭”、Q 0、β 已归零 |
+| `specs/plasma-coupling-story.json` | PASS 5/5 spec | 套件结束停在故事任务屏 Q=1.88 的截图：克隆弧青色 |
+| `specs/plasma-visual-presets.json` | PASS 27/27 | 真实点击预设按钮，`.yf-plasma-body2` 的 `strokeWidth` 与 `.yf-plasma-glow2` 的 `opacity` 每次都改变；暗橙→亮橙→青三张截图 |
+| `specs/acceptance-harness.json` | PASS 20/20 spec；页内 **79/79 checks** | 既有全量回归 |
+| `specs/story-nav-real.json` | PASS 46/46 | 故事翻屏/交棒回归 |
+| `specs/story-beats-shots.json` | PASS 24/24 | 故事四屏截图回归 |
+
+关键断言实测值（来自 `#plasma-selftest-result`）：
+
+```text
+P-300ms-response   bodyW 6.50->9.28  glow 0.24->0.57           300ms 内即响应
+P-width            bodyW 6.50->11.56 glowW 16.70->46.14        P=4 vs P=12
+P-glow-opacity     0.24->0.92
+P-aura-filter      drop-shadow(...7.44px) -> drop-shadow(...27.65px)
+P-colour-temp      rgb(205,95,27) -> rgb(176,215,211)          暗橙→白热(含增益青)
+P-readout-alive    7.1 keV -> 12.7 keV                         读数与视觉同源
+B-tighten          glowW 26.07->19.02 bodyW 8.08->7.14         B 2→3
+B-sharpen          blur 4.03->1.49 coreOp 0.46->0.98           边缘更锐
+B-field-density    2.37px,3.55px -> 1.48px,1.96px              场线更密
+Q-cyan-gain        rgb(236,143,60) -> rgb(141,223,230)         Q<1 -> Q=1.88
+beta-near-limit    yf-plasma is-near-limit is-arc-shake        贴线
+beta-shake-runs    running                                     CSS 动画确实在跑
+disrupt-fade       opacity=0.07 class=... is-disrupt           1s 内熄灭
+recover-lit        opacity=0.99 class=yf-plasma                恢复
+story-P-300ms      bodyW 7.83->11.63                           故事屏 input 即响应
+story-gain-cyan    rgb(141,223,231)                            故事克隆 Q≥1
+story-disrupt-fade opacity=0.00 class=... is-disrupt           故事屏破裂
+shared-driver-sync bodyGap=1 glowGap=1 widthGap=0.00           同一 m → 两处同值
+```
+
+关于“P=2”：滑杆实际范围是 4–12 MW（`#yf-p min=4 max=12`），P=2 无法被 UI 表达；这里取真实两端 P=4 与 P=12 验证可区分性。B 取 2.00 T 与 3.00 T。
+
+### 23.4 关键截图
+
+```text
+dsh-verify-out/plasma-coupling/00-plasma-selftest-pass.png        26/26 PASS；Q=1.88，青色增益弧
+dsh-verify-out/plasma-coupling-reduced/00-plasma-reduced-pass.png 27/27 PASS；无抖动，仅颜色变化
+dsh-verify-out/plasma-coupling-disrupt/00-plasma-disrupted.png    破裂后弧熄灭，T 已熄灭 / Q 0 / β 已归零
+dsh-verify-out/plasma-coupling-story/00-story-task-gain.png       故事任务屏克隆，Q=1.88 青色弧
+dsh-verify-out/plasma-visual-presets/01-baseline.png              基线
+dsh-verify-out/plasma-visual-presets/02-preset-light.png          点亮：暗橙、细弧
+dsh-verify-out/plasma-visual-presets/03-preset-steady.png         稳态：亮橙、更粗、光晕更大
+dsh-verify-out/plasma-visual-presets/04-preset-q1.png             冲击 Q≥1：青白、最粗、青色大光晕
+dsh-verify-out/plasma-visual-presets/crop-light.png               主区局部：暗橙细弧
+dsh-verify-out/plasma-visual-presets/crop-steady.png              主区局部：亮橙粗弧 + 暖光晕
+dsh-verify-out/plasma-visual-presets/crop-q1.png                  主区局部：青色粗弧 + 青色光晕
+```
+
+### 23.5 约束核对
+
+- 物理计算 12 函数：`specs/check-physics.mjs` 对 `index.bak5.html` 与 `index.html` 逐项 SHA-1，12/12 一致：
+
+```text
+modelOf       5ec6fda8d40c4802b0c64c4d12bd3cdeaee5ac6f
+readoutOf     aa133e18aea03ea5bc066477911eaf3c85fc1b83
+spring        38a19e490d0c944cb9926971ec6aee0708d46d1b
+bForMargin    2a339b8147bae6334a48952fdac243d3e4e8fc18
+pForMargin    498f687502500478584b117f29e6fc174793a2a2
+pForQ         6dacd1468960a7e1fb3b6596b3602d1538478dde
+pForTemp      104f73d85fac51227f956d82beddb043563f4a42
+diagnosisOf   637ad8abfe946126cff0db2f70b1e9441aa8ead8
+updateExpert  bff1976a949aae3389431fe26e14c1ce10093606
+updateScan    9dcd187f4388896d4f4c5f06887b8abf434db9a8
+updateNow     4c11a3df6a334908008a5be90689896937cfee95
+tick          0a991b6b83067423aa32f38c73dc466361568479
+```
+
+- 单文件零依赖：`<script src>` 0、`<link>` 0、`@import` 0；`http://` 4 处均为 SVG 命名空间字符串；未新增外部文件。
+- 备份：`index.bak5.html` 与动手前 `HEAD:index.html` 的 blob 同为 `054f6482…`；`specs/`、`dsh-verify-out/` 保留为未跟踪自验产物。
+- 提交：单提交、不 push，提交信息 `等离子体视觉实时耦合物理状态（render 层）`。
+

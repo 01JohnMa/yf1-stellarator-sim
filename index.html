@@ -131,12 +131,20 @@ body{font-family:ui-sans-serif,system-ui,"Noto Sans SC","PingFang SC","Microsoft
 .yf-coil .tb-shine{fill:#d9d9d3}
 .yf-coil .tb-shade{fill:#5f5f5a}
 .yf-coil .tb-edge{stroke:#242426}
-.yf-plasma-glow2{fill:none;stroke:#f2a23c;stroke-width:26px;stroke-linecap:round;filter:url(#yfBlur);opacity:var(--yf-glow,.3)}
-.yf-plasma-body2{fill:none;stroke:#d97a1c;stroke-width:var(--yf-body-w,11px);stroke-linecap:round}
-.yf-plasma-core2{fill:none;stroke:#fff1cf;stroke-width:var(--yf-core-w,4px);stroke-linecap:round;opacity:.95}
-.yf-glow{fill:none;stroke:#f2a23c;stroke-width:22px;stroke-linecap:round;filter:url(#yfBlur);opacity:var(--yf-glow,.3)}
+.yf-plasma-glow2{fill:none;stroke:var(--yf-glow-color,#f2a23c);stroke-width:var(--yf-glow-w,26px);stroke-linecap:round;filter:url(#yfBlur) brightness(var(--yf-plasma-bright,1));opacity:var(--yf-glow,.3)}
+.yf-plasma-body2{fill:none;stroke:var(--yf-body-color,#d97a1c);stroke-width:var(--yf-body-w,11px);stroke-linecap:round;opacity:var(--yf-body-op,.9);filter:brightness(var(--yf-plasma-bright,1))}
+.yf-plasma-core2{fill:none;stroke:var(--yf-core-color,#fff1cf);stroke-width:var(--yf-core-w,4px);stroke-linecap:round;opacity:var(--yf-core-op,.95);filter:brightness(var(--yf-plasma-bright,1))}
+.yf-glow{fill:none;stroke:#f2a23c;stroke-width:22px;stroke-linecap:round;filter:url(#yfBlur) brightness(var(--yf-plasma-bright,1));opacity:var(--yf-glow,.3)}
 .yf-core{fill:none;stroke:#fff2d3;stroke-width:var(--yf-core-w,3px);stroke-linecap:round;opacity:.92}
-.yf-plasma{opacity:var(--yf-plasma-op,1)}
+.yf-plasma{opacity:var(--yf-plasma-op,1);filter:drop-shadow(0 0 var(--yf-aura,0px) var(--yf-aura-color,transparent))}
+.yf-plasma.is-arc-shake{animation:yf-arc-shake .19s steps(2,end) infinite}
+@keyframes yf-arc-shake{
+0%,100%{transform:translate(calc(var(--yf-jitter,2px) * .35),calc(var(--yf-jitter,2px) * -.28))}
+20%{transform:translate(calc(var(--yf-jitter,2px) * -.58),calc(var(--yf-jitter,2px) * .34))}
+40%{transform:translate(calc(var(--yf-jitter,2px) * .46),calc(var(--yf-jitter,2px) * .52))}
+60%{transform:translate(calc(var(--yf-jitter,2px) * -.4),calc(var(--yf-jitter,2px) * -.46))}
+80%{transform:translate(calc(var(--yf-jitter,2px) * .3),calc(var(--yf-jitter,2px) * .24))}
+}
 .yf-plasma .tb-body{fill:#d97a1c}
 .yf-plasma .tb-shine{fill:#f8c46a}
 .yf-plasma .tb-shade{fill:#b75e0c}
@@ -285,7 +293,7 @@ body{font-family:ui-sans-serif,system-ui,"Noto Sans SC","PingFang SC","Microsoft
 .yf-log-item[data-kind="badge"] span{color:#1f7a4c;font-weight:600}
 .yf-fieldlines{opacity:0;visibility:hidden;transition:opacity .3s ease;pointer-events:none}
 svg.show-field .yf-fieldlines{opacity:1;visibility:visible}
-.yf-fieldline{fill:none;stroke:#1f8a78;stroke-width:.9;stroke-dasharray:2.4 3.6;opacity:.62;animation:yf-dash 8s linear infinite}
+.yf-fieldline{fill:none;stroke:#1f8a78;stroke-width:var(--yf-field-w,.9);stroke-dasharray:var(--yf-field-dash,2.4 3.6);opacity:var(--yf-field-op,.62);animation:yf-dash 8s linear infinite}
 .yf-field-tag{fill:#1f6f60;font-family:var(--anatomy-mono);font-size:9px;letter-spacing:.06em;paint-order:stroke;stroke:#fbfbfa;stroke-width:3px}
 .yf-callouts{opacity:0;visibility:hidden;transition:opacity .25s ease;pointer-events:none}
 svg.show-labels .yf-callouts{opacity:1;visibility:visible}
@@ -500,6 +508,7 @@ body.yf-tour-on{padding-bottom:calc(48vh + 24px)}
 @media (prefers-reduced-motion:reduce){
 .yf-level:not([hidden]),.yf-badge{animation:none}
 .yf-fieldline{animation:none}
+.yf-plasma.is-arc-shake{animation:none!important}
 .it{transition:none}
 .is-tour-target{animation:none;box-shadow:0 0 0 4px #d97a1c29!important}
 .yf-tour-dots i{transition:none}
@@ -683,15 +692,16 @@ html[data-yf-mode="sim"] .yf-corner{top:12px;right:128px}
 html[data-yf-mode="story"] .yf-story{display:block}
 .yf-story-glow{position:absolute;inset:0;z-index:0;background:radial-gradient(58% 62% at 72% 45%,#d97a1c26,transparent 68%),radial-gradient(42% 44% at 63% 55%,#ffedc414,transparent 70%),#0b0a09;pointer-events:none}
 .yf-story-visual{position:absolute;inset:0;z-index:1;overflow:hidden;pointer-events:none;opacity:0;transition:opacity .9s ease;
---yf-glow:.35;--yf-body-w:11px;--yf-core-w:4px;--yf-plasma-op:1;--yf-beam-op:.7}
+--yf-glow:.35;--yf-body-w:11px;--yf-core-w:4px;--yf-plasma-op:1;--yf-beam-op:.7;
+--yf-glow-w:26px;--yf-glow-color:#f2a23c;--yf-body-color:#d97a1c;--yf-core-color:#fff1cf;--yf-body-op:.9;--yf-core-op:.95;--yf-plasma-bright:1;--yf-jitter:2px;--yf-field-dash:2.4 3.6;--yf-field-op:.62;--yf-field-w:.9}
 .yf-story-visual.is-ready{opacity:1}
 .yf-story-visual-inner{position:absolute;left:63%;top:50%;width:min(1480px,138vw);transform:translate(-50%,-50%);transition:left 1.1s cubic-bezier(.32,.72,0,1),transform 1.1s cubic-bezier(.32,.72,0,1),opacity .8s ease;will-change:transform}
 .yf-story-visual-inner svg{display:block;width:100%;height:auto}
 .yf-story-visual .it{transition:opacity .72s ease}
 .yf-story-visual .iso-face-text{opacity:.2}
 .yf-story-visual .yf-story-arc{opacity:1!important}
-.yf-story-visual .yf-story-arc .yf-plasma{filter:drop-shadow(0 0 9px #f2a23c73)}
-.yf-story-visual .yf-story-arc .yf-plasma-glow2{opacity:.5}
+.yf-story-visual .yf-story-arc .yf-plasma{filter:drop-shadow(0 0 var(--yf-aura,9px) var(--yf-aura-color,#f2a23c73))}
+.yf-story-visual .yf-story-arc .yf-plasma-glow2{opacity:calc(var(--yf-glow,.35) * 1.35)}
 .yf-story-visual .is-story-coil-lit .tb-body{fill:#c98537}
 .yf-story-visual .is-story-coil-lit .tb-shine{fill:#f6cf8e}
 .yf-story-visual .is-story-coil-lit .tb-shade{fill:#8d5517}
@@ -709,7 +719,7 @@ html[data-yf-mode="story"] .yf-story{display:block}
 .yf-story[data-story-screen="task"] .yf-story-visual-inner{left:62%;transform:translate(-50%,-50%) scale(1.01);opacity:.82}
 .yf-story[data-story-screen="task"] .yf-story-visual .it{opacity:.15}
 .yf-story[data-story-screen="task"] .yf-story-visual .it[data-piece="coil"]{opacity:.28}
-.yf-story[data-story-screen="task"] .yf-story-visual .yf-story-arc .yf-plasma{filter:drop-shadow(0 0 15px #f2a23c8a)}
+.yf-story[data-story-screen="task"] .yf-story-visual .yf-story-arc .yf-plasma{filter:drop-shadow(0 0 var(--yf-aura,15px) var(--yf-aura-color,#f2a23c8a))}
 @keyframes yf-story-drift{from{transform:translate(-50%,-50%) scale(1)}to{transform:translate(-50.8%,-49.3%) scale(1.025)}}
 @keyframes yf-story-breathe{0%,100%{filter:drop-shadow(0 0 12px #f2a23c8a)}50%{filter:drop-shadow(0 0 26px #f2a23cdd)}}
 .yf-story-shade{position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(90deg,#0a0908f5 0%,#0a0908db 27%,#0a090866 55%,#0a09081f 78%,#0a090880 100%),linear-gradient(0deg,#0a0908eb 0%,#0a090800 43%)}
@@ -814,8 +824,8 @@ html[data-yf-mode="sim"] .yf-main-scroll{padding-top:max(54px,calc(env(safe-area
 .yf-story-beat-next[hidden],.yf-story-cta[hidden],.yf-story-beat-nav[hidden]{display:none!important}
 .yf-story-visual .it.is-story-beat{opacity:1!important}
 .yf-story-visual .it.is-story-beat .iso-edge,.yf-story-visual .it.is-story-beat .tb-edge{stroke:#f0a34a!important;stroke-width:1.05}
-.yf-story-visual .it.is-story-beat .yf-plasma{filter:drop-shadow(0 0 13px #f2a23ccc)!important}
-.yf-story-visual .it.is-story-beat .yf-plasma-body2{stroke:#f0a34a}
+.yf-story-visual .it.is-story-beat .yf-plasma{filter:drop-shadow(0 0 var(--yf-aura,13px) var(--yf-aura-color,#f2a23ccc))!important}
+.yf-story-visual .it.is-story-beat .yf-plasma-body2{stroke:var(--yf-body-color,#f0a34a)}
 .yf-story-notes{position:absolute;inset:0;z-index:4;pointer-events:none}
 .yf-story-leader{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
 .yf-story-leader path{fill:none;stroke:#f0a34a;stroke-width:1.15;stroke-linecap:round;stroke-dasharray:3 3;filter:drop-shadow(0 0 4px #e08a2e55)}
@@ -3501,14 +3511,145 @@ function updateNow(m) {
   if (nowBetaNote) setText(nowBetaNote, margin <= 0 ? "β 超限 · 等离子体熄灭" : "离 6.8% 红线 · 归零就破裂");
   if (nowBetaBox) nowBetaBox.setAttribute("data-tone", margin <= 0 ? "bad" : margin < 0.8 ? "bad" : margin < 1.8 ? "warn" : "good");
 }
+/* ---- physics -> plasma rendering: shared driver for simulator stage and story clone ---- */
+const PLASMA_TONES = [
+  [0, 148, 54, 12],
+  [0.32, 214, 102, 30],
+  [0.58, 238, 146, 56],
+  [0.8, 250, 198, 140],
+  [1, 255, 248, 238]
+];
+const PLASMA_CYAN = [112, 232, 255];
+const PLASMA_WARN = [255, 96, 56];
+const PLASMA_KEYS = ["heat", "power", "field", "near", "gain"];
+const PLASMA_DEFAULT = {
+  "--yf-glow-color": "#f2a23c",
+  "--yf-body-color": "#d97a1c",
+  "--yf-core-color": "#fff1cf",
+  "--yf-glow-w": "26px",
+  "--yf-body-w": "11px",
+  "--yf-core-w": "4px",
+  "--yf-glow": ".35",
+  "--yf-body-op": ".9",
+  "--yf-core-op": ".95",
+  "--yf-plasma-bright": "1",
+  "--yf-plasma-op": "1",
+  "--yf-aura": "9px",
+  "--yf-aura-color": "rgba(242,162,60,.45)",
+  "--yf-jitter": "2px",
+  "--yf-field-dash": "2.4 3.6",
+  "--yf-field-op": ".62",
+  "--yf-field-w": ".9"
+};
+function plasmaMix(a, b, t) {
+  return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
+}
+function plasmaTone(t) {
+  const x = clamp(t, 0, 1);
+  for (let index = 1; index < PLASMA_TONES.length; index++) {
+    const to = PLASMA_TONES[index];
+    if (x <= to[0]) {
+      const from = PLASMA_TONES[index - 1];
+      const k = (x - from[0]) / Math.max(0.0001, to[0] - from[0]);
+      return plasmaMix([from[1], from[2], from[3]], [to[1], to[2], to[3]], k);
+    }
+  }
+  const last = PLASMA_TONES[PLASMA_TONES.length - 1];
+  return [last[1], last[2], last[3]];
+}
+const plasmaRgb = (rgb) => "rgb(" + Math.round(rgb[0]) + " " + Math.round(rgb[1]) + " " + Math.round(rgb[2]) + ")";
+function plasmaTargetsOf(m) {
+  const margin = m.betaLim - m.beta;
+  return {
+    heat: clamp((m.T - 4.6) / 9.1, 0, 1),
+    power: clamp((m.P - 4) / 8, 0, 1),
+    field: clamp((m.B - 2) / 1, 0, 1),
+    near: m.disrupt ? 0 : clamp(1 - Math.max(0, margin) / 1.7, 0, 1),
+    gain: m.disrupt ? 0 : clamp((m.Q - 1) / 0.75, 0, 1)
+  };
+}
+const plasmaRig = new WeakMap();
+function drivePlasma(surface, m, options = {}) {
+  if (!surface) return null;
+  const want = plasmaTargetsOf(m);
+  const now = performance.now();
+  const calm = still.matches || options.snap;
+  let rig = plasmaRig.get(surface);
+  if (!rig) {
+    rig = { heat: want.heat, power: want.power, field: want.field, near: want.near, gain: want.gain, fade: options.fade == null ? (m.disrupt ? 0 : 1) : options.fade, at: now, arc: null, svg: null, blur: null };
+    plasmaRig.set(surface, rig);
+  }
+  const dt = Math.min(0.2, Math.max(0, (now - rig.at) / 1000));
+  rig.at = now;
+  const follow = calm ? 1 : 1 - Math.exp(-dt / 0.12);
+  for (const key of PLASMA_KEYS) rig[key] += (want[key] - rig[key]) * follow;
+  if (options.fade == null) {
+    const fadeWant = m.disrupt ? 0 : 1;
+    rig.fade += (fadeWant - rig.fade) * (calm ? 1 : 1 - Math.exp(-dt / 0.16));
+  } else {
+    rig.fade = clamp(options.fade, 0, 1);
+  }
+  if (!rig.arc || !rig.arc.isConnected) {
+    rig.arc = surface.querySelector(".yf-plasma");
+    rig.svg = rig.arc ? rig.arc.ownerSVGElement : null;
+    rig.blur = rig.svg ? rig.svg.querySelector("feGaussianBlur") : null;
+  }
+  const body = plasmaTone(rig.heat);
+  const core = plasmaTone(Math.min(1, 0.18 + rig.heat * 0.9));
+  const glow = plasmaMix(body, [255, 178, 92], 0.35);
+  const bodyTint = plasmaMix(plasmaMix(body, PLASMA_WARN, rig.near * 0.62), PLASMA_CYAN, rig.gain * 0.55);
+  const glowTint = plasmaMix(plasmaMix(glow, PLASMA_WARN, rig.near * 0.5), PLASMA_CYAN, rig.gain * 0.8);
+  const coreTint = plasmaMix(plasmaMix(core, PLASMA_WARN, rig.near * 0.3), [226, 255, 255], rig.gain * 0.6);
+  const glowOff = (20 + 20 * rig.power + 12 * rig.heat) * (1 - 0.3 * rig.field) * (1 + 0.28 * rig.near + 0.22 * rig.gain);
+  const bodyOff = (7 + 4.4 * rig.heat + 4 * rig.power) * (1 - 0.22 * rig.field);
+  const coreOff = (1.4 + 2.6 * rig.heat + 1.3 * rig.power) * (1 - 0.18 * rig.field);
+  const glowOp = clamp(0.1 + 0.48 * rig.heat + 0.26 * rig.power + 0.12 * rig.gain + 0.08 * rig.near, 0.08, 0.92);
+  const bodyOp = clamp(0.68 + 0.3 * rig.field + 0.14 * rig.heat - 0.24 * rig.near, 0.28, 1);
+  const coreOp = clamp(0.5 + 0.44 * rig.field + 0.16 * rig.heat - 0.26 * rig.near, 0.25, 1);
+  const blur = clamp(3.5 - 1.9 * rig.field + 2.4 * rig.near - 0.5 * rig.heat + (1 - rig.fade) * 1.2, 1.1, 6.4);
+  const bright = clamp(0.76 + 0.52 * rig.heat + 0.18 * rig.gain - 0.1 * rig.near, 0.62, 1.4);
+  const aura = (5 + 14 * rig.heat + 10 * rig.power) * (1 - 0.18 * rig.field) + 4 * rig.near + 4 * rig.gain;
+  const auraColor = "rgba(" + Math.round(glowTint[0]) + "," + Math.round(glowTint[1]) + "," + Math.round(glowTint[2]) + ",.5)";
+  surface.style.setProperty("--yf-glow-color", plasmaRgb(glowTint));
+  surface.style.setProperty("--yf-body-color", plasmaRgb(bodyTint));
+  surface.style.setProperty("--yf-core-color", plasmaRgb(coreTint));
+  surface.style.setProperty("--yf-glow-w", glowOff.toFixed(2) + "px");
+  surface.style.setProperty("--yf-body-w", bodyOff.toFixed(2) + "px");
+  surface.style.setProperty("--yf-core-w", coreOff.toFixed(2) + "px");
+  surface.style.setProperty("--yf-glow", glowOp.toFixed(3));
+  surface.style.setProperty("--yf-body-op", bodyOp.toFixed(3));
+  surface.style.setProperty("--yf-core-op", coreOp.toFixed(3));
+  surface.style.setProperty("--yf-plasma-bright", bright.toFixed(3));
+  surface.style.setProperty("--yf-plasma-op", clamp(rig.fade, 0, 1).toFixed(3));
+  surface.style.setProperty("--yf-aura", aura.toFixed(2) + "px");
+  surface.style.setProperty("--yf-aura-color", auraColor);
+  surface.style.setProperty("--yf-jitter", (1.2 + 2.6 * rig.near).toFixed(2) + "px");
+  surface.style.setProperty("--yf-field-dash", (2.4 - 0.95 * rig.field).toFixed(2) + " " + (3.6 - 1.7 * rig.field).toFixed(2));
+  surface.style.setProperty("--yf-field-op", (0.42 + 0.42 * rig.field).toFixed(3));
+  surface.style.setProperty("--yf-field-w", (0.72 + 0.5 * rig.field).toFixed(3) + "px");
+  if (rig.blur) {
+    const deviation = blur.toFixed(2);
+    if (rig.blur.getAttribute("stdDeviation") !== deviation) rig.blur.setAttribute("stdDeviation", deviation);
+  }
+  if (rig.arc) {
+    const nearOn = !m.disrupt && rig.near > 0.5;
+    rig.arc.classList.toggle("is-near-limit", nearOn);
+    rig.arc.classList.toggle("is-arc-shake", nearOn && !still.matches);
+    rig.arc.classList.toggle("is-disrupt", m.disrupt || rig.fade < 0.25);
+    rig.arc.classList.toggle("is-gain", !m.disrupt && rig.gain > 0.45);
+  }
+  return rig;
+}
+function plasmaSettled(rig, m) {
+  if (!rig) return true;
+  const want = plasmaTargetsOf(m);
+  const fadeWant = m.disrupt ? 0 : 1;
+  for (const key of PLASMA_KEYS) if (Math.abs(rig[key] - want[key]) > 0.004) return false;
+  return Math.abs(rig.fade - fadeWant) < 0.004;
+}
 function draw() {
   const m = modelOf(shownB, shownP, shownN);
-  const u = clamp((m.T - 5) / 5.6, 0, 1);
-  const stable = m.disrupt ? 0 : 1;
-  stage.style.setProperty("--yf-core-w", (1.6 + 3.4 * u * stable).toFixed(2) + "px");
-  stage.style.setProperty("--yf-body-w", (8 + 4.5 * u * stable).toFixed(2) + "px");
-  stage.style.setProperty("--yf-glow", (0.16 + 0.38 * u * stable).toFixed(3));
-  stage.style.setProperty("--yf-plasma-op", plasma.toFixed(3));
+  drivePlasma(stage, m, { fade: plasma });
   stage.style.setProperty("--yf-beam-op", apart || explode > 0.02 ? "0" : "0.7");
   svg.classList.toggle("is-exploded", explode > 0.02);
   const text = readoutOf(m);
@@ -3914,7 +4055,7 @@ function buildStoryVisual() {
   clone.removeAttribute("tabindex");
   clone.setAttribute("aria-hidden", "true");
   clone.setAttribute("focusable", "false");
-  for (const glow of clone.querySelectorAll(".yf-plasma-glow2, .yf-glow")) glow.style.filter = "url(#yf-story-yfBlur)";
+  for (const glow of clone.querySelectorAll(".yf-plasma-glow2, .yf-glow")) glow.style.filter = "url(#yf-story-yfBlur) brightness(var(--yf-plasma-bright,1))";
   storyUI.visualInner.appendChild(clone);
   const arc = clone.querySelector(".yf-plasma");
   if (arc) {
@@ -3969,12 +4110,28 @@ function storyOutputsFromInputs() {
   setText(storyUI.pOut, fmt1(Number(storyUI.p.value)) + " MW");
 }
 
+let storyPlasmaFrame = 0;
+function pumpStoryPlasma() {
+  if (storyPlasmaFrame || activeMode !== "story" || !storyUI || !storyUI.visual) return;
+  const step = () => {
+    storyPlasmaFrame = 0;
+    if (activeMode !== "story" || !storyUI || !storyUI.visual) return;
+    const m = modelOf(targetB, targetP, clamp(targetN, 0.5, 1.5));
+    const rig = drivePlasma(storyUI.visual, m);
+    if (!plasmaSettled(rig, m)) storyPlasmaFrame = requestAnimationFrame(step);
+  };
+  storyPlasmaFrame = requestAnimationFrame(step);
+}
+
 function resetStoryVisual() {
   if (!storyUI || !storyUI.visual) return;
-  storyUI.visual.style.setProperty("--yf-core-w", "4px");
-  storyUI.visual.style.setProperty("--yf-body-w", "11px");
-  storyUI.visual.style.setProperty("--yf-glow", ".35");
-  storyUI.visual.style.setProperty("--yf-plasma-op", "1");
+  if (storyPlasmaFrame) { cancelAnimationFrame(storyPlasmaFrame); storyPlasmaFrame = 0; }
+  plasmaRig.delete(storyUI.visual);
+  const arc = storyUI.visual.querySelector(".yf-plasma");
+  if (arc) arc.classList.remove("is-near-limit", "is-arc-shake", "is-disrupt", "is-gain");
+  const blur = storyUI.visual.querySelector("feGaussianBlur");
+  if (blur) blur.setAttribute("stdDeviation", "3.2");
+  for (const name in PLASMA_DEFAULT) storyUI.visual.style.setProperty(name, PLASMA_DEFAULT[name]);
 }
 
 function updateStoryReadouts(m) {
@@ -4002,12 +4159,8 @@ function updateStoryReadouts(m) {
     else storyUI.goal.removeAttribute("data-tone");
   }
   if (storyUI.visual) {
-    const u = clamp((m.T - 5) / 5.6, 0, 1);
-    const stable = m.disrupt ? 0 : 1;
-    storyUI.visual.style.setProperty("--yf-core-w", (1.6 + 3.4 * u * stable).toFixed(2) + "px");
-    storyUI.visual.style.setProperty("--yf-body-w", (8 + 4.5 * u * stable).toFixed(2) + "px");
-    storyUI.visual.style.setProperty("--yf-glow", (0.16 + 0.38 * u * stable).toFixed(3));
-    storyUI.visual.style.setProperty("--yf-plasma-op", m.disrupt ? "0.06" : "1");
+    drivePlasma(storyUI.visual, m);
+    pumpStoryPlasma();
   }
 }
 
